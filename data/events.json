@@ -1,0 +1,2394 @@
+{
+  "templates": [
+    {
+      "id": "solo_general_1",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 대기실에서 혼자 춤 영상을 돌려보며 작은 포인트를 체크했습니다."
+      ]
+    },
+    {
+      "id": "solo_general_2",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 스케줄 사이 공백에 커피를 마시며 숨을 고르고 마음을 정리했습니다."
+      ]
+    },
+    {
+      "id": "solo_general_3",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 거울 앞에서 표정을 연습하다가 스스로 웃음이 나왔습니다."
+      ]
+    },
+    {
+      "id": "solo_general_4",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 팬이 남긴 짧은 댓글을 읽고 입꼬리가 올라갔습니다."
+      ]
+    },
+    {
+      "id": "solo_general_5",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 오늘따라 컨디션이 좋아 리듬을 타며 이동했습니다."
+      ]
+    },
+    {
+      "id": "solo_mbti_flavor_pool",
+      "category": "solo_mbti_flavor",
+      "kind": "solo",
+      "icon": "🧠",
+      "weight": 5,
+      "conditions": {},
+      "texts": [
+        "{A}는 {MBTI_FLAVOR}"
+      ]
+    },
+    {
+      "id": "pair_friend_1",
+      "category": "pair_friend",
+      "kind": "pair",
+      "icon": "🤝",
+      "weight": 3,
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 하모니를 맞추다 눈이 마주쳤습니다. 둘 다 멋쩍게 웃었습니다."
+      ]
+    },
+    {
+      "id": "pair_friend_2",
+      "category": "pair_friend",
+      "kind": "pair",
+      "icon": "🤝",
+      "weight": 3,
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 안무 동선을 맞추며 서로의 타이밍을 다시 맞췄습니다."
+      ]
+    },
+    {
+      "id": "pair_friend_3",
+      "category": "pair_friend",
+      "kind": "pair",
+      "icon": "🤝",
+      "weight": 3,
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 리허설 뒤 간단히 피드백을 나누며 다음 시도를 정리했습니다."
+      ]
+    },
+    {
+      "id": "pair_friend_4",
+      "category": "pair_friend",
+      "kind": "pair",
+      "icon": "🤝",
+      "weight": 3,
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 대기실에서 같은 농담에 터져서 한참 웃었습니다."
+      ]
+    },
+    {
+      "id": "pair_friend_5",
+      "category": "pair_friend",
+      "kind": "pair",
+      "icon": "🤝",
+      "weight": 3,
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 물을 건네며 짧게 고맙다는 말을 주고받았습니다."
+      ]
+    },
+    {
+      "id": "pair_fight_1",
+      "category": "pair_fight",
+      "kind": "pair",
+      "icon": "😡",
+      "weight": 2,
+      "conditions": {
+        "setsCold": true
+      },
+      "texts": [
+        "{A}와 {B}가 연습 중 박자 해석이 달라 한동안 말수가 줄었습니다."
+      ]
+    },
+    {
+      "id": "pair_fight_2",
+      "category": "pair_fight",
+      "kind": "pair",
+      "icon": "😡",
+      "weight": 2,
+      "conditions": {
+        "setsCold": true
+      },
+      "texts": [
+        "{A}와 {B}가 동선에서 부딪히며 표정이 굳었습니다."
+      ]
+    },
+    {
+      "id": "pair_fight_3",
+      "category": "pair_fight",
+      "kind": "pair",
+      "icon": "😡",
+      "weight": 2,
+      "conditions": {
+        "setsCold": true
+      },
+      "texts": [
+        "{A}가 {B}의 한마디에 예민하게 반응했고 분위기가 싸늘해졌습니다."
+      ]
+    },
+    {
+      "id": "pair_fight_4",
+      "category": "pair_fight",
+      "kind": "pair",
+      "icon": "😡",
+      "weight": 2,
+      "conditions": {
+        "setsCold": true
+      },
+      "texts": [
+        "{A}와 {B}가 대기 중 사소한 오해로 눈치를 보기 시작했습니다."
+      ]
+    },
+    {
+      "id": "pair_reconcile_1",
+      "category": "pair_reconcile",
+      "kind": "pair",
+      "icon": "🤍",
+      "weight": 2,
+      "conditions": {
+        "requiresCold": true,
+        "clearsCold": true
+      },
+      "texts": [
+        "{A}가 먼저 다가가 사과했고 {B}도 고개를 끄덕였습니다. 둘 사이가 조금 풀렸습니다."
+      ]
+    },
+    {
+      "id": "pair_reconcile_2",
+      "category": "pair_reconcile",
+      "kind": "pair",
+      "icon": "🤍",
+      "weight": 2,
+      "conditions": {
+        "requiresCold": true,
+        "clearsCold": true
+      },
+      "texts": [
+        "{B}가 조용히 말을 꺼냈고 {A}가 받아주며 냉전이 끝났습니다."
+      ]
+    },
+    {
+      "id": "pair_reconcile_3",
+      "category": "pair_reconcile",
+      "kind": "pair",
+      "icon": "🤍",
+      "weight": 2,
+      "conditions": {
+        "requiresCold": true,
+        "clearsCold": true
+      },
+      "texts": [
+        "{A}와 {B}가 짧게 웃으며 손을 내밀었습니다. 어색함이 사라졌습니다."
+      ]
+    },
+    {
+      "id": "pair_flirt_1",
+      "category": "pair_flirt",
+      "kind": "pair",
+      "icon": "💞",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true
+      },
+      "texts": [
+        "{A}가 {B}에게 장난스럽게 윙크했고 {B}가 피식 웃었습니다."
+      ]
+    },
+    {
+      "id": "pair_flirt_2",
+      "category": "pair_flirt",
+      "kind": "pair",
+      "icon": "💞",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true
+      },
+      "texts": [
+        "{A}가 {B}의 머리카락을 살짝 정리해줬고 {B}가 당황했습니다."
+      ]
+    },
+    {
+      "id": "pair_flirt_3",
+      "category": "pair_flirt",
+      "kind": "pair",
+      "icon": "💞",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true
+      },
+      "texts": [
+        "{A}가 {B} 옆에 붙어 앉자 {B}의 말투가 조금 달라졌습니다."
+      ]
+    },
+    {
+      "id": "pair_flirt_4",
+      "category": "pair_flirt",
+      "kind": "pair",
+      "icon": "💞",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true
+      },
+      "texts": [
+        "{A}와 {B}가 함께 사진을 찍다가 두 사람만 아는 표정이 나왔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_1",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 조용한 카페에서 데이트를 했습니다. 서로의 속도를 맞추며 걸었습니다."
+      ]
+    },
+    {
+      "id": "pair_date_2",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 영화관에서 데이트를 했습니다. 메뉴를 고르다 취향이 비슷하단 걸 알아챘습니다."
+      ]
+    },
+    {
+      "id": "pair_date_3",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 영화관에서 데이트를 했습니다. 같은 장면에서 동시에 웃었습니다."
+      ]
+    },
+    {
+      "id": "pair_date_4",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 편의점 앞 벤치에서 데이트를 했습니다. 서로의 속도를 맞추며 걸었습니다."
+      ]
+    },
+    {
+      "id": "pair_date_5",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 한강 산책로에서 데이트를 했습니다. 같은 장면에서 동시에 웃었습니다."
+      ]
+    },
+    {
+      "id": "pair_date_6",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 조용한 카페에서 데이트를 했습니다. 이어폰을 한쪽씩 나눠 끼고 음악을 들었습니다."
+      ]
+    },
+    {
+      "id": "pair_date_7",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 한강 산책로에서 데이트를 했습니다. 메뉴를 고르다 취향이 비슷하단 걸 알아챘습니다."
+      ]
+    },
+    {
+      "id": "pair_date_8",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 영화관에서 데이트를 했습니다. 서로의 속도를 맞추며 걸었습니다."
+      ]
+    },
+    {
+      "id": "pair_skinship_pool",
+      "category": "pair_skinship_pool",
+      "kind": "pair",
+      "icon": "💋",
+      "weight": 5,
+      "conditions": {
+        "datingOnly": true
+      },
+      "texts": [
+        "손이 자연스럽게 맞잡혔습니다",
+        "팔짱을 끼며 어깨가 가까워졌습니다",
+        "볼에 가볍게 뽀뽀하고 둘 다 웃었습니다",
+        "짧게 뽀뽀하고 서로 시선을 피했습니다",
+        "키스가 길어지자 {B}가 먼저 웃으며 멈췄습니다",
+        "허리에 손이 올라가자 {A}가 잠깐 숨을 골랐습니다"
+      ]
+    },
+    {
+      "id": "pair_confess_1",
+      "category": "pair_confess",
+      "kind": "pair",
+      "icon": "💘",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "isConfession": true
+      },
+      "texts": [
+        "{A}가 {B}를 불러 조용히 고백했습니다. {B}는 잠깐 숨을 고르더니 고개를 끄덕였습니다."
+      ]
+    },
+    {
+      "id": "pair_confess_2",
+      "category": "pair_confess",
+      "kind": "pair",
+      "icon": "💘",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "isConfession": true
+      },
+      "texts": [
+        "{A}가 {B}에게 마음을 전했습니다. {B}는 웃으며 답했습니다."
+      ]
+    },
+    {
+      "id": "pair_confess_3",
+      "category": "pair_confess",
+      "kind": "pair",
+      "icon": "💘",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "isConfession": true
+      },
+      "texts": [
+        "{A}가 떨리는 목소리로 고백했고 {B}가 손을 잡아줬습니다."
+      ]
+    },
+    {
+      "id": "tri_jealous_1",
+      "category": "tri_jealous",
+      "kind": "tri",
+      "icon": "🔴",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "isJealousy": true,
+        "requiresDating": true
+      },
+      "texts": [
+        "{A}가 {C}와 유난히 가까이 있는 모습을 보고 {B}의 표정이 굳었습니다. {B}는 {A}에게 질투를 느꼈습니다."
+      ]
+    },
+    {
+      "id": "tri_jealous_2",
+      "category": "tri_jealous",
+      "kind": "tri",
+      "icon": "🔴",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "isJealousy": true,
+        "requiresDating": true
+      },
+      "texts": [
+        "{B}가 {A}와 {C} 사이를 보며 말수가 줄었습니다. 질투가 선명해졌습니다."
+      ]
+    },
+    {
+      "id": "tri_jealous_3",
+      "category": "tri_jealous",
+      "kind": "tri",
+      "icon": "🔴",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "isJealousy": true,
+        "requiresDating": true
+      },
+      "texts": [
+        "{B}가 {A}에게 농담처럼 말했지만, 속내는 질투였습니다. 상대는 {C}였습니다."
+      ]
+    },
+    {
+      "id": "pair_breakup_1",
+      "category": "pair_breakup",
+      "kind": "pair",
+      "icon": "💔",
+      "weight": 2,
+      "conditions": {
+        "datingOnly": true,
+        "isBreakup": true
+      },
+      "texts": [
+        "{A}와 {B}가 긴 대화를 나눈 끝에 연애를 정리했습니다. 한동안 조용한 시간이 필요해 보입니다."
+      ]
+    },
+    {
+      "id": "pair_breakup_2",
+      "category": "pair_breakup",
+      "kind": "pair",
+      "icon": "💔",
+      "weight": 2,
+      "conditions": {
+        "datingOnly": true,
+        "isBreakup": true
+      },
+      "texts": [
+        "{A}가 조심스럽게 이별을 꺼냈고 {B}도 받아들였습니다. 둘은 각자의 자리로 돌아갔습니다."
+      ]
+    },
+    {
+      "id": "pair_breakup_3",
+      "category": "pair_breakup",
+      "kind": "pair",
+      "icon": "💔",
+      "weight": 2,
+      "conditions": {
+        "datingOnly": true,
+        "isBreakup": true
+      },
+      "texts": [
+        "{A}와 {B}가 서로를 바라보다 고개를 끄덕였습니다. 오늘부터는 친구로 남기로 했습니다."
+      ]
+    },
+    {
+      "id": "group_1",
+      "category": "group_event",
+      "kind": "group",
+      "icon": "👥",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "멤버들이 단체 라이브를 켰습니다. 채팅이 빠르게 올라오며 분위기가 달아올랐습니다."
+      ]
+    },
+    {
+      "id": "group_2",
+      "category": "group_event",
+      "kind": "group",
+      "icon": "👥",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "단체 회식이 열렸습니다. 서로의 이야기를 들으며 긴장이 풀렸습니다."
+      ]
+    },
+    {
+      "id": "group_3",
+      "category": "group_event",
+      "kind": "group",
+      "icon": "👥",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "연습실에서 단체 사진을 찍었습니다. 다 같이 같은 포즈를 맞추며 웃었습니다."
+      ]
+    },
+    {
+      "id": "group_4",
+      "category": "group_event",
+      "kind": "group",
+      "icon": "👥",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "스태프가 준비한 간식을 나눠 먹으며 잠시 쉬어갔습니다."
+      ]
+    },
+    {
+      "id": "comeback_react_1",
+      "category": "comeback_reaction",
+      "kind": "comeback",
+      "icon": "📰",
+      "weight": 2,
+      "conditions": {
+        "comebackOnly": true
+      },
+      "texts": [
+        "뉴스에서 이번 컴백을 집중 조명했습니다. '완성도가 눈에 띈다'는 평가가 따라붙었습니다."
+      ]
+    },
+    {
+      "id": "comeback_react_2",
+      "category": "comeback_reaction",
+      "kind": "comeback",
+      "icon": "📰",
+      "weight": 2,
+      "conditions": {
+        "comebackOnly": true
+      },
+      "texts": [
+        "SNS에서 무대 직캠이 빠르게 퍼졌습니다. 댓글에는 칭찬이 이어졌습니다."
+      ]
+    },
+    {
+      "id": "comeback_react_3",
+      "category": "comeback_reaction",
+      "kind": "comeback",
+      "icon": "📰",
+      "weight": 2,
+      "conditions": {
+        "comebackOnly": true
+      },
+      "texts": [
+        "유튜브에서 관련 영상이 인기 급상승에 올랐습니다. 반응이 뜨겁습니다."
+      ]
+    },
+    {
+      "id": "comeback_react_4",
+      "category": "comeback_reaction",
+      "kind": "comeback",
+      "icon": "📰",
+      "weight": 2,
+      "conditions": {
+        "comebackOnly": true
+      },
+      "texts": [
+        "커뮤니티에서 의견이 갈렸습니다. 호불호가 있지만 화제성은 확실했습니다."
+      ]
+    },
+    {
+      "id": "comeback_react_5",
+      "category": "comeback_reaction",
+      "kind": "comeback",
+      "icon": "📰",
+      "weight": 2,
+      "conditions": {
+        "comebackOnly": true
+      },
+      "texts": [
+        "팬덤이 새 노래 후렴을 따라 부르는 영상이 쏟아졌습니다."
+      ]
+    },
+    {
+      "id": "comeback_summary_1",
+      "category": "comeback_summary",
+      "kind": "comeback",
+      "icon": "🏁",
+      "weight": 1,
+      "conditions": {
+        "comebackSummaryOnly": true
+      },
+      "texts": [
+        "컴백 활동이 마무리됐습니다. 지난 활동보다 반응이 더 뜨거웠습니다. '커리어 하이'라는 말이 나왔습니다."
+      ]
+    },
+    {
+      "id": "comeback_summary_2",
+      "category": "comeback_summary",
+      "kind": "comeback",
+      "icon": "🏁",
+      "weight": 1,
+      "conditions": {
+        "comebackSummaryOnly": true
+      },
+      "texts": [
+        "컴백이 끝났습니다. 기대치가 높았던 만큼 아쉬움도 남았습니다. 다음을 준비할 시간이 필요해 보입니다."
+      ]
+    },
+    {
+      "id": "comeback_summary_3",
+      "category": "comeback_summary",
+      "kind": "comeback",
+      "icon": "🏁",
+      "weight": 1,
+      "conditions": {
+        "comebackSummaryOnly": true
+      },
+      "texts": [
+        "21일의 활동이 마무리됐습니다. 팀은 한층 단단해졌고 팬덤도 성장했습니다."
+      ]
+    },
+    {
+      "id": "concert_1",
+      "category": "concert_event",
+      "kind": "concert",
+      "icon": "🎟️",
+      "weight": 1,
+      "conditions": {
+        "concertStartOnly": true
+      },
+      "texts": [
+        "콘서트 당일입니다. 무대 리허설부터 열기가 달랐습니다."
+      ]
+    },
+    {
+      "id": "concert_2",
+      "category": "concert_event",
+      "kind": "concert",
+      "icon": "🎟️",
+      "weight": 1,
+      "conditions": {
+        "concertStartOnly": true
+      },
+      "texts": [
+        "콘서트가 열렸습니다. 객석이 반짝이며 함성이 이어졌습니다."
+      ]
+    },
+    {
+      "id": "solo_more_1",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 스튜디오에서 목을 풀며 소리를 정리했습니다."
+      ]
+    },
+    {
+      "id": "solo_more_2",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 안무 영상을 보며 발끝 각도를 다시 체크했습니다."
+      ]
+    },
+    {
+      "id": "solo_more_3",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 라커룸에서 스트레칭을 하며 근육을 풀었습니다."
+      ]
+    },
+    {
+      "id": "solo_more_4",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 대기실에서 조용히 가사를 읊으며 감정을 맞췄습니다."
+      ]
+    },
+    {
+      "id": "solo_more_5",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 휴대폰 메모에 짧은 문장을 적었습니다. 오늘 감정이 가사로 남았습니다."
+      ]
+    },
+    {
+      "id": "solo_more_6",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 팬레터를 정리하다가 한 장을 오래 붙잡고 있었습니다."
+      ]
+    },
+    {
+      "id": "solo_more_7",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 매니저에게 오늘 동선을 확인하며 실수를 줄였습니다."
+      ]
+    },
+    {
+      "id": "solo_more_8",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 분장실에서 눈빛 연습을 하다 스스로 만족한 듯 고개를 끄덕였습니다."
+      ]
+    },
+    {
+      "id": "solo_more_9",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 작은 실수를 발견하고 바로 고쳤습니다. 덕분에 마음이 편해졌습니다."
+      ]
+    },
+    {
+      "id": "solo_more_10",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 음악을 들으며 호흡을 맞췄습니다. 몸이 먼저 반응했습니다."
+      ]
+    },
+    {
+      "id": "solo_more_11",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 평소보다 말이 적었습니다. 대신 집중력이 높아졌습니다."
+      ]
+    },
+    {
+      "id": "solo_more_12",
+      "category": "solo_general",
+      "kind": "solo",
+      "icon": "✨",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 오늘 기분이 좋아 스태프에게 먼저 인사를 건넸습니다."
+      ]
+    },
+    {
+      "id": "solo_alone_1",
+      "category": "solo_alone",
+      "kind": "solo",
+      "icon": "🧸",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 혼자 게임을 하며 스트레스를 풀었습니다."
+      ]
+    },
+    {
+      "id": "solo_alone_2",
+      "category": "solo_alone",
+      "kind": "solo",
+      "icon": "🧸",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 이어폰을 꽂고 산책을 하며 생각을 정리했습니다."
+      ]
+    },
+    {
+      "id": "solo_alone_3",
+      "category": "solo_alone",
+      "kind": "solo",
+      "icon": "🧸",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 침대에 누워 천장을 보다가 어느새 잠이 들었습니다."
+      ]
+    },
+    {
+      "id": "solo_alone_4",
+      "category": "solo_alone",
+      "kind": "solo",
+      "icon": "🧸",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 창가에 앉아 바람 소리를 들었습니다."
+      ]
+    },
+    {
+      "id": "solo_alone_5",
+      "category": "solo_alone",
+      "kind": "solo",
+      "icon": "🧸",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 혼자 카페에 들러 메모를 정리했습니다."
+      ]
+    },
+    {
+      "id": "solo_alone_6",
+      "category": "solo_alone",
+      "kind": "solo",
+      "icon": "🧸",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}는 조용히 책을 읽으며 시간을 보냈습니다."
+      ]
+    },
+    {
+      "id": "pair_friend_more_1",
+      "category": "pair_friend",
+      "kind": "pair",
+      "icon": "🤝",
+      "weight": 3,
+      "conditions": {},
+      "texts": [
+        "{A}가 {B}의 연습 영상을 찍어주며 포인트를 짚어줬습니다."
+      ]
+    },
+    {
+      "id": "pair_friend_more_2",
+      "category": "pair_friend",
+      "kind": "pair",
+      "icon": "🤝",
+      "weight": 3,
+      "conditions": {},
+      "texts": [
+        "{B}가 {A}에게 물을 건네며 '괜찮아'라고 말했습니다."
+      ]
+    },
+    {
+      "id": "pair_friend_more_3",
+      "category": "pair_friend",
+      "kind": "pair",
+      "icon": "🤝",
+      "weight": 3,
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 같은 후렴에서 동시에 고개를 끄덕였습니다. 합이 맞았습니다."
+      ]
+    },
+    {
+      "id": "pair_friend_more_4",
+      "category": "pair_friend",
+      "kind": "pair",
+      "icon": "🤝",
+      "weight": 3,
+      "conditions": {},
+      "texts": [
+        "{A}가 {B}의 어깨를 툭 치며 분위기를 풀었습니다."
+      ]
+    },
+    {
+      "id": "pair_friend_more_5",
+      "category": "pair_friend",
+      "kind": "pair",
+      "icon": "🤝",
+      "weight": 3,
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 신발끈을 묶어주며 서로를 챙겼습니다."
+      ]
+    },
+    {
+      "id": "pair_friend_more_6",
+      "category": "pair_friend",
+      "kind": "pair",
+      "icon": "🤝",
+      "weight": 3,
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 무대 뒤에서 손바닥을 맞대며 파이팅을 외쳤습니다."
+      ]
+    },
+    {
+      "id": "pair_friend_more_7",
+      "category": "pair_friend",
+      "kind": "pair",
+      "icon": "🤝",
+      "weight": 3,
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 같은 타이밍에 웃어버려 연습이 잠깐 멈췄습니다."
+      ]
+    },
+    {
+      "id": "pair_friend_more_8",
+      "category": "pair_friend",
+      "kind": "pair",
+      "icon": "🤝",
+      "weight": 3,
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 동선을 서로 비켜주며 자연스럽게 배려했습니다."
+      ]
+    },
+    {
+      "id": "pair_friend_more_9",
+      "category": "pair_friend",
+      "kind": "pair",
+      "icon": "🤝",
+      "weight": 3,
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 빠르게 역할을 나눠 스태프 요청을 처리했습니다."
+      ]
+    },
+    {
+      "id": "pair_friend_more_10",
+      "category": "pair_friend",
+      "kind": "pair",
+      "icon": "🤝",
+      "weight": 3,
+      "conditions": {},
+      "texts": [
+        "{A}가 {B}의 컨디션을 보고 먼저 속도를 낮췄습니다."
+      ]
+    },
+    {
+      "id": "pair_daily_1",
+      "category": "pair_daily",
+      "kind": "pair",
+      "icon": "🗣️",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 이동 중 창밖을 보며 짧게 대화를 나눴습니다."
+      ]
+    },
+    {
+      "id": "pair_daily_2",
+      "category": "pair_daily",
+      "kind": "pair",
+      "icon": "🗣️",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 대기실에서 같은 음악을 발견하고 플레이리스트를 공유했습니다."
+      ]
+    },
+    {
+      "id": "pair_daily_3",
+      "category": "pair_daily",
+      "kind": "pair",
+      "icon": "🗣️",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 분장 순서를 바꾸며 서로 시간을 벌어줬습니다."
+      ]
+    },
+    {
+      "id": "pair_daily_4",
+      "category": "pair_daily",
+      "kind": "pair",
+      "icon": "🗣️",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 스태프의 요청에 동시에 답해 웃음이 났습니다."
+      ]
+    },
+    {
+      "id": "pair_flirt_more_1",
+      "category": "pair_flirt",
+      "kind": "pair",
+      "icon": "💞",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true
+      },
+      "texts": [
+        "{A}가 {B}에게 '오늘 특히 잘한다'고 말하자 {B}의 귀가 붉어졌습니다."
+      ]
+    },
+    {
+      "id": "pair_flirt_more_2",
+      "category": "pair_flirt",
+      "kind": "pair",
+      "icon": "💞",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true
+      },
+      "texts": [
+        "{B}가 {A}의 손등을 살짝 건드리고는 아무 일 없는 척했습니다."
+      ]
+    },
+    {
+      "id": "pair_flirt_more_3",
+      "category": "pair_flirt",
+      "kind": "pair",
+      "icon": "💞",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true
+      },
+      "texts": [
+        "{A}가 {B}의 옆머리를 넘겨주자 {B}가 잠깐 멈칫했습니다."
+      ]
+    },
+    {
+      "id": "pair_flirt_more_4",
+      "category": "pair_flirt",
+      "kind": "pair",
+      "icon": "💞",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true
+      },
+      "texts": [
+        "{A}가 {B}에게 장난스럽게 포즈를 취하자 {B}가 따라 했습니다."
+      ]
+    },
+    {
+      "id": "pair_flirt_more_5",
+      "category": "pair_flirt",
+      "kind": "pair",
+      "icon": "💞",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true
+      },
+      "texts": [
+        "{A}와 {B}가 동시에 같은 말을 해서 둘 다 웃었습니다. 타이밍이 묘하게 맞았습니다."
+      ]
+    },
+    {
+      "id": "pair_flirt_more_6",
+      "category": "pair_flirt",
+      "kind": "pair",
+      "icon": "💞",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true
+      },
+      "texts": [
+        "{B}가 {A}에게 간식을 건네며 '비밀'이라고 속삭였습니다."
+      ]
+    },
+    {
+      "id": "pair_flirt_more_7",
+      "category": "pair_flirt",
+      "kind": "pair",
+      "icon": "💞",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true
+      },
+      "texts": [
+        "{A}가 {B}에게 목도리를 둘러주고는 자연스럽게 거리를 좁혔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_1",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 편집숍에서 데이트를 했습니다. 서로를 더 알아갔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_2",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 사진관에서 데이트를 했습니다. 대화를 이어갔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_3",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 사진관에서 데이트를 했습니다. 웃음이 끊이지 않았습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_4",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 놀이공원에서 데이트를 했습니다. 조용히 손을 맞잡았습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_5",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 작은 서점에서 데이트를 했습니다. 서로를 더 알아갔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_6",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 작은 서점에서 데이트를 했습니다. 조용히 손을 맞잡았습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_7",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 연습실 근처 포장마차에서 데이트를 했습니다. 서로를 더 알아갔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_8",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 공원 벤치에서 데이트를 했습니다. 웃음이 끊이지 않았습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_9",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 공원 벤치에서 데이트를 했습니다. 대화를 이어갔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_10",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 놀이공원에서 데이트를 했습니다. 대화를 이어갔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_11",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 공원 벤치에서 데이트를 했습니다. 서로를 더 알아갔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_12",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 편집숍에서 데이트를 했습니다. 웃음이 끊이지 않았습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_13",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 야경이 보이는 길에서 데이트를 했습니다. 대화를 이어갔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_14",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 작은 서점에서 데이트를 했습니다. 대화를 이어갔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_15",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 야경이 보이는 길에서 데이트를 했습니다. 서로를 더 알아갔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_16",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 야경이 보이는 길에서 데이트를 했습니다. 기분 좋은 긴장이 흘렀습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_17",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 연습실 근처 포장마차에서 데이트를 했습니다. 기분 좋은 긴장이 흘렀습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_18",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 야경이 보이는 길에서 데이트를 했습니다. 조용히 손을 맞잡았습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_19",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 연습실 근처 포장마차에서 데이트를 했습니다. 대화를 이어갔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_20",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 공원 벤치에서 데이트를 했습니다. 기분 좋은 긴장이 흘렀습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_21",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 레코드샵에서 데이트를 했습니다. 웃음이 끊이지 않았습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_22",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 사진관에서 데이트를 했습니다. 조용히 손을 맞잡았습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_23",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 연습실 근처 포장마차에서 데이트를 했습니다. 조용히 손을 맞잡았습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_24",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 작은 서점에서 데이트를 했습니다. 기분 좋은 긴장이 흘렀습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_25",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 놀이공원에서 데이트를 했습니다. 서로를 더 알아갔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_26",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 공원 벤치에서 데이트를 했습니다. 조용히 손을 맞잡았습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_27",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 놀이공원에서 데이트를 했습니다. 웃음이 끊이지 않았습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_28",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 작은 서점에서 데이트를 했습니다. 웃음이 끊이지 않았습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_29",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 놀이공원에서 데이트를 했습니다. 기분 좋은 긴장이 흘렀습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_30",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 레코드샵에서 데이트를 했습니다. 대화를 이어갔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_31",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 사진관에서 데이트를 했습니다. 서로를 더 알아갔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_32",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 연습실 근처 포장마차에서 데이트를 했습니다. 웃음이 끊이지 않았습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_33",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 레코드샵에서 데이트를 했습니다. 서로를 더 알아갔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_34",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 야경이 보이는 길에서 데이트를 했습니다. 웃음이 끊이지 않았습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_35",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 편집숍에서 데이트를 했습니다. 기분 좋은 긴장이 흘렀습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_36",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 편집숍에서 데이트를 했습니다. 대화를 이어갔습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_37",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 레코드샵에서 데이트를 했습니다. 기분 좋은 긴장이 흘렀습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_38",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 사진관에서 데이트를 했습니다. 기분 좋은 긴장이 흘렀습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_39",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 편집숍에서 데이트를 했습니다. 조용히 손을 맞잡았습니다."
+      ]
+    },
+    {
+      "id": "pair_date_more_40",
+      "category": "pair_date",
+      "kind": "pair",
+      "icon": "💗",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "minStage": "friend"
+      },
+      "texts": [
+        "{A}와 {B}가 레코드샵에서 데이트를 했습니다. 조용히 손을 맞잡았습니다."
+      ]
+    },
+    {
+      "id": "pair_fight_more_1",
+      "category": "pair_fight",
+      "kind": "pair",
+      "icon": "😡",
+      "weight": 2,
+      "conditions": {
+        "setsCold": true
+      },
+      "texts": [
+        "{A}와 {B}가 서로의 말투를 오해했습니다. 분위기가 불편해졌습니다."
+      ]
+    },
+    {
+      "id": "pair_fight_more_2",
+      "category": "pair_fight",
+      "kind": "pair",
+      "icon": "😡",
+      "weight": 2,
+      "conditions": {
+        "setsCold": true
+      },
+      "texts": [
+        "{A}가 {B}의 지적을 받아들이지 못했고 표정이 굳었습니다."
+      ]
+    },
+    {
+      "id": "pair_fight_more_3",
+      "category": "pair_fight",
+      "kind": "pair",
+      "icon": "😡",
+      "weight": 2,
+      "conditions": {
+        "setsCold": true
+      },
+      "texts": [
+        "{B}가 {A}를 피하는 듯 보였습니다. 둘 사이에 냉기가 돌았습니다."
+      ]
+    },
+    {
+      "id": "pair_fight_more_4",
+      "category": "pair_fight",
+      "kind": "pair",
+      "icon": "😡",
+      "weight": 2,
+      "conditions": {
+        "setsCold": true
+      },
+      "texts": [
+        "{A}와 {B}가 서로를 지나치며 인사를 생략했습니다."
+      ]
+    },
+    {
+      "id": "pair_fight_more_5",
+      "category": "pair_fight",
+      "kind": "pair",
+      "icon": "😡",
+      "weight": 2,
+      "conditions": {
+        "setsCold": true
+      },
+      "texts": [
+        "{A}와 {B}가 리허설 뒤 말을 아꼈습니다. 어색함이 이어졌습니다."
+      ]
+    },
+    {
+      "id": "pair_fight_more_6",
+      "category": "pair_fight",
+      "kind": "pair",
+      "icon": "😡",
+      "weight": 2,
+      "conditions": {
+        "setsCold": true
+      },
+      "texts": [
+        "{A}가 {B}에게 짧게 대답했고 {B}도 더 묻지 않았습니다."
+      ]
+    },
+    {
+      "id": "pair_reconcile_more_1",
+      "category": "pair_reconcile",
+      "kind": "pair",
+      "icon": "🤍",
+      "weight": 2,
+      "conditions": {
+        "requiresCold": true,
+        "clearsCold": true
+      },
+      "texts": [
+        "{A}와 {B}가 물병을 건네며 자연스럽게 말을 텄습니다. 조금씩 풀렸습니다."
+      ]
+    },
+    {
+      "id": "pair_reconcile_more_2",
+      "category": "pair_reconcile",
+      "kind": "pair",
+      "icon": "🤍",
+      "weight": 2,
+      "conditions": {
+        "requiresCold": true,
+        "clearsCold": true
+      },
+      "texts": [
+        "{B}가 {A}에게 '미안'이라고 말했고 {A}가 웃었습니다. 냉전이 끝났습니다."
+      ]
+    },
+    {
+      "id": "pair_reconcile_more_3",
+      "category": "pair_reconcile",
+      "kind": "pair",
+      "icon": "🤍",
+      "weight": 2,
+      "conditions": {
+        "requiresCold": true,
+        "clearsCold": true
+      },
+      "texts": [
+        "{A}와 {B}가 같은 농담에 웃으며 어색함이 사라졌습니다."
+      ]
+    },
+    {
+      "id": "pair_reconcile_more_4",
+      "category": "pair_reconcile",
+      "kind": "pair",
+      "icon": "🤍",
+      "weight": 2,
+      "conditions": {
+        "requiresCold": true,
+        "clearsCold": true
+      },
+      "texts": [
+        "{A}가 먼저 손을 내밀었고 {B}가 받아주며 화해했습니다."
+      ]
+    },
+    {
+      "id": "tri_jealous_more_1",
+      "category": "tri_jealous",
+      "kind": "tri",
+      "icon": "🔴",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "isJealousy": true,
+        "requiresDating": true
+      },
+      "texts": [
+        "{B}가 {A}와 {C}의 거리를 보고 괜히 말수가 줄었습니다. 질투의 대상은 {C}였습니다."
+      ]
+    },
+    {
+      "id": "tri_jealous_more_2",
+      "category": "tri_jealous",
+      "kind": "tri",
+      "icon": "🔴",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "isJealousy": true,
+        "requiresDating": true
+      },
+      "texts": [
+        "{B}가 {A}에게 '오늘은 좀 신경 쓰이네'라고 말했습니다. {C}와의 장면이 떠올랐습니다."
+      ]
+    },
+    {
+      "id": "tri_jealous_more_3",
+      "category": "tri_jealous",
+      "kind": "tri",
+      "icon": "🔴",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "isJealousy": true,
+        "requiresDating": true
+      },
+      "texts": [
+        "{B}가 {A}의 시선을 따라가다 {C}를 보고 조용히 한숨을 쉬었습니다."
+      ]
+    },
+    {
+      "id": "tri_jealous_more_4",
+      "category": "tri_jealous",
+      "kind": "tri",
+      "icon": "🔴",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "isJealousy": true,
+        "requiresDating": true
+      },
+      "texts": [
+        "{B}가 {A}에게 팔짱을 끼며 자연스럽게 {C}와 거리를 만들었습니다."
+      ]
+    },
+    {
+      "id": "group_more_1",
+      "category": "group_event",
+      "kind": "group",
+      "icon": "👥",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "멤버들이 대기실에서 즉흥 게임을 시작했습니다. 승부욕이 불타올랐습니다."
+      ]
+    },
+    {
+      "id": "group_more_2",
+      "category": "group_event",
+      "kind": "group",
+      "icon": "👥",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "단체로 보컬 워밍업을 했습니다. 공간이 금방 뜨거워졌습니다."
+      ]
+    },
+    {
+      "id": "group_more_3",
+      "category": "group_event",
+      "kind": "group",
+      "icon": "👥",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "연습실 조명이 꺼졌다 켜지자 다 같이 웃었습니다. 작은 해프닝이었습니다."
+      ]
+    },
+    {
+      "id": "group_more_4",
+      "category": "group_event",
+      "kind": "group",
+      "icon": "👥",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "스태프가 깜짝 케이크를 준비했습니다. 멤버들이 박수를 쳤습니다."
+      ]
+    },
+    {
+      "id": "group_more_5",
+      "category": "group_event",
+      "kind": "group",
+      "icon": "👥",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "멤버들이 서로의 장점을 한 가지씩 말하며 분위기를 끌어올렸습니다."
+      ]
+    },
+    {
+      "id": "group_more_6",
+      "category": "group_event",
+      "kind": "group",
+      "icon": "👥",
+      "weight": 2,
+      "conditions": {},
+      "texts": [
+        "단체 안무를 맞추다 마지막에 한 번에 성공했습니다. 박수가 터졌습니다."
+      ]
+    },
+    {
+      "id": "comeback_more_1",
+      "category": "comeback_reaction",
+      "kind": "comeback",
+      "icon": "📰",
+      "weight": 2,
+      "conditions": {
+        "comebackOnly": true
+      },
+      "texts": [
+        "음악방송 무대 클립이 빠르게 조회수를 올렸습니다. 댓글이 폭발했습니다."
+      ]
+    },
+    {
+      "id": "comeback_more_2",
+      "category": "comeback_reaction",
+      "kind": "comeback",
+      "icon": "📰",
+      "weight": 2,
+      "conditions": {
+        "comebackOnly": true
+      },
+      "texts": [
+        "팬들이 응원법을 정리해 공유했습니다. 현장이 점점 더 커졌습니다."
+      ]
+    },
+    {
+      "id": "comeback_more_3",
+      "category": "comeback_reaction",
+      "kind": "comeback",
+      "icon": "📰",
+      "weight": 2,
+      "conditions": {
+        "comebackOnly": true
+      },
+      "texts": [
+        "해외 팬 계정에서 번역이 올라왔습니다. 반응이 넓게 퍼졌습니다."
+      ]
+    },
+    {
+      "id": "comeback_more_4",
+      "category": "comeback_reaction",
+      "kind": "comeback",
+      "icon": "📰",
+      "weight": 2,
+      "conditions": {
+        "comebackOnly": true
+      },
+      "texts": [
+        "기사 제목이 강하게 뽑혔습니다. '이번 콘셉트가 의외로 잘 맞는다'는 말이 나왔습니다."
+      ]
+    },
+    {
+      "id": "comeback_more_5",
+      "category": "comeback_reaction",
+      "kind": "comeback",
+      "icon": "📰",
+      "weight": 2,
+      "conditions": {
+        "comebackOnly": true
+      },
+      "texts": [
+        "SNS에서 안무 챌린지가 시작됐습니다. 따라 하는 영상이 늘었습니다."
+      ]
+    },
+    {
+      "id": "comeback_more_6",
+      "category": "comeback_reaction",
+      "kind": "comeback",
+      "icon": "📰",
+      "weight": 2,
+      "conditions": {
+        "comebackOnly": true
+      },
+      "texts": [
+        "라디오에서 신곡이 흘러나오자 팬들이 바로 캡처를 올렸습니다."
+      ]
+    },
+    {
+      "id": "comeback_neg_1",
+      "category": "comeback_reaction",
+      "kind": "comeback",
+      "icon": "📰",
+      "weight": 1,
+      "conditions": {
+        "comebackOnly": true,
+        "negative": true
+      },
+      "texts": [
+        "커뮤니티에서 '전작이 더 좋았다'는 글이 올라왔습니다. 하지만 화제성은 유지됐습니다."
+      ]
+    },
+    {
+      "id": "comeback_neg_2",
+      "category": "comeback_reaction",
+      "kind": "comeback",
+      "icon": "📰",
+      "weight": 1,
+      "conditions": {
+        "comebackOnly": true,
+        "negative": true
+      },
+      "texts": [
+        "SNS에서 호불호가 갈렸습니다. 그래도 관심이 계속 이어졌습니다."
+      ]
+    },
+    {
+      "id": "comeback_neg_3",
+      "category": "comeback_reaction",
+      "kind": "comeback",
+      "icon": "📰",
+      "weight": 1,
+      "conditions": {
+        "comebackOnly": true,
+        "negative": true
+      },
+      "texts": [
+        "무대 라이브가 약간 흔들렸다는 반응이 나왔습니다. 다음 방송에서 만회할 기회가 남았습니다."
+      ]
+    },
+    {
+      "id": "pair_confess_more_1",
+      "category": "pair_confess",
+      "kind": "pair",
+      "icon": "💘",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "isConfession": true
+      },
+      "texts": [
+        "{A}가 {B}를 불러 '좋아한다'고 말했습니다. {B}는 웃으며 손을 잡았습니다."
+      ]
+    },
+    {
+      "id": "pair_confess_more_2",
+      "category": "pair_confess",
+      "kind": "pair",
+      "icon": "💘",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "isConfession": true
+      },
+      "texts": [
+        "{A}가 숨을 고르고 고백했습니다. {B}가 '나도'라고 답했습니다."
+      ]
+    },
+    {
+      "id": "pair_confess_more_3",
+      "category": "pair_confess",
+      "kind": "pair",
+      "icon": "💘",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "isConfession": true
+      },
+      "texts": [
+        "{A}가 {B}에게 진심을 전했습니다. {B}는 망설임 없이 받아줬습니다."
+      ]
+    },
+    {
+      "id": "pair_confess_more_4",
+      "category": "pair_confess",
+      "kind": "pair",
+      "icon": "💘",
+      "weight": 2,
+      "conditions": {
+        "romanceOnly": true,
+        "isConfession": true
+      },
+      "texts": [
+        "{B}가 {A}의 말을 듣고 잠깐 울컥했습니다. 결국 고개를 끄덕였습니다."
+      ]
+    },
+    {
+      "id": "pair_breakup_more_1",
+      "category": "pair_breakup",
+      "kind": "pair",
+      "icon": "💔",
+      "weight": 2,
+      "conditions": {
+        "datingOnly": true,
+        "isBreakup": true
+      },
+      "texts": [
+        "{A}와 {B}가 서로를 배려하며 이별을 선택했습니다. 마음은 아프지만 깔끔했습니다."
+      ]
+    },
+    {
+      "id": "pair_breakup_more_2",
+      "category": "pair_breakup",
+      "kind": "pair",
+      "icon": "💔",
+      "weight": 2,
+      "conditions": {
+        "datingOnly": true,
+        "isBreakup": true
+      },
+      "texts": [
+        "{A}가 조용히 말했고 {B}가 대답했습니다. 두 사람은 연애를 끝냈습니다."
+      ]
+    },
+    {
+      "id": "pair_breakup_more_3",
+      "category": "pair_breakup",
+      "kind": "pair",
+      "icon": "💔",
+      "weight": 2,
+      "conditions": {
+        "datingOnly": true,
+        "isBreakup": true
+      },
+      "texts": [
+        "{B}가 마지막으로 {A}의 손을 잡고 놓았습니다. 이별이 확정됐습니다."
+      ]
+    },
+    {
+      "id": "concert_more_1",
+      "category": "concert_event",
+      "kind": "concert",
+      "icon": "🎟️",
+      "weight": 1,
+      "conditions": {
+        "concertStartOnly": true
+      },
+      "texts": [
+        "콘서트 D-day입니다. 백스테이지에서 멤버들이 서로 손을 꼭 잡았습니다."
+      ]
+    },
+    {
+      "id": "concert_more_2",
+      "category": "concert_event",
+      "kind": "concert",
+      "icon": "🎟️",
+      "weight": 1,
+      "conditions": {
+        "concertStartOnly": true
+      },
+      "texts": [
+        "무대가 시작되자 함성이 쏟아졌습니다. 멤버들이 눈빛을 맞췄습니다."
+      ]
+    },
+    {
+      "id": "concert_more_3",
+      "category": "concert_event",
+      "kind": "concert",
+      "icon": "🎟️",
+      "weight": 1,
+      "conditions": {
+        "concertStartOnly": true
+      },
+      "texts": [
+        "앙코르에서 멤버들이 한 줄로 서서 인사했습니다. 객석이 오래 남았습니다."
+      ]
+    },
+    {
+      "id": "some_transition_1",
+      "category": "some_transition",
+      "icon": "💞",
+      "weight": 1,
+      "kind": "some",
+      "conditions": {
+        "romanceOnly": true
+      },
+      "texts": [
+        "{A}와 {B} 사이가 전과 다르게 미묘해졌습니다.",
+        "{A}가 {B}를 바라보는 시선이 예전과 조금 달라졌습니다.",
+        "{B}가 {A}와 눈이 마주치자 잠깐 시선을 피했습니다."
+      ]
+    },
+    {
+      "id": "group_event_extra_1",
+      "category": "group_event",
+      "icon": "👥",
+      "weight": 1,
+      "kind": "group",
+      "conditions": {},
+      "texts": [
+        "대기실에서 즉석 단체 사진을 찍었습니다. 분위기가 한결 편해졌습니다.",
+        "연습실에서 팀별로 미니 게임을 했습니다. 웃음이 터졌습니다.",
+        "리더가 간단히 오늘 목표를 공유했습니다. 팀이 같은 방향을 봤습니다.",
+        "스태프가 준비한 간식이 도착했습니다. 잠깐의 휴식이 큰 힘이 됐습니다."
+      ]
+    },
+    {
+      "id": "group_event_extra_2",
+      "category": "group_event",
+      "icon": "👥",
+      "weight": 1,
+      "kind": "group",
+      "conditions": {},
+      "texts": [
+        "대기실에서 즉석 단체 사진을 찍었습니다. 분위기가 한결 편해졌습니다.",
+        "연습실에서 팀별로 미니 게임을 했습니다. 웃음이 터졌습니다.",
+        "리더가 간단히 오늘 목표를 공유했습니다. 팀이 같은 방향을 봤습니다.",
+        "스태프가 준비한 간식이 도착했습니다. 잠깐의 휴식이 큰 힘이 됐습니다."
+      ]
+    },
+    {
+      "id": "group_event_extra_3",
+      "category": "group_event",
+      "icon": "👥",
+      "weight": 1,
+      "kind": "group",
+      "conditions": {},
+      "texts": [
+        "대기실에서 즉석 단체 사진을 찍었습니다. 분위기가 한결 편해졌습니다.",
+        "연습실에서 팀별로 미니 게임을 했습니다. 웃음이 터졌습니다.",
+        "리더가 간단히 오늘 목표를 공유했습니다. 팀이 같은 방향을 봤습니다.",
+        "스태프가 준비한 간식이 도착했습니다. 잠깐의 휴식이 큰 힘이 됐습니다."
+      ]
+    },
+    {
+      "id": "comeback_reaction_positive_2",
+      "category": "comeback_reaction",
+      "icon": "🔥",
+      "weight": 1,
+      "kind": "comeback",
+      "conditions": {
+        "comebackOnly": true
+      },
+      "texts": [
+        "뮤직비디오 비하인드가 공개됐습니다. 팬들이 디테일을 찾아내며 즐거워했습니다.",
+        "팬카페에 응원 글이 빠르게 쌓였습니다. 멤버들이 하나씩 읽으며 기운을 냈습니다.",
+        "라디오 출연 반응이 좋았습니다. 칭찬이 이어졌습니다."
+      ]
+    },
+    {
+      "id": "comeback_reaction_negative_2",
+      "category": "comeback_reaction",
+      "icon": "🧊",
+      "weight": 1,
+      "kind": "comeback",
+      "conditions": {
+        "comebackOnly": true,
+        "negative": true
+      },
+      "texts": [
+        "스케줄이 촘촘해 다들 피곤해 보인다는 반응이 나왔습니다. 멤버들이 컨디션 조절을 이야기했습니다.",
+        "의상 관련 의견이 갈렸습니다. 다음 무대에서 방향을 조정하기로 했습니다.",
+        "무대 동선이 어렵다는 말이 나왔습니다. 리허설을 늘리기로 했습니다."
+      ]
+    },
+    {
+      "id": "pair_date_extra_1",
+      "category": "pair_date",
+      "icon": "💗",
+      "weight": 1,
+      "kind": "date",
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 공연장을 둘러보며 작은 추억을 만들었습니다.",
+        "{A}와 {B}가 야식 메뉴를 고르다 한참 웃었습니다.",
+        "{A}와 {B}가 밤 산책을 하며 오늘 하루를 정리했습니다.",
+        "{A}와 {B}가 함께 플레이리스트를 만들었습니다."
+      ]
+    },
+    {
+      "id": "pair_date_extra_2",
+      "category": "pair_date",
+      "icon": "💗",
+      "weight": 1,
+      "kind": "date",
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 공연장을 둘러보며 작은 추억을 만들었습니다.",
+        "{A}와 {B}가 야식 메뉴를 고르다 한참 웃었습니다.",
+        "{A}와 {B}가 밤 산책을 하며 오늘 하루를 정리했습니다.",
+        "{A}와 {B}가 함께 플레이리스트를 만들었습니다."
+      ]
+    },
+    {
+      "id": "pair_date_extra_3",
+      "category": "pair_date",
+      "icon": "💗",
+      "weight": 1,
+      "kind": "date",
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 공연장을 둘러보며 작은 추억을 만들었습니다.",
+        "{A}와 {B}가 야식 메뉴를 고르다 한참 웃었습니다.",
+        "{A}와 {B}가 밤 산책을 하며 오늘 하루를 정리했습니다.",
+        "{A}와 {B}가 함께 플레이리스트를 만들었습니다."
+      ]
+    },
+    {
+      "id": "pair_date_extra_4",
+      "category": "pair_date",
+      "icon": "💗",
+      "weight": 1,
+      "kind": "date",
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 공연장을 둘러보며 작은 추억을 만들었습니다.",
+        "{A}와 {B}가 야식 메뉴를 고르다 한참 웃었습니다.",
+        "{A}와 {B}가 밤 산책을 하며 오늘 하루를 정리했습니다.",
+        "{A}와 {B}가 함께 플레이리스트를 만들었습니다."
+      ]
+    },
+    {
+      "id": "pair_fight_extra_1",
+      "category": "pair_fight",
+      "icon": "😤",
+      "weight": 1,
+      "kind": "fight",
+      "conditions": {},
+      "texts": [
+        "{A}와 {B}가 연습 방향을 두고 의견이 엇갈렸습니다. 말수가 줄었습니다.",
+        "{A}와 {B}가 작은 오해로 분위기가 굳었습니다. 잠깐 거리가 생겼습니다."
+      ]
+    },
+    {
+      "id": "pair_reconcile_extra_1",
+      "category": "pair_reconcile",
+      "icon": "🤍",
+      "weight": 1,
+      "kind": "reconcile",
+      "conditions": {
+        "requiresCold": true
+      },
+      "texts": [
+        "{A}와 {B}가 차분히 이야기를 나눴습니다. 서로의 입장을 이해했습니다.",
+        "{A}가 먼저 사과했습니다. {B}도 고개를 끄덕였습니다."
+      ]
+    }
+  ]
+}

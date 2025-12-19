@@ -1,0 +1,307 @@
+{
+  "activities": [
+    {
+      "id": "vocal_practice",
+      "name": "보컬 연습",
+      "icon": "🎶",
+      "type": "practice",
+      "targets": "any",
+      "moneyDelta": -10,
+      "effects": {
+        "health": -4,
+        "fatigue": 8,
+        "stress": 4,
+        "weight": -0.05
+      },
+      "skill": "vocal",
+      "skillGain": {
+        "min": 0,
+        "max": 2,
+        "chance": 0.75
+      }
+    },
+    {
+      "id": "dance_practice",
+      "name": "안무 연습",
+      "icon": "🕺",
+      "type": "practice",
+      "targets": "any",
+      "moneyDelta": -10,
+      "effects": {
+        "health": -6,
+        "fatigue": 10,
+        "stress": 5,
+        "weight": -0.08
+      },
+      "skill": "dance",
+      "skillGain": {
+        "min": 0,
+        "max": 2,
+        "chance": 0.75
+      }
+    },
+    {
+      "id": "rap_practice",
+      "name": "랩 연습",
+      "icon": "🎤",
+      "type": "practice",
+      "targets": "any",
+      "moneyDelta": -10,
+      "effects": {
+        "health": -3,
+        "fatigue": 7,
+        "stress": 4,
+        "weight": -0.03
+      },
+      "skill": "rap",
+      "skillGain": {
+        "min": 0,
+        "max": 2,
+        "chance": 0.75
+      }
+    },
+    {
+      "id": "compose",
+      "name": "작사/작곡",
+      "icon": "📝",
+      "type": "creative",
+      "targets": "solo",
+      "moneyDelta": -15,
+      "effects": {
+        "health": -2,
+        "fatigue": 6,
+        "stress": 6,
+        "weight": 0.0
+      },
+      "skill": "compose",
+      "skillGain": {
+        "min": 0,
+        "max": 2,
+        "chance": 0.7
+      }
+    },
+    {
+      "id": "arrange",
+      "name": "편곡",
+      "icon": "🎛️",
+      "type": "creative",
+      "targets": "solo",
+      "moneyDelta": -15,
+      "effects": {
+        "health": -2,
+        "fatigue": 6,
+        "stress": 6,
+        "weight": 0.0
+      },
+      "skill": "arrange",
+      "skillGain": {
+        "min": 0,
+        "max": 2,
+        "chance": 0.7
+      }
+    },
+    {
+      "id": "workout",
+      "name": "운동",
+      "icon": "🏋️",
+      "type": "health",
+      "targets": "solo",
+      "moneyDelta": -5,
+      "effects": {
+        "health": 5,
+        "fatigue": 7,
+        "stress": -4,
+        "weight": -0.1
+      },
+      "skill": null
+    },
+    {
+      "id": "meal",
+      "name": "식사",
+      "icon": "🍽️",
+      "type": "health",
+      "targets": "solo",
+      "moneyDelta": -8,
+      "effects": {
+        "health": 6,
+        "fatigue": -3,
+        "stress": -2,
+        "weight": 0.08
+      },
+      "skill": null
+    },
+    {
+      "id": "rest_sleep",
+      "name": "집에서 잠",
+      "icon": "😴",
+      "type": "rest",
+      "targets": "solo",
+      "moneyDelta": 0,
+      "effects": {
+        "health": 10,
+        "fatigue": -14,
+        "stress": -10,
+        "weight": 0.02
+      },
+      "skill": null
+    },
+    {
+      "id": "rest_walk",
+      "name": "산책",
+      "icon": "🚶",
+      "type": "rest",
+      "targets": "solo",
+      "moneyDelta": 0,
+      "effects": {
+        "health": 6,
+        "fatigue": -8,
+        "stress": -10,
+        "weight": -0.03
+      },
+      "skill": null
+    },
+    {
+      "id": "rest_trip",
+      "name": "여행",
+      "icon": "✈️",
+      "type": "rest",
+      "targets": "solo",
+      "moneyDelta": -30,
+      "effects": {
+        "health": 8,
+        "fatigue": -10,
+        "stress": -16,
+        "weight": -0.02
+      },
+      "skill": null
+    },
+    {
+      "id": "rest_chill",
+      "name": "침대에서 뒹굴기",
+      "icon": "🛌",
+      "type": "rest",
+      "targets": "solo",
+      "moneyDelta": 0,
+      "effects": {
+        "health": 8,
+        "fatigue": -10,
+        "stress": -12,
+        "weight": 0.01
+      },
+      "skill": null
+    },
+    {
+      "id": "content_shoot",
+      "name": "콘텐츠 촬영",
+      "icon": "📸",
+      "type": "work",
+      "targets": "solo",
+      "moneyDelta": 40,
+      "effects": {
+        "health": -6,
+        "fatigue": 10,
+        "stress": 8,
+        "weight": -0.01
+      },
+      "skill": null
+    },
+    {
+      "id": "variety_show",
+      "name": "예능 촬영",
+      "icon": "📺",
+      "type": "work",
+      "targets": "solo",
+      "moneyDelta": 60,
+      "effects": {
+        "health": -8,
+        "fatigue": 12,
+        "stress": 10,
+        "weight": -0.01
+      },
+      "skill": null
+    },
+    {
+      "id": "concert_practice",
+      "name": "콘서트 연습",
+      "icon": "🎟️",
+      "type": "event_practice",
+      "targets": "any",
+      "moneyDelta": -20,
+      "effects": {
+        "health": -6,
+        "fatigue": 12,
+        "stress": 6,
+        "weight": -0.06
+      },
+      "skill": "dance",
+      "skillGain": {
+        "min": 0,
+        "max": 2,
+        "chance": 0.6
+      },
+      "availableWhen": {
+        "concertPlanned": true,
+        "concertNotStarted": true
+      }
+    },
+    {
+      "id": "fansign",
+      "name": "팬싸인회",
+      "icon": "✍️",
+      "type": "comeback",
+      "targets": "any",
+      "moneyDelta": 120,
+      "effects": {
+        "health": -6,
+        "fatigue": 10,
+        "stress": 6,
+        "weight": 0.0
+      },
+      "skill": null,
+      "availableWhen": {
+        "comebackActive": true
+      }
+    },
+    {
+      "id": "music_show",
+      "name": "음악방송",
+      "icon": "📡",
+      "type": "comeback",
+      "targets": "any",
+      "moneyDelta": 150,
+      "effects": {
+        "health": -8,
+        "fatigue": 12,
+        "stress": 8,
+        "weight": -0.02
+      },
+      "skill": "vocal",
+      "skillGain": {
+        "min": 0,
+        "max": 1,
+        "chance": 0.45
+      },
+      "availableWhen": {
+        "comebackActive": true
+      }
+    },
+    {
+      "id": "live_stream",
+      "name": "라이브 방송",
+      "icon": "🔴",
+      "type": "comeback",
+      "targets": "any",
+      "moneyDelta": 80,
+      "effects": {
+        "health": -4,
+        "fatigue": 8,
+        "stress": 5,
+        "weight": 0.0
+      },
+      "skill": null,
+      "availableWhen": {
+        "comebackActive": true
+      }
+    }
+  ]
+}

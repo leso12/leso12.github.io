@@ -1,0 +1,28 @@
+{
+  "version": "2025-12-18",
+  "defaults": {
+    "theme": "light",
+    "dashboardLogLines": 40,
+    "autoEventMaxPerDay": 6,
+    "romanceEnabled": true,
+    "loveThreshold": 150,
+    "allowOppositeSex": true,
+    "allowSameSex": true,
+    "monogamyMode": true,
+    "breakupEnabled": true,
+    "breakupThreshold": 120,
+    "breakupChance": 0.18,
+    "confessionChanceInAutoEvent": 0.3,
+    "confessionOffset": 15,
+    "jealousyOffset": 40,
+    "reconcileChance": 0.35,
+    "fightChance": 0.2,
+    "coldDaysMin": 1,
+    "coldDaysMax": 4,
+    "weightLogThresholdKg": 0.8,
+    "affectionMin": -200,
+    "affectionMax": 200,
+    "comebackDays": 21,
+    "comebackNarrativeStartAfterDays": 3
+  }
+}
