@@ -1,0 +1,18 @@
+{
+  "version": "6.22.0",
+  "schema": "vn-builder-6.22",
+  "parts": [
+    "part000.txt",
+    "part001.txt",
+    "part002.txt",
+    "part003.txt",
+    "part004.txt",
+    "part005.txt",
+    "part006.txt",
+    "part007.txt"
+  ],
+  "payloadEncoding": "base64+gzip",
+  "sourceBytes": 1977581,
+  "compressedBytes": 484380,
+  "sha256": "bbaae32bb1efcabe6b9f82f17f472ea5192113ac353a705dcc4c95a5e3dd41e2"
+}
