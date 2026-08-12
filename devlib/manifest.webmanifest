@@ -1,0 +1,8 @@
+{
+  "name": "개발 서재 Mobile",
+  "short_name": "개발 서재",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f6f4fb",
+  "theme_color": "#7b6df2"
+}
