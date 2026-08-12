@@ -1,6 +1,6 @@
 const CLOUD_API='https://vulpttgewjfkxojimyxl.supabase.co/functions/v1/devlib-mobile';
 const POLL_MS=15000;
-const QUEUE_KEY='devlib_mobile_pending_v25';
+const QUEUE_KEY='devlib_mobile_pending_v251';
 let currentData=null,lastSignature='',loading=false,mode='readonly',editingId='',editingBase=null,creating=false,conflictAction=null;
 
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -12,32 +12,19 @@ const uid=p=>`${p}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
 const AZ=[['overview','1. 프로젝트 개요 · 목적'],['goals','2. 최종 목표 · 완성 기준'],['scope','3. 범위 · 포함/제외'],['architecture','4. 구조 · 아키텍처'],['features','5. 기능 명세'],['ui','6. UI · UX · 디자인'],['data','7. 데이터 · 저장 · 상태'],['workflow','8. 사용자 흐름 · 동작 규칙'],['sync','9. 자동화 · 동기화'],['integration','10. 외부 연동 · API'],['mobile','11. 모바일 · 호환성'],['security','12. 보안 · 개인정보'],['constraints','13. 필수 원칙 · 금지사항'],['testing','14. 오류 · 예외 · 테스트'],['versioning','15. 버전 · 배포 · 파일'],['current','16. 현재 구현 상태'],['remaining','17. 남은 작업 · 후속 계획']];
 const EDIT_FIELDS=['name','icon','group','status','progress','pcVersion','mobileVersion','testStatus','releaseChannel','testUrl','note'];
 
-function isLocalBridge(){return location.port==='8765'||new URL(location.href).searchParams.has('pair')}
 function getCredential(){
-  const u=new URL(location.href);
-  if(isLocalBridge()){
-    const p=u.searchParams.get('pair')||localStorage.getItem('devlib_pair_code')||'';
-    if(p)localStorage.setItem('devlib_pair_code',p);
-    return p;
-  }
-  let k='';
+  const u=new URL(location.href);let k='';
   if(u.hash.startsWith('#key=')){k=decodeURIComponent(u.hash.slice(5));localStorage.setItem('devlib_view_key',k);history.replaceState({},'',u.pathname+u.search)}
   if(!k)k=u.searchParams.get('key')||'';
   if(k){localStorage.setItem('devlib_view_key',k);u.searchParams.delete('key');history.replaceState({},'',u.pathname+u.search+u.hash)}
   return k||localStorage.getItem('devlib_view_key')||'';
 }
 async function apiLoad(){
-  const cred=getCredential();if(!cred)throw new Error(isLocalBridge()?'연결 코드가 없어요.':'보기/편집 키가 없어요.');
-  if(isLocalBridge()){
-    const r=await fetch(`/api/state?pair=${encodeURIComponent(cred)}&_=${Date.now()}`,{cache:'no-store'}),d=await r.json();if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);return{ok:true,mode:'editor',payload:d,updated_at:d.generatedAt||Date.now(),source:'local'};
-  }
+  const cred=getCredential();if(!cred)throw new Error('보기/편집 키가 없어요.');
   const r=await fetch(`${CLOUD_API}?key=${encodeURIComponent(cred)}&_=${Date.now()}`,{cache:'no-store'}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||`HTTP ${r.status}`);return d;
 }
 async function apiAction(action){
   const cred=getCredential();if(!cred)throw new Error('편집 연결 정보가 없어요.');
-  if(isLocalBridge()){
-    const r=await fetch(`/api/action?pair=${encodeURIComponent(cred)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(action)}),d=await r.json();if(!r.ok||!d.ok){const e=new Error(d.error||`HTTP ${r.status}`);e.data=d;e.status=r.status;throw e}return d;
-  }
   const r=await fetch(CLOUD_API,{method:'POST',headers:{'Content-Type':'application/json','X-Devlib-Key':cred},body:JSON.stringify({action})}),d=await r.json();if(!r.ok||!d.ok){const e=new Error(d.error||`HTTP ${r.status}`);e.data=d;e.status=r.status;throw e}return d;
 }
 
@@ -70,13 +57,20 @@ function applySearch(){const v=($('#q')?.value||'').trim().toLowerCase();let sho
 
 function renderInbox(p){const inbox=arr(p.inbox);const root=$('#inboxArea');if(!root)return;if(!inbox.length){root.innerHTML='';return}root.innerHTML=`<section class="inboxBox"><div class="sectionHead"><div><b>✦ 분류 대기</b><small>${inbox.length}개 · 폰에서 바로 정리</small></div></div>${inbox.map(c=>`<article class="inboxItem" data-inbox="${esc(c.id)}"><b>${esc(c.title||'제목 없는 대화')}</b><small>${fmt(c.updatedAt)} · ${esc(c.reason||'확인 필요')}</small>${mode==='editor'?`<select data-assign-select="${esc(c.id)}"><option value="">프로젝트 선택</option>${projectOptions(c.suggestedProjectId||'')}</select><div class="inboxActions"><button data-assign="${esc(c.id)}">프로젝트에 등록</button><button class="danger" data-exclude="${esc(c.id)}">제외</button></div>`:''}</article>`).join('')}</section>`;$$('[data-assign]').forEach(b=>b.onclick=()=>assignInbox(b.dataset.assign));$$('[data-exclude]').forEach(b=>b.onclick=()=>excludeInbox(b.dataset.exclude))}
 
+function linkedChatsHtml(x){const chats=arr(x.recentChats);if(!chats.length)return'';return `<details class="subdetail linkedChats" data-sid="${esc(x.id)}-links"><summary><span>🔗 연결된 채팅</span><small>${Number(x.chatCount||chats.length)}개${x.integrityPending?' · PC 복구 대기':''}</small></summary><div class="subbody">${x.integrityPending?'<div class="integrityWarn">⚠ 모바일에서 연결을 수정했습니다. PC가 켜지면 원본 채팅 기준으로 보고서와 A→Z 지침서를 자동 재계산합니다.</div>':''}${chats.map(c=>`<article class="linkedItem"><div class="linkedTitle"><b>${c.predecessorChatId?'↳ ':''}${esc(c.title||'제목 없는 대화')}</b><small>${fmt(c.updatedAt)}${c.continuationStatus?` · 계승 ${esc(c.continuationStatus)}`:''}</small></div>${c.url?`<a class="chatOpen" href="${esc(c.url)}" target="_blank" rel="noopener">원본 채팅 열기</a>`:''}${mode==='editor'?`<select data-link-target="${esc(c.id)}">${projectOptions(x.id)}</select><div class="linkedActions"><button data-link-move="${esc(c.id)}">다른 프로젝트로 이동</button><button data-link-unassign="${esc(c.id)}">분류대기로</button><button class="danger" data-link-exclude="${esc(c.id)}">개발 대상 아님</button></div>`:''}</article>`).join('')}</div></details>`}
+function bindLinkedChatActions(){
+  $$('[data-link-move]').forEach(b=>b.onclick=()=>reclassifyLinkedChat(b.dataset.linkMove,'chat_reassign'));
+  $$('[data-link-unassign]').forEach(b=>b.onclick=()=>reclassifyLinkedChat(b.dataset.linkUnassign,'chat_unassign'));
+  $$('[data-link-exclude]').forEach(b=>b.onclick=()=>reclassifyLinkedChat(b.dataset.linkExclude,'chat_exclude'));
+}
+
 function render(data,{fromCache=false}={}){
   currentData=data;mode=data.mode||mode;const p=data.payload||{},groups=arr(p.groups),projects=arr(p.projects),stats=p.stats||{},openIds=openProjectIds(),subIds=openSubIds();
   $('#sg').textContent=stats.groups??groups.length;$('#sp').textContent=stats.projects??projects.length;$('#sc').textContent=stats.chats??0;
   $('#updated').textContent=`${mode==='editor'?'PC + 모바일 양방향':'읽기 전용'} · 마지막 동기화 ${fmt(data.updated_at||p.generatedAt)}${p.appVersion?` · PC v${p.appVersion}`:''}`;
   $('#newProject').style.display=mode==='editor'?'inline-flex':'none';
-  let html='';for(const g of groups){const ps=projects.filter(x=>(x.group||'기타')===g.name).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));if(!ps.length)continue;html+=`<section class="group"><div class="gtitle"><span>${esc(g.icon||'📁')}</span><div><h2>${esc(g.name)}</h2><small>${ps.length}개 프로젝트</small></div></div>`;for(const x of ps){const guideWords=arr(x.guideline?.sections).flatMap(s=>arr(s.items)).join(' '),search=`${g.name} ${x.name||''} ${x.current||''} ${arr(x.issues).join(' ')} ${arr(x.todos).join(' ')} ${guideWords}`.toLowerCase(),versions=arr(x.versions).slice(0,8).map(v=>`<span class="chip">${esc(v)}</span>`).join('');html+=`<details class="project" data-pid="${esc(x.id||'')}" data-search="${esc(search)}"><summary><span class="picon">${esc(x.icon||'📦')}</span><span class="pmain"><b>${esc(x.name||'프로젝트')}</b><small>${fmt(x.updatedAt)} · ${esc(statusLabel(x.status))} · ${Math.max(0,Math.min(100,Number(x.progress||0)))}%</small></span><span class="arrow">⌄</span></summary><div class="content">${hubHtml(x)}${mode==='editor'?`<button class="editBtn" data-edit="${esc(x.id)}">✎ 프로젝트 편집</button>`:''}${versions?`<div class="versions">${versions}</div>`:''}${reportHtml(x)}${guideHtml(x)}<section class="now"><span>현재 작업</span><p>${esc(x.current||'아직 정리된 현재 작업이 없어요.')}</p></section>${x.note?`<section class="note"><b>메모</b><p>${esc(x.note)}</p></section>`:''}<div class="grid"><section><h3>✓ 최근 완료</h3><ul>${list(x.done,'기록 없음')}</ul></section><section><h3>🐞 문제 · 버그</h3><ul>${list(x.issues,'현재 기록된 문제 없음')}</ul></section><section><h3>☐ 다음 작업</h3><ul>${list(x.todos,'기록 없음')}</ul></section><section><h3>◆ 결정 사항</h3><ul>${list(x.decisions,'기록 없음')}</ul></section></div></div></details>`}html+='</section>'}
-  $('#groups').innerHTML=html;restoreOpen(openIds,subIds);renderInbox(p);applySearch();$$('[data-edit]').forEach(b=>b.onclick=()=>openEdit(b.dataset.edit));
+  let html='';for(const g of groups){const ps=projects.filter(x=>(x.group||'기타')===g.name).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));if(!ps.length)continue;html+=`<section class="group"><div class="gtitle"><span>${esc(g.icon||'📁')}</span><div><h2>${esc(g.name)}</h2><small>${ps.length}개 프로젝트</small></div></div>`;for(const x of ps){const guideWords=arr(x.guideline?.sections).flatMap(s=>arr(s.items)).join(' '),search=`${g.name} ${x.name||''} ${x.current||''} ${arr(x.issues).join(' ')} ${arr(x.todos).join(' ')} ${guideWords}`.toLowerCase(),versions=arr(x.versions).slice(0,8).map(v=>`<span class="chip">${esc(v)}</span>`).join('');html+=`<details class="project" data-pid="${esc(x.id||'')}" data-search="${esc(search)}"><summary><span class="picon">${esc(x.icon||'📦')}</span><span class="pmain"><b>${esc(x.name||'프로젝트')}</b><small>${fmt(x.updatedAt)} · ${esc(statusLabel(x.status))} · ${Math.max(0,Math.min(100,Number(x.progress||0)))}%</small></span><span class="arrow">⌄</span></summary><div class="content">${hubHtml(x)}${mode==='editor'?`<button class="editBtn" data-edit="${esc(x.id)}">✎ 프로젝트 편집</button>`:''}${versions?`<div class="versions">${versions}</div>`:''}${reportHtml(x)}${guideHtml(x)}${linkedChatsHtml(x)}<section class="now"><span>현재 작업</span><p>${esc(x.current||'아직 정리된 현재 작업이 없어요.')}</p></section>${x.note?`<section class="note"><b>메모</b><p>${esc(x.note)}</p></section>`:''}<div class="grid"><section><h3>✓ 최근 완료</h3><ul>${list(x.done,'기록 없음')}</ul></section><section><h3>🐞 문제 · 버그</h3><ul>${list(x.issues,'현재 기록된 문제 없음')}</ul></section><section><h3>☐ 다음 작업</h3><ul>${list(x.todos,'기록 없음')}</ul></section><section><h3>◆ 결정 사항</h3><ul>${list(x.decisions,'기록 없음')}</ul></section></div></div></details>`}html+='</section>'}
+  $('#groups').innerHTML=html;restoreOpen(openIds,subIds);renderInbox(p);applySearch();$$('[data-edit]').forEach(b=>b.onclick=()=>openEdit(b.dataset.edit));bindLinkedChatActions();
   showStatus(fromCache?`오프라인 · 마지막 저장본 표시 중 · ${clock()}`:`✓ ${mode==='editor'?'양방향 편집':'자동 갱신'} ON · ${clock()}`,fromCache?'warn':'');updateQueueBadge();
 }
 
@@ -94,6 +88,11 @@ async function saveEdit(force=false){const values=collectEdit();if(!values.name)
   const at=Date.now();if(creating){const action={type:'project_create',projectId:editingId,...values,updatedAt:at,clientActionId:uid('create')};await submitOrQueue(action,{optimistic:()=>{currentData.payload.projects.push({id:editingId,...values,fieldUpdatedAt:Object.fromEntries(EDIT_FIELDS.map(k=>[k,at])),projectUpdatedAt:at,updatedAt:at,chatCount:0,issues:[],todos:[],done:[],decisions:[],versions:[]})}});closeEdit();await load({silent:true,force:true}).catch(()=>render(currentData));showStatus(navigator.onLine?'✓ 새 프로젝트를 저장했어요.':'✓ 오프라인 저장됨 · 연결되면 자동 전송');return}
   const x=arr(currentData?.payload?.projects).find(p=>p.id===editingId);if(!x)return;const changes={};for(const k of EDIT_FIELDS){if(String(fieldValue(editingBase,k)??'')!==String(values[k]??''))changes[k]=values[k]}if(!Object.keys(changes).length){closeEdit();return}const action={type:'project_patch',projectId:x.id,changes,baseFieldUpdatedAt:{...(editingBase.fieldUpdatedAt||{})},updatedAt:at,clientActionId:uid('patch'),forceFields:force?Object.keys(changes):[]};const result=await submitOrQueue(action,{optimistic:()=>{optimisticPatch(x,changes,at);render(currentData)}});if(result.sent)optimisticPatch(x,changes,at);closeEdit();render(currentData);showStatus(result.queued?'✓ 오프라인 변경 저장됨 · 인터넷 연결 시 자동 전송':'✓ 모바일 변경 저장됨 · PC에도 자동 반영');setTimeout(()=>load({silent:true,force:true}),600)
 }catch(e){if(e.status===409){showConflict(conflictAction||{type:'project_patch',projectId:editingId,changes:collectEdit(),baseFieldUpdatedAt:editingBase?.fieldUpdatedAt||{},updatedAt:Date.now()},e.data||{});showStatus('⚠ 동시 수정 충돌을 감지했어요. 덮어쓰지 않았습니다.','warn')}else showStatus('저장 실패: '+e.message,'bad')}finally{btn.disabled=false;btn.textContent='저장'}}
+
+function optimisticLinkedCorrection(chatId,type,targetId){const projects=arr(currentData?.payload?.projects);let source=null,chat=null;for(const p of projects){const hit=arr(p.recentChats).find(c=>c.id===chatId);if(hit){source=p;chat=JSON.parse(JSON.stringify(hit));p.recentChats=arr(p.recentChats).filter(c=>c.id!==chatId);p.chatCount=Math.max(0,Number(p.chatCount||0)-1);p.integrityPending=true;break}}if(type==='chat_reassign'&&chat){const target=projects.find(p=>p.id===targetId);if(target){target.recentChats=[chat,...arr(target.recentChats).filter(c=>c.id!==chatId)].slice(0,10);target.chatCount=Number(target.chatCount||0)+1;target.integrityPending=true}}render(currentData)}
+async function reclassifyLinkedChat(chatId,type){let targetId='';if(type==='chat_reassign'){const sel=document.querySelector(`[data-link-target="${CSS.escape(chatId)}"]`);targetId=sel?.value||'';if(!targetId){showStatus('이동할 프로젝트를 선택해 주세요.','warn');return}let current='';for(const p of arr(currentData?.payload?.projects))if(arr(p.recentChats).some(c=>c.id===chatId)){current=p.id;break}if(targetId===current){showStatus('현재와 다른 프로젝트를 선택해 주세요.','warn');return}}
+  const msg=type==='chat_exclude'?'이 채팅을 개발 대상 아님으로 제외할까요? 원본 ChatGPT 대화는 삭제하지 않습니다.':type==='chat_unassign'?'이 프로젝트 연결을 해제하고 분류대기로 돌릴까요?':'선택한 프로젝트로 이동할까요?';if(!confirm(msg+'\n\n이어진 계승 채팅도 함께 처리됩니다.'))return;
+  const action={type,chatId,projectId:targetId||undefined,includeChain:true,updatedAt:Date.now(),clientActionId:uid('classify')};try{const r=await submitOrQueue(action,{optimistic:()=>optimisticLinkedCorrection(chatId,type,targetId)});optimisticLinkedCorrection(chatId,type,targetId);showStatus(r.queued?'✓ 오프라인 연결 수정 저장됨 · 연결되면 자동 전송':'✓ 연결을 수정했어요. PC에서도 정합성을 자동 복구합니다.');setTimeout(()=>load({silent:true,force:true}),600)}catch(e){showStatus('연결 수정 실패: '+e.message,'bad')}}
 
 async function assignInbox(id){const select=document.querySelector(`[data-assign-select="${CSS.escape(id)}"]`),projectId=select?.value;if(!projectId){showStatus('등록할 프로젝트를 선택해 주세요.','warn');return}const action={type:'assign_inbox',chatId:id,projectId,updatedAt:Date.now(),clientActionId:uid('assign')};try{const r=await submitOrQueue(action,{optimistic:()=>{currentData.payload.inbox=arr(currentData.payload.inbox).filter(x=>x.id!==id);render(currentData)}});currentData.payload.inbox=arr(currentData.payload.inbox).filter(x=>x.id!==id);render(currentData);showStatus(r.queued?'✓ 오프라인 분류 저장됨 · 연결되면 전송':'✓ 프로젝트에 등록했어요.')}catch(e){showStatus('분류 실패: '+e.message,'bad')}}
 async function excludeInbox(id){const action={type:'exclude_inbox',chatId:id,updatedAt:Date.now(),clientActionId:uid('exclude')};try{const r=await submitOrQueue(action,{optimistic:()=>{currentData.payload.inbox=arr(currentData.payload.inbox).filter(x=>x.id!==id);render(currentData)}});currentData.payload.inbox=arr(currentData.payload.inbox).filter(x=>x.id!==id);render(currentData);showStatus(r.queued?'✓ 오프라인 제외 저장됨 · 연결되면 전송':'✓ 분류대기에서 제외했어요.')}catch(e){showStatus('제외 실패: '+e.message,'bad')}}
