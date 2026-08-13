@@ -1,0 +1,1 @@
+import base from'./demo-base.js';import story from'./demo-story.js';import context from'./demo-context.js';import kairunAvatar from'./demo-image-k.js';import elenaAvatar from'./demo-image-e.js';export const demoSeed={...base,...story,...context,character:{...base.character,avatar:kairunAvatar,cover:''},persona:{...base.persona,avatar:elenaAvatar}};
