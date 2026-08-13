@@ -1,7 +1,7 @@
-const VERSION='v0.15.9';
+const VERSION='v0.15.11';
 function normalizeSingleEditorEntry(){
-  document.title=document.title.replace(/v0\.15\.[0-8]/g,VERSION);
-  document.querySelectorAll('.page-head small').forEach(el=>{el.textContent=el.textContent.replace(/v0\.15\.[0-8]/g,VERSION)});
+  document.title=document.title.replace(/v0\.15\.\d+/g,VERSION);
+  document.querySelectorAll('.page-head small').forEach(el=>{el.textContent=el.textContent.replace(/v0\.15\.\d+/g,VERSION)});
   document.querySelectorAll('button').forEach(button=>{
     const text=(button.textContent||'').trim();
     if(text==='캐릭터 편집')button.textContent='편집';
