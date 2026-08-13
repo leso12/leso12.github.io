@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta name="idol-sim-version" content="2.1.0">
+  <meta name="idol-sim-version" content="2.1.1">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>아이돌 시뮬레이터</title>
@@ -1292,17 +1292,65 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1p
 }
 
 
-/* ── v21 공통 확인/알림 모달: 화면·내용·버튼 중앙 정렬 ── */
-.modal-box-confirm { max-width:600px; text-align:center; }
+/* ── v21.1 모달 레이아웃 핫픽스 ──
+   확인/알림은 짧고 중앙 정렬, 진행 요약은 읽기 폭을 제한하고 로그만 좌측 정렬한다. */
+.modal-box-confirm {
+  width:min(calc(100vw - 32px),420px);
+  max-width:420px;
+  padding:24px 22px;
+  text-align:center;
+}
 .modal-box-confirm .popup-msg { text-align:center; font-size:.92rem; line-height:1.65; }
-.modal-box-confirm .modal-actions { justify-content:center; align-items:center; position:static; background:none; margin-left:0; margin-right:0; padding:0; }
+.modal-box-confirm .modal-actions,
+.modal-box-summary .modal-actions {
+  display:flex;
+  width:100%;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  position:static;
+  background:none;
+  margin:18px 0 0;
+  padding:0;
+  flex-wrap:nowrap;
+}
 .modal-box-confirm .modal-actions .btn,
-.modal-box-confirm .modal-actions .btn-sm { flex:0 0 auto; min-width:88px; min-height:44px; }
+.modal-box-confirm .modal-actions .btn-sm,
+.modal-box-summary .modal-actions .btn,
+.modal-box-summary .modal-actions .btn-sm {
+  flex:0 0 110px;
+  width:110px;
+  min-width:110px;
+  min-height:44px;
+}
+.modal-box-summary {
+  width:min(calc(100vw - 32px),540px);
+  max-width:540px;
+  padding:22px;
+}
+.modal-box-summary > h3 { text-align:center; }
+.modal-box-summary > .note { text-align:center; }
+.modal-box-summary .summary-list,
+.modal-box-summary .summary-list > div { text-align:left; }
 @media (max-width: 640px) {
-  .modal-box-confirm { width:min(100%,520px); padding:20px 16px; }
-  .modal-box-confirm .modal-actions { flex-direction:row; flex-wrap:wrap; }
+  .modal-box-confirm {
+    width:min(calc(100vw - 24px),380px);
+    padding:20px 16px;
+  }
+  .modal-box-summary {
+    width:min(calc(100vw - 20px),500px);
+    padding:18px 14px;
+  }
+  .modal-box-confirm .modal-actions,
+  .modal-box-summary .modal-actions { flex-direction:row; flex-wrap:nowrap; }
   .modal-box-confirm .modal-actions .btn,
-  .modal-box-confirm .modal-actions .btn-sm { flex:0 1 120px; }
+  .modal-box-confirm .modal-actions .btn-sm,
+  .modal-box-summary .modal-actions .btn,
+  .modal-box-summary .modal-actions .btn-sm {
+    flex:0 1 108px;
+    width:108px;
+    min-width:0;
+  }
 }
 </style>
 </head>
@@ -5511,7 +5559,7 @@ function showProgressSummary(summary) {
     <div class="note">Day ${summary.startDay} ~ ${summary.endDay-1}</div>
     <div class="summary-list">${important.length?important.slice().reverse().map(x=>`<div>${escapeHtml(x)}</div>`).join(''):'<div>특이사항 없음</div>'}</div>
     ${notice.length?`<div class="note" style="margin-top:8px">⚠️ 자동 변경/비용 부족 ${notice.length}건</div>`:''}
-    <div class="modal-actions"><button class="btn" onclick="closeModal()">확인</button></div>`,true,'modal-box-confirm');
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">확인</button></div>`,true,'modal-box-summary');
 }
 
 // ─── 다음날 ───
