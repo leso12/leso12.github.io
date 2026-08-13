@@ -11,6 +11,10 @@
     const s=document.createElement('script');
     s.textContent=code+'\n//# sourceURL=devlib-app-v2.7.1.js';
     document.body.appendChild(s);
+    const addon=document.createElement('script');
+    addon.src='./guideline-history-addon.js?v=2.7.2';
+    addon.async=true;
+    document.body.appendChild(addon);
   }catch(e){
     console.error(e);
     const status=document.querySelector('#status');
