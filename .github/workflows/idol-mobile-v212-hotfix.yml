@@ -1,0 +1,107 @@
+name: Patch Idol Mobile v21.2 Alignment
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/idol-mobile-v212-hotfix.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: idol-mobile-v212-hotfix
+  cancel-in-progress: true
+
+jobs:
+  patch-v212:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Force modal button center and log left alignment
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('mobile/idol/index.html')
+          s = p.read_text(encoding='utf-8')
+          if 'idol-sim-version" content="2.1.1' in s:
+              s = s.replace('idol-sim-version" content="2.1.1', 'idol-sim-version" content="2.1.2', 1)
+          elif 'idol-sim-version" content="2.1.2' not in s:
+              raise SystemExit('unexpected idol mobile version')
+
+          if 'idol-modal-alignment-v212' not in s:
+              critical = r'''
+          /* ── idol-modal-alignment-v212 ── */
+          #modal-overlay .modal-box-confirm {
+            width:min(calc(100vw - 32px),420px) !important;
+            max-width:420px !important;
+            text-align:center !important;
+          }
+          #modal-overlay .modal-box-summary {
+            width:min(calc(100vw - 32px),540px) !important;
+            max-width:540px !important;
+          }
+          #modal-overlay .modal-actions {
+            display:flex !important;
+            justify-content:center !important;
+            align-items:center !important;
+            width:100% !important;
+            margin-left:auto !important;
+            margin-right:auto !important;
+          }
+          #modal-overlay .modal-box-confirm .modal-actions > button,
+          #modal-overlay .modal-box-summary .modal-actions > button {
+            flex:0 0 110px !important;
+            width:110px !important;
+            min-width:110px !important;
+          }
+          #modal-overlay .modal-box-summary .summary-list,
+          #modal-overlay .modal-box-summary .summary-list *,
+          #modal-overlay .summary-list.summary-list-left,
+          #modal-overlay .summary-list.summary-list-left * {
+            text-align:left !important;
+          }
+          #modal-overlay .modal-box-confirm .popup-msg {
+            text-align:center !important;
+          }
+          @media (max-width:640px) {
+            #modal-overlay .modal-box-confirm { width:min(calc(100vw - 24px),380px) !important; }
+            #modal-overlay .modal-box-summary { width:min(calc(100vw - 20px),500px) !important; }
+          }
+          '''
+              pos = s.find('</style>')
+              if pos < 0:
+                  raise SystemExit('inline style block not found')
+              s = s[:pos] + critical + s[pos:]
+
+          if '<meta http-equiv="Cache-Control"' not in s:
+              needle = '<meta name="idol-sim-version" content="2.1.2">'
+              s = s.replace(needle, needle + '\n  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">\n  <meta http-equiv="Pragma" content="no-cache">\n  <meta http-equiv="Expires" content="0">', 1)
+
+          p.write_text(s, encoding='utf-8')
+          PY
+
+          grep -q 'idol-sim-version" content="2.1.2' mobile/idol/index.html
+          grep -q 'idol-modal-alignment-v212' mobile/idol/index.html
+          grep -q 'justify-content:center !important' mobile/idol/index.html
+          grep -q 'text-align:left !important' mobile/idol/index.html
+
+      - name: Commit v21.2 direct page
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mobile/idol/index.html
+          if git diff --cached --quiet; then
+            echo 'No change needed.'
+          else
+            git commit -m 'Fix idol mobile v21.2 modal alignment'
+            git push
+          fi
