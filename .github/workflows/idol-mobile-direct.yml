@@ -1,0 +1,57 @@
+name: Build Idol Mobile Direct Page
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/idol-mobile-direct.yml'
+      - 'mobile/idol/part*.txt'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: idol-mobile-direct
+  cancel-in-progress: true
+
+jobs:
+  build-direct-page:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruct single-file mobile app
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat mobile/idol/part*.txt \
+            | tr -d '\r\n\t ' \
+            | base64 --decode \
+            | gzip --decompress \
+            > mobile/idol/index.html
+
+          test -s mobile/idol/index.html
+          grep -q 'window.IDOL_INLINE_BUILD=true' mobile/idol/index.html
+          grep -qi '<html' mobile/idol/index.html
+
+          ACTUAL="$(sha256sum mobile/idol/index.html | awk '{print $1}')"
+          EXPECTED='f967e6b92e85a49b61349a7c2b59d6277b2f92bdce70379d3d43581ae4ac8a64'
+          echo "direct page sha256=$ACTUAL"
+          test "$ACTUAL" = "$EXPECTED"
+
+      - name: Commit direct page
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mobile/idol/index.html
+          if git diff --cached --quiet; then
+            echo 'No change needed.'
+          else
+            git commit -m 'Fix idol mobile: deploy direct single-file v20.2'
+            git push
+          fi
