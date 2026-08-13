@@ -1,0 +1,19 @@
+/* LumiChat v0.15.7 — conversation-first UI + unified episode editor */
+.messages{padding:18px 15px 28px}
+.msg.assistant,.msg.narration{width:100%;max-width:100%;margin:0 0 14px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
+.msg.assistant header,.msg.narration header{margin:0 0 5px;padding:0 2px;font-size:12px;color:#d7dce3}
+.msg.assistant header span,.msg.narration header span{color:#aeb6c1}
+.msg.narration header{display:none}
+.msg.assistant .msg-body,.msg.narration .msg-body{padding:0 2px;background:transparent;color:#f1f2f4;font-family:Georgia,'Noto Serif KR',serif;font-size:15px;line-height:1.88}
+.msg.narration .msg-body{color:#d8dde3;font-style:italic}
+.msg.user{max-width:86%;margin:12px 0 18px auto;padding:10px 13px;border:1px solid #49515c;border-radius:17px;background:#282d34}
+.msg.user .msg-body{color:#fff;font-size:15px;line-height:1.7}
+.msg.user header{color:#f3f4f6}
+.msg footer{min-height:30px;margin-top:3px;gap:1px;opacity:.55}
+.msg.assistant footer,.msg.narration footer{padding-right:2px}
+.msg footer button{color:#c1c7d0;font-size:11px;min-height:30px;padding:3px 7px}
+.msg footer button:focus-visible{outline:2px solid var(--accent);outline-offset:1px;opacity:1}
+.msg.intro{margin-bottom:7px}.msg.intro footer{opacity:.28}.msg.intro header span{display:none}
+.turn-widgets{margin:10px 0 18px}.turn-widget{border-color:#4a515b;background:#12151a}.turn-widget>summary{color:#eef0f3}.turn-widget>summary small{color:#c0c6cf}
+.episode-inline-host{margin-top:12px;min-width:0}.episode-inline-form{display:grid;gap:12px;padding:13px;border:1px solid #414852;border-radius:15px;background:#111419}.episode-inline-actions{display:flex;gap:8px;justify-content:flex-end}.episode-inline-actions>*{flex:1}.episode-choice.active{border-color:var(--accent);background:#29271f;color:#fff}.episode-inline-form input,.episode-inline-form textarea,.episode-inline-form select{color:#f4f5f7;background:#0e1115;border-color:#4a515b}.hint,.section-note,.tool-list button span,.manage-item small{color:#b7bec8}.settings-card label,.sheet-form label{color:#e0e4e9}.sheet-card{color:#f4f5f7}
+@media(max-width:420px){.messages{padding-left:12px;padding-right:12px}.msg.assistant .msg-body,.msg.narration .msg-body{font-size:15px;line-height:1.84}.msg.user{max-width:90%}.episode-inline-form{padding:10px}}
