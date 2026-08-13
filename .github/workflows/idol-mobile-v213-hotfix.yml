@@ -75,5 +75,6 @@ jobs:
             echo 'No change needed.'
           else
             git commit -m 'Deploy idol mobile v21.3 relationship UI fix'
+            git pull --rebase origin main
             git push
           fi
