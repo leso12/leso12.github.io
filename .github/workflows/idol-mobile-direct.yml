@@ -27,7 +27,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat mobile/idol/part*.txt \
+          cat \
+            mobile/idol/part001.txt \
+            mobile/idol/part001b.txt \
+            mobile/idol/part002.txt \
+            mobile/idol/part003.txt \
+            mobile/idol/part004.txt \
+            mobile/idol/part005.txt \
+            mobile/idol/part006.txt \
+            mobile/idol/part007.txt \
+            mobile/idol/part007b.txt \
+            mobile/idol/part008.txt \
             | tr -d '\r\n\t ' \
             | base64 --decode \
             | gzip --decompress \
