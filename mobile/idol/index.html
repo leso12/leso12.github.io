@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta name="idol-sim-version" content="2.0.0">
+  <meta name="idol-sim-version" content="2.1.0">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>아이돌 시뮬레이터</title>
@@ -1290,6 +1290,20 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1p
   .ev-pair-summary-head { flex-wrap:wrap; }
   .ev-pair-summary-head .ev-trend { margin-left:0; }
 }
+
+
+/* ── v21 공통 확인/알림 모달: 화면·내용·버튼 중앙 정렬 ── */
+.modal-box-confirm { max-width:600px; text-align:center; }
+.modal-box-confirm .popup-msg { text-align:center; font-size:.92rem; line-height:1.65; }
+.modal-box-confirm .modal-actions { justify-content:center; align-items:center; position:static; background:none; margin-left:0; margin-right:0; padding:0; }
+.modal-box-confirm .modal-actions .btn,
+.modal-box-confirm .modal-actions .btn-sm { flex:0 0 auto; min-width:88px; min-height:44px; }
+@media (max-width: 640px) {
+  .modal-box-confirm { width:min(100%,520px); padding:20px 16px; }
+  .modal-box-confirm .modal-actions { flex-direction:row; flex-wrap:wrap; }
+  .modal-box-confirm .modal-actions .btn,
+  .modal-box-confirm .modal-actions .btn-sm { flex:0 1 120px; }
+}
 </style>
 </head>
 <body>
@@ -1404,7 +1418,6 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1p
         <option value="메인보컬">메인보컬</option><option value="보컬">보컬</option>
         <option value="메인댄서">메인댄서</option><option value="댄서">댄서</option>
         <option value="메인래퍼">메인래퍼</option><option value="래퍼">래퍼</option>
-        <option value="멀티">멀티</option>
       </select>
       <select id="member-sort" class="input member-filter" onchange="renderMembersTab()">
         <option value="registered">등록순</option>
@@ -1490,7 +1503,7 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1p
       <div class="relation-toolbar">
         <select id="relation-filter-member" class="input" onchange="renderRelationsTab()"><option value="">멤버 전체</option></select>
         <select id="relation-filter-type" class="input" onchange="renderRelationsTab()">
-          <option value="all">관계 전체</option><option value="lover">연인</option><option value="ex">전연인</option>
+          <option value="all">관계 전체</option><option value="lover">연인</option><option value="ex">전 연인</option>
           <option value="positive">가까운 관계</option><option value="negative">불편한 관계</option><option value="changed">변화 있는 관계</option>
         </select>
         <select id="relation-sort" class="input" onchange="renderRelationsTab()">
@@ -1625,7 +1638,7 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1p
         <div class="rule-item"><span class="rule-key">컴백 기간</span><span>→ 21일 / 음악방송·팬싸 가능</span></div>
         <div class="rule-item"><span class="rule-key">앨범 발매 비용</span><span>→ 500원</span></div>
         <div class="rule-item"><span class="rule-key">콘서트 예약 비용</span><span>→ 1,000원 / 수익 2,000~3,000원</span></div>
-        <div class="rule-item"><span class="rule-key">이별 후 회피 기간</span><span>→ 3일 / 서먹함 → 전연인</span></div>
+        <div class="rule-item"><span class="rule-key">이별 후 회피 기간</span><span>→ 3일 / 이후 이별 후 이벤트</span></div>
       </div>
     </div>
   </section>
@@ -2299,7 +2312,6 @@ window.RELATION_TEMPLATES = {
     "breakup": "💔",
     "after_breakup": "🌫️",
     "avoid": "🚫",
-    "awkward": "🫥",
     "reunion": "❤️‍🩹",
     "daily": "📌",
     "group_daily": "👥"
@@ -2548,7 +2560,7 @@ window.RELATION_TEMPLATES = {
     },
     {
       "id": "ak_01",
-      "type": "awkward",
+      "type": "after_breakup",
       "participants": "pair",
       "first": "{A}{은는} {B}{와과} 인사를 주고받았지만 말이 이어지지 않았습니다",
       "secondKey": "awkwardMood",
@@ -2558,7 +2570,7 @@ window.RELATION_TEMPLATES = {
       "id": "re_01",
       "type": "reunion",
       "participants": "pair",
-      "first": "{A}{은는} {B}{에게} 다시 시작하자고 말했습니다",
+      "first": "{A}{와과} {B}{이가} 재결합했습니다",
       "secondKey": "reunionMood",
       "weight": 10
     },
@@ -2652,7 +2664,7 @@ window.EVENTS_DATA = {
 <script>// ── state.js ── 상태 모델, 기본값, 마이그레이션, 자동백업 ────────────────
 'use strict';
 
-const CURRENT_VERSION = '2.0.0';
+const CURRENT_VERSION = '2.1.0';
 const STORAGE_KEY = 'idol_sim_state_v2';
 const BACKUP_KEY = 'idol_sim_state_backups_v1';
 const MAX_BACKUPS = 3;
@@ -2829,6 +2841,11 @@ function migrateMember(m) {
   if (!m.id) m.id = 'mb_legacy_' + hashString32([m.name,m.position,m.gender,m.height,m.weight].join('|')).toString(36);
   if (!m.name) m.name = '이름없음';
   if (!m.position) m.position = '보컬';
+  if (m.position === '멀티') {
+    const ranked=[['vocal','보컬'],['dance','댄서'],['rap','래퍼']].sort((a,b)=>(Number(m.stats[b[0]])||0)-(Number(m.stats[a[0]])||0));
+    m.position=ranked[0][1];
+    m._v21LegacyMulti=true;
+  }
   if (!m.gender) m.gender = '미입력';
   if (!m.mbti) m.mbti = '미입력';
   m.height = Math.max(140, safeNumber(m.height, 170));
@@ -2846,7 +2863,7 @@ function migrateRelation(r) {
   r.snapNotified = !!r.snapNotified;
   r.history = Array.isArray(r.history) ? r.history.slice(-80).map(h => ({
     day: Math.max(0, safeNumber(h && h.day, 0)),
-    type: String((h && h.type) || 'event'),
+    type: String((h && h.type) === 'awkward' ? 'after_breakup' : ((h && h.type) || 'event')),
     delta: safeNumber(h && h.delta, 0),
     before: Math.max(-200, Math.min(200, safeNumber(h && h.before, r.affection))),
     after: Math.max(-200, Math.min(200, safeNumber(h && h.after, r.affection))),
@@ -2871,6 +2888,13 @@ function normalizeMemberInvariants(members, migrations) {
       if (migrations) migrations.push('v16-member-id-repair' + (old ? '-duplicate' : '-missing'));
     }
     seenIds.add(m.id);
+  });
+
+  members.forEach(m => {
+    if (m._v21LegacyMulti) {
+      delete m._v21LegacyMulti;
+      if (migrations) migrations.push('v21-multi-position-removed');
+    }
   });
 
   // 리더 정확히 1명: 첫 리더만 유지, 없으면 첫 멤버 자동 리더.
@@ -3173,7 +3197,7 @@ window.RNGModule = { normalizeSeed, ensureRng, next, float, int, pick, chance, r
 <script>// ── members.js ── 멤버 CRUD, 검증, 랜덤 생성, 역할 제한 ───────────────────
 'use strict';
 
-const VALID_POSITIONS = ['메인보컬','보컬','메인댄서','댄서','메인래퍼','래퍼','멀티'];
+const VALID_POSITIONS = ['메인보컬','보컬','메인댄서','댄서','메인래퍼','래퍼'];
 const UNIQUE_POSITIONS = ['메인보컬','메인댄서','메인래퍼'];
 const MBTI_LIST = ['INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP',
                    'ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP'];
@@ -3202,15 +3226,62 @@ function genMemberId(state) {
   return 'mb_local_' + (_memberIdCounter++);
 }
 
+const ENGLISH_JOSA_NAME_OVERRIDES = {
+  john:[true,false], emma:[false,false], alex:[false,false], daniel:[true,true], james:[false,false], chris:[false,false],
+  michael:[true,true], jack:[true,false], nick:[true,false], eric:[true,false], mark:[false,false], mike:[false,false],
+  jane:[true,false], anne:[true,false], anna:[false,false], ryan:[true,false], liam:[true,false], sam:[true,false],
+  tom:[true,false], bob:[true,false], kate:[false,false], scott:[true,false], matt:[true,false], david:[false,false],
+  kevin:[true,false], evan:[true,false], ethan:[true,false], noah:[false,false], leo:[false,false], theo:[false,false],
+  paul:[true,true], nicole:[true,true], rachel:[true,true], gabriel:[true,true], nathan:[true,false], steven:[true,false]
+};
+
+function endingInfo(value) {
+  let text=String(value ?? '').trim();
+  if (!text) return {hasBatchim:false, rieul:false};
+  text=text.replace(/[\s\-_'"“”‘’.,!?…:;()\[\]{}<>♡♥★☆✨💗💕💞❤️‍🩹💔]+$/gu,'');
+  if (!text) return {hasBatchim:false, rieul:false};
+  const ch=text[text.length-1];
+  const code=ch.charCodeAt(0);
+  if (code>=0xAC00 && code<=0xD7A3) {
+    const jong=(code-0xAC00)%28;
+    return {hasBatchim:jong!==0, rieul:jong===8};
+  }
+  if (/\d/.test(ch)) {
+    const map={0:[true,false],1:[true,true],2:[false,false],3:[true,false],4:[false,false],5:[false,false],6:[true,false],7:[true,true],8:[true,true],9:[false,false]};
+    const [hasBatchim,rieul]=map[ch]||[false,false];
+    return {hasBatchim,rieul};
+  }
+  const word=(text.match(/[A-Za-z]+$/)||[''])[0].toLowerCase();
+  if (word) {
+    const exact=ENGLISH_JOSA_NAME_OVERRIDES[word];
+    if (exact) return {hasBatchim:exact[0],rieul:exact[1]};
+    // 영어 이름은 화면 표기를 유지하되 한국어 통상 발음을 기준으로 조사 종성을 추정한다.
+    // ㄴ/ㅁ/ㄹ 계열 종성은 받침으로, -s/-x/-r/-d/-g 계열은 보통 '스/어/드/그'로 끝나는 발음으로 본다.
+    if (/(ng|n|m|l)$/.test(word)) return {hasBatchim:true,rieul:/l$/.test(word)};
+    if (/(ck|c|p)$/.test(word)) return {hasBatchim:true,rieul:false};
+    if (/b$/.test(word)) return {hasBatchim:true,rieul:false};
+    if (/k$/.test(word)) return {hasBatchim:!/(ark|ork|urk)$/.test(word),rieul:false};
+    if (/t$/.test(word)) return {hasBatchim:/(tt|ot|ott|et|ett)$/.test(word),rieul:false};
+    if (/[aeiouy]$/.test(word)) return {hasBatchim:false,rieul:false};
+    if (/(s|z|x|r|d|g|f|v|h|j|q)$/.test(word)) return {hasBatchim:false,rieul:false};
+    return {hasBatchim:false,rieul:false};
+  }
+  return {hasBatchim:false,rieul:false};
+}
+
 function josa(name, type) {
   if (!name) return '';
-  const last = name.charCodeAt(name.length - 1);
-  const hasBatchim = last >= 0xAC00 && ((last - 0xAC00) % 28) !== 0;
+  const {hasBatchim,rieul}=endingInfo(name);
   switch(type) {
     case '은는': return hasBatchim ? '은' : '는';
     case '이가': return hasBatchim ? '이' : '가';
     case '을를': return hasBatchim ? '을' : '를';
-    case '와과': return hasBatchim ? '과' : '와';
+    case '와과': case '과와': return hasBatchim ? '과' : '와';
+    case '으로로': case '로으로': return (!hasBatchim || rieul) ? '로' : '으로';
+    case '아야': return hasBatchim ? '아' : '야';
+    case '이랑랑': case '랑이랑': return hasBatchim ? '이랑' : '랑';
+    case '이라고라고': return hasBatchim ? '이라고' : '라고';
+    case '이에요예요': return hasBatchim ? '이에요' : '예요';
     case '에게': return '에게';
     case '의': return '의';
     default: return '';
@@ -3305,7 +3376,7 @@ function uniqueRandomName(gender, existingMembers, state) {
 function randomPosition(existingMembers, state) {
   const occupied = new Set((existingMembers || []).map(m => m.position));
   const availableMain = UNIQUE_POSITIONS.filter(p => !occupied.has(p));
-  const ordinary = ['보컬','보컬','댄서','댄서','래퍼','래퍼','멀티','멀티'];
+  const ordinary = ['보컬','보컬','댄서','댄서','래퍼','래퍼'];
   const pool = ordinary.concat(availableMain);
   return randomPick(pool,state);
 }
@@ -3325,9 +3396,6 @@ function randomMemberData(existingMembers, state) {
   if (position.includes('보컬')) stats.vocal = randomHalf(position.startsWith('메인') ? 72 : 58, 96,s);
   if (position.includes('댄서')) stats.dance = randomHalf(position.startsWith('메인') ? 72 : 58, 96,s);
   if (position.includes('래퍼')) stats.rap = randomHalf(position.startsWith('메인') ? 72 : 58, 96,s);
-  if (position === '멀티') {
-    stats.vocal = randomHalf(48, 86,s); stats.dance = randomHalf(48, 86,s); stats.rap = randomHalf(48, 86,s);
-  }
 
   return {
     name: uniqueRandomName(gender, existingMembers || [],s),
@@ -3347,7 +3415,7 @@ window.MembersModule = {
   MBTI_LIST,
   MIN_HEIGHT,
   MIN_WEIGHT,
-  josa,
+  josa, endingInfo,
   createMember,
   validateMemberData,
   validateMemberDataDetailed,
@@ -3453,13 +3521,13 @@ function getStageLabel(stage) { return STAGE_LABELS[stage] || stage; }
 // v20 표시 계층: 내부 호감도 수치는 그대로 유지하되, 기본 UI에서는 '관계의 느낌'을 먼저 보여준다.
 // 연애/질투/냉전 같은 상태는 친밀도 단계와 별도 배지로 표현한다.
 const RELATION_DISPLAY_TIERS = [
-  { id:'very_bad', min:-200, max:-151, icon:'💢', label:'사이가 크게 틀어짐', short:'크게 틀어짐' },
-  { id:'uncomfortable', min:-150, max:-61, icon:'🧊', label:'불편한 사이', short:'불편함' },
-  { id:'awkward', min:-60, max:-1, icon:'😶', label:'어색한 사이', short:'어색함' },
-  { id:'neutral', min:0, max:59, icon:'🌱', label:'알아가는 사이', short:'알아가는 중' },
-  { id:'friendly', min:60, max:119, icon:'🙂', label:'친한 사이', short:'친함' },
-  { id:'close', min:120, max:149, icon:'😊', label:'가까운 사이', short:'가까움' },
-  { id:'special', min:150, max:200, icon:'💞', label:'각별한 사이', short:'각별함' }
+  { id:'very_bad', min:-200, max:-151, icon:'💢', label:'적대', short:'적대' },
+  { id:'uncomfortable', min:-150, max:-61, icon:'🧊', label:'반감', short:'반감' },
+  { id:'awkward', min:-60, max:-1, icon:'😶', label:'어색', short:'어색' },
+  { id:'neutral', min:0, max:59, icon:'🌱', label:'지인', short:'지인' },
+  { id:'friendly', min:60, max:119, icon:'🙂', label:'친구', short:'친구' },
+  { id:'close', min:120, max:149, icon:'😊', label:'친한 친구', short:'친한 친구' },
+  { id:'special', min:150, max:200, icon:'🤝', label:'절친', short:'절친' }
 ];
 
 function getRelationDisplayTier(rel) {
@@ -3467,7 +3535,7 @@ function getRelationDisplayTier(rel) {
   return RELATION_DISPLAY_TIERS.find(t => a >= t.min && a <= t.max) || RELATION_DISPLAY_TIERS[3];
 }
 
-function getRelationStatusBadges(rel) {
+function getRelationStatusBadges(rel, settings) {
   if (!rel) return [];
   const out=[];
   if (isLover(rel)) out.push({id:'lover',icon:'💗',label:'연인'});
@@ -3475,7 +3543,8 @@ function getRelationStatusBadges(rel) {
   if (isAvoiding(rel)) out.push({id:'avoid',icon:'🚫',label:'회피 중'});
   if (rel.coldWarDaysLeft > 0 || hasTag(rel,'coldWar')) out.push({id:'coldWar',icon:'🧊',label:'냉전 중'});
   if (hasTag(rel,'jealous')) out.push({id:'jealous',icon:'😣',label:'질투 중'});
-  if (hasTag(rel,'flirting')) out.push({id:'flirting',icon:'✨',label:'썸 기류'});
+  const isSome = hasTag(rel,'flirting') || (!isLover(rel) && !isExLover(rel) && Number(rel.affection)>=getSnapThreshold(settings));
+  if (isSome) out.push({id:'flirting',icon:'✨',label:'썸'});
   if (rel.confessionPending) out.push({id:'confession',icon:'💌',label:'고백 대기'});
   return out;
 }
@@ -3503,15 +3572,14 @@ function isAwkward(rel, settings) {
 function getRelationLabel(rel, settings) {
   const ex = isExLover(rel);
   if (!ex && isLover(rel)) return '연인';
-  if (ex && rel.avoidDaysLeft > 0) return '전연인 · 회피';
-  if (ex && (rel.coldWarDaysLeft > 0 || hasTag(rel,'coldWar'))) return '전연인 · 냉전';
-  if (ex && hasTag(rel,'jealous')) return '전연인 · 질투';
-  if (ex && rel.affection <= ((settings && settings.exAwkwardClear) || 80)) return '전연인 · 어색함';
-  if (ex && hasTag(rel,'flirting')) return '전연인 · 플러팅';
-  if (ex && rel.affection >= getReunionThreshold(settings)) return '전연인 · 재접근 가능';
-  if (ex) return '전연인';
-  if (rel.stage === 'closeFriend' && rel.affection >= getSnapThreshold(settings)) return '절친 · 썸';
-  return getStageLabel(rel.stage);
+  if (ex && rel.avoidDaysLeft > 0) return '전 연인 · 회피';
+  if (ex && (rel.coldWarDaysLeft > 0 || hasTag(rel,'coldWar'))) return '전 연인 · 냉전';
+  if (ex && hasTag(rel,'jealous')) return '전 연인 · 질투';
+  if (ex && hasTag(rel,'flirting')) return '전 연인 · 썸';
+  if (ex && rel.affection >= getReunionThreshold(settings)) return '전 연인';
+  if (ex) return '전 연인';
+  if (rel.stage === 'closeFriend' && rel.affection >= getSnapThreshold(settings)) return '썸';
+  return getRelationDisplayTier(rel).label;
 }
 
 function getAllowedTypes(rel, settings) {
@@ -3524,9 +3592,9 @@ function getAllowedTypes(rel, settings) {
   if (isExLover(rel)) {
     if (rel.coldWarDaysLeft > 0 || hasTag(rel,'coldWar')) return ['fight','reconcile'];
     if (hasTag(rel,'jealous')) return ['jealousy','fight','reconcile'];
-    if (rel.affection <= exAwkClear) return ['after_breakup','awkward'];
+    if (rel.affection <= exAwkClear) return ['after_breakup'];
     if (rel.affection >= reunionR) return ['friendship','flirting','date','reunion'];
-    return ['after_breakup','awkward'];
+    return ['after_breakup'];
   }
 
   if (isLover(rel)) {
@@ -3628,11 +3696,11 @@ function eventRandom(state) {
 
 function loadTemplates(data) { _templates = data; }
 function getTemplates() { return _templates; }
+function eventJosa(name,type) { return window.MembersModule ? window.MembersModule.josa(name,type) : ''; }
 
 function resolveNameWithJosa(str, token, name) {
   if (!name) return str;
-  const J = window.MembersModule ? window.MembersModule.josa : (()=>'');
-  let out = str.replace(new RegExp('\\{' + token + '\\}\\{([^}]+)\\}', 'g'), (_, jType) => name + J(name, jType));
+  let out = str.replace(new RegExp('\\{' + token + '\\}\\{([^}]+)\\}', 'g'), (_, jType) => name + eventJosa(name, jType));
   return out.replace(new RegExp('\\{' + token + '\\}', 'g'), name);
 }
 
@@ -3852,7 +3920,7 @@ function applyAffectionChange(type, rel, state, a, b, c) {
     case 'awkward': RM.changeAffection(rel, rint(1,2), settings); break;
     case 'reunion':
       RM.changeAffection(rel, rint(5,10), settings);
-      if (rel.affection >= RM.getConfessThreshold(settings) && a && b) {
+      if (a && b) {
         const elig = romanceEligibility(state,a,b,rel);
         if (elig.ok) RM.doBecomeLover(rel, settings);
       }
@@ -3917,7 +3985,7 @@ function doConfess(state, fromId, toId) {
     if (RM.isAvoiding(rel) || rel.coldWarDaysLeft > 0 || RM.hasTag(rel,'coldWar') || RM.hasTag(rel,'jealous'))
       return { type:'reunion_blocked', from, to, rel };
     if (rel.affection < RM.getReunionThreshold(state.settings)) {
-      if (RM.recordHistory) RM.recordHistory(rel,{day:state.day,type:'reunion_try',delta:0,before:rel.affection,after:rel.affection,text:`${from.name}과 ${to.name}의 재결합 시도`});
+      if (RM.recordHistory) RM.recordHistory(rel,{day:state.day,type:'reunion_try',delta:0,before:rel.affection,after:rel.affection,text:`${from.name}${eventJosa(from.name,'와과')} ${to.name}의 재결합 시도`});
       return { type:'reunion_pending', from, to, rel };
     }
     return { type:'reunion_event', from, to, rel };
@@ -3927,7 +3995,7 @@ function doConfess(state, fromId, toId) {
   if (rel.affection >= L) {
     const before=Number(rel.affection)||0;
     RM.doBecomeLover(rel, state.settings);
-    if (RM.recordHistory) RM.recordHistory(rel,{day:state.day,type:'confession',delta:(Number(rel.affection)||0)-before,before,after:rel.affection,text:`${from.name}과 ${to.name}이 연인이 됨`});
+    if (RM.recordHistory) RM.recordHistory(rel,{day:state.day,type:'confession',delta:(Number(rel.affection)||0)-before,before,after:rel.affection,text:`${from.name}${eventJosa(from.name,'와과')} ${to.name}${eventJosa(to.name,'이가')} 연인이 됨`});
     return { type:'success', from, to, rel };
   }
   rel.confessionPending = true;
@@ -3950,7 +4018,7 @@ function generateAutoConfessions(state) {
     if (eventRandom(state) >= (Number.isFinite(chance)?chance:0.30)) continue;
     const before=Number(rel.affection)||0;
     RM.doBecomeLover(rel,state.settings);
-    if (RM.recordHistory) RM.recordHistory(rel,{day:state.day,type:'auto_confession',delta:(Number(rel.affection)||0)-before,before,after:rel.affection,text:`${a.name}과 ${b.name}의 자동 고백 성공`});
+    if (RM.recordHistory) RM.recordHistory(rel,{day:state.day,type:'auto_confession',delta:(Number(rel.affection)||0)-before,before,after:rel.affection,text:`${a.name}${eventJosa(a.name,'와과')} ${b.name}의 자동 고백 성공`});
     results.push({from:a,to:b,rel});
     if (state.settings.relationshipMode === 'monogamy') continue;
   }
@@ -4108,13 +4176,13 @@ function renderGraph(container, state) {
 function renderLegend(container) {
   if (!container) return;
   const items = [
-    ['혐오', STAGE_COLORS.hatred],
-    ['불편', STAGE_COLORS.uncomfortable],
-    ['무관심', STAGE_COLORS.indifference],
+    ['적대', STAGE_COLORS.hatred],
+    ['반감', STAGE_COLORS.uncomfortable],
+    ['지인', STAGE_COLORS.indifference],
     ['친구', STAGE_COLORS.friend],
     ['절친', STAGE_COLORS.closeFriend],
     ['연인', STAGE_COLORS.lover],
-    ['전연인', STAGE_COLORS.exLover],
+    ['전 연인', STAGE_COLORS.exLover],
   ];
   container.innerHTML = items.map(([label, color]) =>
     `<span class="legend-item"><span class="legend-dot" style="background:${color}"></span>${label}</span>`
@@ -4713,7 +4781,7 @@ window.selectScheduleMembers=function(group){
   const s=APP.state; APP.ui.scheduleSelected=APP.ui.scheduleSelected||new Set(); APP.ui.scheduleSelected.clear();
   if(group!=='clear')s.members.forEach(m=>{
     const scheduled=(s.schedule||[]).some(e=>e.memberId===m.id);
-    if(group==='all'||(group==='unassigned'&&!scheduled)||(group==='vocal'&&['메인보컬','보컬','멀티'].includes(m.position))||(group==='dance'&&['메인댄서','댄서','멀티'].includes(m.position))||(group==='rap'&&['메인래퍼','래퍼','멀티'].includes(m.position)))APP.ui.scheduleSelected.add(m.id);
+    if(group==='all'||(group==='unassigned'&&!scheduled)||(group==='vocal'&&['메인보컬','보컬'].includes(m.position))||(group==='dance'&&['메인댄서','댄서'].includes(m.position))||(group==='rap'&&['메인래퍼','래퍼'].includes(m.position)))APP.ui.scheduleSelected.add(m.id);
   });
   const act=APP.scheduleData.find(a=>a.id===APP.ui.scheduleActivity); if(act?.isGroupOnly)APP.ui.scheduleSelected=new Set(s.members.map(m=>m.id));
   renderScheduleTab();
@@ -4742,7 +4810,7 @@ window.clearSchedule=function(){
 };
 window.applySchedule=function(){window.StateModule.saveState(APP.state);renderDashboard();showToast('스케줄이 저장되었습니다');};
 window.assignQuickSchedule=function(group,activityId){
-  const s=APP.state,target=s.members.filter(m=>group==='all'||(group==='vocal'&&['메인보컬','보컬','멀티'].includes(m.position))||(group==='dance'&&['메인댄서','댄서','멀티'].includes(m.position))||(group==='rap'&&['메인래퍼','래퍼','멀티'].includes(m.position)));
+  const s=APP.state,target=s.members.filter(m=>group==='all'||(group==='vocal'&&['메인보컬','보컬'].includes(m.position))||(group==='dance'&&['메인댄서','댄서'].includes(m.position))||(group==='rap'&&['메인래퍼','래퍼'].includes(m.position)));
   if(!target.length){showToast('해당 라인 멤버가 없습니다');return;}if(assignActivityToIds(target.map(m=>m.id),activityId)){const act=APP.scheduleData.find(a=>a.id===activityId);showToast(`${act?act.label:activityId} · ${target.length}명 배정`);}
 };
 window.onCopyLastSchedule=function(){
@@ -5087,7 +5155,7 @@ function executeDay(s) {
   const breakupIds=RM.tickRelations(s)||[];
   breakupIds.forEach(rid=>{
     const ids=rid.split(':'), a=s.members.find(m=>m.id===ids[0]), b=s.members.find(m=>m.id===ids[1]);
-    if(a&&b){const line=`💔 ${a.name}과 ${b.name}은 관계를 정리하고 전연인이 되었습니다`;logs.push(line);pushRelLog(`[Day ${s.day}] ${line}`);}
+    if(a&&b){const line=`💔 ${a.name}${josa(a.name,'와과')} ${b.name}${josa(b.name,'은는')} 관계를 정리하고 전 연인이 되었습니다`;logs.push(line);pushRelLog(`[Day ${s.day}] ${line}`);}
   });
 
   if (APP.templates) {
@@ -5101,7 +5169,7 @@ function executeDay(s) {
       logs.push(line); if(ev.aId&&ev.bId)pushRelLog(`[Day ${s.day}] ${line}`);
     });
     const confessions=window.EventsModule.generateAutoConfessions(s);
-    confessions.forEach(({from,to})=>{const line=`💑 ${from.name}과 ${to.name}은 서로의 마음을 확인하고 연인이 되었습니다`;logs.push(line);pushRelLog(`[Day ${s.day}] ${line}`);});
+    confessions.forEach(({from,to})=>{const line=`💑 ${from.name}${josa(from.name,'와과')} ${to.name}${josa(to.name,'은는')} 서로의 마음을 확인하고 연인이 되었습니다`;logs.push(line);pushRelLog(`[Day ${s.day}] ${line}`);});
   }
 
   return {logs,kpiDelta,notices};
@@ -5172,7 +5240,7 @@ function buildActivityLogs(s, act, members) {
       fanmeeting:[`🫶 ${gn}${josa(gn,'은는')} 팬미팅을 진행했습니다`,'팬들과 가까운 거리에서 오랜 시간을 보냈습니다'],
       award_show:[`🏆 ${gn}${josa(gn,'은는')} 시상식 일정에 참석했습니다`],
       concert_rehearsal:[`🎚️ ${gn}${josa(gn,'은는')} 콘서트 리허설을 진행했습니다`,'무대 동선과 호흡을 다시 맞췄습니다']
-    }[act.id] || [`🎪 ${gn}${josa(gn,'은는')} ${act.label}을 진행했습니다`];
+    }[act.id] || [`🎪 ${gn}${josa(gn,'은는')} ${act.label}${josa(act.label,'을를')} 진행했습니다`];
     logs.push(...tmpl);
   } else if (act.type === 'rest') {
     const names = members.map(m=>m.name).join(', ');
@@ -5180,7 +5248,7 @@ function buildActivityLogs(s, act, members) {
   } else if (act.type !== 'practice') {
     const names = members.map(m=>m.name).join(', ');
     const icon = act.type==='schedule' ? '📋' : '⭐';
-    logs.push(`${icon} ${names} — ${act.label}을 진행했습니다`);
+    logs.push(`${icon} ${names} — ${act.label}${josa(act.label,'을를')} 진행했습니다`);
   }
   return logs;
 }
@@ -5213,8 +5281,8 @@ function updateAlbumProgress(s, subType, members) {
   if (!key) return; // 랩은 개인 능력치만 상승, 앨범 진행률 축에는 없음
 
   const eligible = members.filter(m => {
-    if (subType === 'vocal') return ['메인보컬','보컬','멀티'].includes(m.position);
-    if (subType === 'dance') return ['메인댄서','댄서','멀티'].includes(m.position);
+    if (subType === 'vocal') return ['메인보컬','보컬'].includes(m.position);
+    if (subType === 'dance') return ['메인댄서','댄서'].includes(m.position);
     if (subType === 'songwriting') return !!s.album.lyricistId && m.id === s.album.lyricistId;
     if (subType === 'arrangement') return !!s.album.arrangerId && m.id === s.album.arrangerId;
     return false;
@@ -5286,9 +5354,9 @@ function applyWeightChange(s, logs) {
     else if (diff <= underDelta) band = 'under';
 
     if (band !== m.weightBand) {
-      if (band === 'watch') logs.push(`⚖️ ${m.name}은 최근 체중 변화가 눈에 띄어 식사와 컨디션을 조금 더 관리하기로 했습니다`);
-      if (band === 'strong') logs.push(`⚖️ ${m.name}은 기준 체중보다 크게 늘어 스태프와 함께 생활 패턴을 점검했습니다`);
-      if (band === 'under') logs.push(`⚖️ ${m.name}은 기준 체중보다 많이 줄어 건강을 우선해 식사와 휴식을 챙기기 시작했습니다`);
+      if (band === 'watch') logs.push(`⚖️ ${m.name}${josa(m.name,'은는')} 최근 체중 변화가 눈에 띄어 식사와 컨디션을 조금 더 관리하기로 했습니다`);
+      if (band === 'strong') logs.push(`⚖️ ${m.name}${josa(m.name,'은는')} 기준 체중보다 크게 늘어 스태프와 함께 생활 패턴을 점검했습니다`);
+      if (band === 'under') logs.push(`⚖️ ${m.name}${josa(m.name,'은는')} 기준 체중보다 많이 줄어 건강을 우선해 식사와 휴식을 챙기기 시작했습니다`);
       if (band === 'normal' && m.weightBand && m.weightBand !== 'normal') logs.push(`⚖️ ${m.name}의 체중이 다시 안정적인 범위로 돌아왔습니다`);
       m.weightBand = band;
     }
@@ -5297,7 +5365,7 @@ function applyWeightChange(s, logs) {
     if (band === 'under' && gameRandom() < 0.25) {
       const recovery = Math.round(rand(0.50, 1.00) * 100) / 100;
       m.weight = Math.round((m.weight + recovery) * 100) / 100;
-      logs.push(`🍚 ${m.name}은 식사와 휴식을 충분히 챙기며 ${recovery.toFixed(2)}kg 회복했습니다`);
+      logs.push(`🍚 ${m.name}${josa(m.name,'은는')} 식사와 휴식을 충분히 챙기며 ${recovery.toFixed(2)}kg 회복했습니다`);
     }
   });
 }
@@ -5328,9 +5396,9 @@ function smartAutoAssign(s, isManualTrigger) {
   const practiceMap = { vocal_prac:'vocal', dance_prac:'dance', rap_prac:'rap', lyric_prac:'songwriting', arr_prac:'arrangement' };
 
   function positionBonus(m, sk) {
-    if (sk==='vocal' && ['메인보컬','보컬','멀티'].includes(m.position)) return 5;
-    if (sk==='dance' && ['메인댄서','댄서','멀티'].includes(m.position)) return 5;
-    if (sk==='rap' && ['메인래퍼','래퍼','멀티'].includes(m.position)) return 5;
+    if (sk==='vocal' && ['메인보컬','보컬'].includes(m.position)) return 5;
+    if (sk==='dance' && ['메인댄서','댄서'].includes(m.position)) return 5;
+    if (sk==='rap' && ['메인래퍼','래퍼'].includes(m.position)) return 5;
     return 0;
   }
 
@@ -5357,8 +5425,8 @@ function smartAutoAssign(s, isManualTrigger) {
         if (s.album.isPreparing) {
           if (sk==='songwriting' && m.id===s.album.lyricistId) score += 16;
           if (sk==='arrangement' && m.id===s.album.arrangerId) score += 16;
-          if (sk==='vocal' && ['메인보컬','보컬','멀티'].includes(m.position)) score += 9;
-          if (sk==='dance' && ['메인댄서','댄서','멀티'].includes(m.position)) score += 9;
+          if (sk==='vocal' && ['메인보컬','보컬'].includes(m.position)) score += 9;
+          if (sk==='dance' && ['메인댄서','댄서'].includes(m.position)) score += 9;
         }
         if (lowMoney && a.cost>0) score *= 0.45;
       } else if (a.type==='schedule') {
@@ -5443,7 +5511,7 @@ function showProgressSummary(summary) {
     <div class="note">Day ${summary.startDay} ~ ${summary.endDay-1}</div>
     <div class="summary-list">${important.length?important.slice().reverse().map(x=>`<div>${escapeHtml(x)}</div>`).join(''):'<div>특이사항 없음</div>'}</div>
     ${notice.length?`<div class="note" style="margin-top:8px">⚠️ 자동 변경/비용 부족 ${notice.length}건</div>`:''}
-    <div class="modal-actions"><button class="btn" onclick="closeModal()">확인</button></div>`);
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">확인</button></div>`,true,'modal-box-confirm');
 }
 
 // ─── 다음날 ───
@@ -5496,13 +5564,13 @@ window.onNext7Days = function() {
 const EV_TYPE_LABELS = {
   friendship:'🤝 우정', flirting:'✨ 플러팅', date:'💞 데이트',
   fight:'⚡ 싸움', reconcile:'🩹 화해', jealousy:'😣 질투',
-  avoid:'🚫 회피', awkward:'🫥 서먹함', after_breakup:'🌫️ 이별 후',
+  avoid:'🚫 회피', after_breakup:'🌫️ 이별 후',
   reunion:'❤️‍🩹 재결합', breakup:'💔 이별'
 };
 
 const REL_HISTORY_LABELS = {
   friendship:'우정', flirting:'플러팅', date:'데이트', fight:'싸움', reconcile:'화해', jealousy:'질투',
-  avoid:'회피', awkward:'서먹함', after_breakup:'이별 후', reunion:'재결합', breakup:'이별',
+  avoid:'회피', awkward:'이별 후', after_breakup:'이별 후', reunion:'재결합', breakup:'이별',
   confession:'고백 성공', confession_try:'고백 시도', auto_confession:'자동 고백', reunion_try:'재결합 시도', auto_breakup:'자동 이별', cold_war_decay:'냉전 지속'
 };
 function relationMeterHtml(rel, compact=false){
@@ -5518,7 +5586,7 @@ function relationRecentDelta(rel, days=7){
   return window.RelationsModule.getRecentDelta ? window.RelationsModule.getRecentDelta(rel,APP.state.day,days) : 0;
 }
 function relationStatusBadgesHtml(rel){
-  const badges=window.RelationsModule.getRelationStatusBadges(rel)||[];
+  const badges=window.RelationsModule.getRelationStatusBadges(rel,APP.state&&APP.state.settings)||[];
   return badges.length?`<div class="relation-status-badges">${badges.map(b=>`<span class="relation-status-badge ${escapeAttr(b.id)}">${b.icon} ${escapeHtml(b.label)}</span>`).join('')}</div>`:'';
 }
 function relationPairCardHtml(a,b,rel,color){
@@ -5631,7 +5699,7 @@ function renderRelationsTab() {
 // A/B 드롭다운 선택 시 이벤트 목록 즉시 렌더
 const ALL_EV_TYPES_GLOBAL = [
   'friendship','flirting','date','fight','reconcile',
-  'jealousy','avoid','awkward','after_breakup','reunion','breakup'
+  'jealousy','avoid','after_breakup'
 ];
 
 window.onRelationMemberChange = function(side, value) {
@@ -5680,10 +5748,13 @@ window.renderEvList = function() {
   let allowed = ALL_EV_TYPES_GLOBAL.filter(t => EM.isManualEventTypeAllowed(s,a,b,rel,t));
   const color = GR.STAGE_COLORS[RM.hasTag(rel,'exLover')?'exLover':rel.stage] || '#999';
 
+  const reunionBlocked = RM.isExLover(rel) && (RM.isAvoiding(rel) || rel.coldWarDaysLeft > 0 || RM.hasTag(rel,'coldWar') || RM.hasTag(rel,'jealous'));
   const loverBtn = RM.isLover(rel)
     ? `<button class="ev-item ev-item-danger" onclick="doBreakupUI(${jsArg(idA)},${jsArg(idB)})">💔 이별</button>`
     : RM.isExLover(rel)
-      ? `<button class="ev-item ev-item-love" onclick="doConfessUI(${jsArg(idA)},${jsArg(idB)})">❤️‍🩹 재결합 시도</button>`
+      ? (reunionBlocked
+        ? `<button class="ev-item ev-item-disabled" disabled title="회피·냉전·질투 상태가 끝난 뒤 시도할 수 있습니다">❤️‍🩹 재결합 시도</button>`
+        : `<button class="ev-item ev-item-love" onclick="doConfessUI(${jsArg(idA)},${jsArg(idB)})">❤️‍🩹 재결합 시도</button>`)
       : `<button class="ev-item ev-item-love" onclick="doConfessUI(${jsArg(idA)},${jsArg(idB)})">💌 고백 (${escapeHtml(a.name)} → ${escapeHtml(b.name)})</button>`;
 
   const evItems = ALL_EV_TYPES_GLOBAL.map(t => {
@@ -5721,13 +5792,13 @@ function getDisabledReason(type, rel, settings, state) {
 
   if (isAvoiding) return '회피 기간 중 — avoid만 가능';
   if (hasColdWar && !['fight','reconcile'].includes(type)) return '냉전 중 — 싸움/화해만 가능';
-  if (isLover && ['reunion','after_breakup','avoid','awkward','breakup'].includes(type))
+  if (isLover && ['reunion','after_breakup','avoid','breakup'].includes(type))
     return '연인 상태에서는 불가';
-  if (!isLover && !isEx && ['reconcile','reunion','after_breakup','avoid','awkward'].includes(type))
+  if (!isLover && !isEx && ['reconcile','reunion','after_breakup','avoid'].includes(type))
     return '해당 관계 상태가 아님';
   if (isEx && isAvoiding && type !== 'avoid') return '회피 기간 중';
   if (isEx && !isAvoiding && rel.affection <= (settings.exAwkwardClear||80)
-      && !['after_breakup','awkward','avoid'].includes(type)) return '서먹함 단계 — 이별 후/서먹함만 가능';
+      && !['after_breakup','avoid'].includes(type)) return '이별 후 단계 — 이별 후 이벤트만 가능';
   if (isEx && rel.affection < exOkMin && ['date','flirting','friendship'].includes(type))
     return `재접근 허용치(${exOkMin}) 미달`;
   if (isEx && rel.affection < exReunion && type === 'reunion') return `재결합 가능 호감도(${exReunion}) 미달`;
@@ -5807,7 +5878,7 @@ window.doBreakupUI = function(idA, idB) {
     const a=s.members.find(m=>m.id===idA), b=s.members.find(m=>m.id===idB);
     const before=Number(rel.affection)||0;
     RM.doBreakup(rel, s.settings);
-    if(RM.recordHistory)RM.recordHistory(rel,{day:s.day,type:'breakup',delta:0,before,after:rel.affection,text:`${a?.name||'멤버'}과 ${b?.name||'멤버'}이 이별`});
+    if(RM.recordHistory)RM.recordHistory(rel,{day:s.day,type:'breakup',delta:0,before,after:rel.affection,text:`${a?.name||'멤버'}${josa(a?.name||'멤버','와과')} ${b?.name||'멤버'}${josa(b?.name||'멤버','이가')} 이별`});
     if (APP.templates && a && b) {
       const tmpl=APP.templates.templates.find(t=>t.id==='bk_01');
       if (tmpl) {
@@ -5831,7 +5902,7 @@ window.doConfessUI = function(idA, idB) {
   if(result.type==='romance_disabled'){showPopup('현재 연애가 허용되지 않는 설정입니다.\n설정 탭에서 변경할 수 있습니다');return;}
   if(result.type==='reunion_blocked'){showPopup('지금은 회피·냉전·질투 상태라 재결합을 시도할 수 없습니다');return;}
   if(result.type==='reunion_pending'){
-    const line=`[Day ${s.day}] ❤️‍🩹 ${result.from.name}과 ${result.to.name}은 다시 가까워지려 했지만 아직 마음의 거리가 남아 있었습니다`;
+    const line=`[Day ${s.day}] ❤️‍🩹 ${result.from.name}${josa(result.from.name,'와과')} ${result.to.name}${josa(result.to.name,'은는')} 다시 가까워지려 했지만 아직 마음의 거리가 남아 있었습니다`;
     pushLog(line);pushRelLog(line);window.StateModule.saveState(s);renderAll();return;
   }
   if(result.type==='reunion_event'){quickRelEvent(idA,idB,'reunion');return;}
@@ -5843,7 +5914,7 @@ window.doConfessUI = function(idA, idB) {
   }else if(result.type==='monogamy_block'){
     line=`[Day ${s.day}] 💌 ${result.from.name}의 고백 — 이미 연애 중인 멤버가 있어 이어지지 않았습니다.`;
   }else if(result.type==='success'){
-    line=`[Day ${s.day}] 💑 ${result.from.name}과 ${result.to.name}이 연인이 되었습니다. 두 사람의 마음이 하나로 이어졌습니다.`;
+    line=`[Day ${s.day}] 💑 ${result.from.name}${josa(result.from.name,'와과')} ${result.to.name}${josa(result.to.name,'이가')} 연인이 되었습니다. 두 사람의 마음이 하나로 이어졌습니다.`;
   }else{
     line=`[Day ${s.day}] 💌 ${result.from.name}의 고백 — 마음이 복잡하지만 아직은 아닌 것 같습니다.`;
   }
@@ -5860,7 +5931,7 @@ window.openRelEventUI = function(idA, idB) {
   const allowed=ALL_EV_TYPES_GLOBAL.filter(t=>EM.isManualEventTypeAllowed(s,a,b,rel,t));
   if (!APP.templates) { showToast('템플릿 없음'); return; }
   const TL={friendship:'우정',flirting:'플러팅',date:'데이트',fight:'싸움',reconcile:'화해',
-    jealousy:'질투',avoid:'회피',awkward:'서먹함',after_breakup:'이별 후',reunion:'재결합',breakup:'이별'};
+    jealousy:'질투',avoid:'회피',after_breakup:'이별 후'};
   showModal(`
     <h3>${escapeHtml(a.name)} ↔ ${escapeHtml(b.name)}</h3>
     <p style="margin-bottom:10px;font-size:.82rem;color:var(--text-sub)">호감도: ${rel.affection} · ${RM.getRelationLabel(rel,s.settings)}</p>
@@ -6047,7 +6118,7 @@ window.onReleaseAlbum = function() {
   if (alb.isReleased&&alb.comebackDaysLeft>0){showPopup('컴백 활동 중에는 새 앨범을 발매할 수 없습니다');return;}
   if (!albumHasRequiredInfo(alb)){showPopup('타이틀·장르·컨셉·작사작곡 담당·편곡 담당을 모두 지정해주세요');return;}
   if (s.money<500){showPopup(`앨범 발매 비용이 부족합니다\n필요: 500원 / 보유: ${formatMoney(s.money)}`);return;}
-  showConfirm(`「${alb.title}」을 발매할까요?\n평균 완성도 ${averageProgress(alb.progress).toFixed(1)}% · 발매 비용 500원`, ()=>window.confirmReleaseAlbum());
+  showConfirm(`「${alb.title}」${josa(alb.title,'을를')} 발매할까요?\n평균 완성도 ${averageProgress(alb.progress).toFixed(1)}% · 발매 비용 500원`, ()=>window.confirmReleaseAlbum());
 };
 
 window.confirmReleaseAlbum = function() {
@@ -6352,7 +6423,7 @@ window.saveMemberForm = function(editId) {
   const conflict=MM.checkUniquePositionConflict(data.position, s.members, editId);
   if(conflict){
     const sp=data.position.replace('메인','');
-    showConfirm(`이미 [${data.position}]인 ${conflict.name}이 있습니다.
+    showConfirm(`이미 [${data.position}]인 ${conflict.name}${josa(conflict.name,'이가')} 있습니다.
 저장하면 ${conflict.name}의 포지션을 [${sp}]으로 변경합니다.`,()=>{
       conflict.position=sp; applyMemberSave(s,data,editId);
     });
@@ -6407,13 +6478,13 @@ window.deleteMember = function(id){
   const s=APP.state, m=s.members.find(m=>m.id===id);
   if(!m) return;
   if(m.isLeader && s.members.length>1){
-    showConfirm(`리더 ${m.name}을 삭제합니다.\n삭제 후 바로 새 리더를 지정해야 합니다.`,()=>{
+    showConfirm(`리더 ${m.name}${josa(m.name,'을를')} 삭제합니다.\n삭제 후 바로 새 리더를 지정해야 합니다.`,()=>{
       s.members=s.members.filter(mb=>mb.id!==id);
       cleanupMemberReferences(id);
       window.StateModule.saveState(s); renderAll(); showLeaderAssignPopup();
     });
   } else {
-    showConfirm(`${m.name}을 삭제하시겠습니까?`,()=>{
+    showConfirm(`${m.name}${josa(m.name,'을를')} 삭제하시겠습니까?`,()=>{
       s.members=s.members.filter(mb=>mb.id!==id);
       cleanupMemberReferences(id);
       window.StateModule.saveState(s); renderAll(); showToast('멤버를 삭제했습니다');
@@ -6575,7 +6646,7 @@ function showToast(msg){
 function showPopup(msg){
   showModal(`
     <div class="popup-msg">${escapeHtml(msg).replace(/\n/g,'<br>')}</div>
-    <div class="modal-actions"><button class="btn" onclick="closeModal()">확인</button></div>`);
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">확인</button></div>`,true,'modal-box-confirm');
 }
 
 function showConfirm(msg, onYes){
@@ -6584,7 +6655,7 @@ function showConfirm(msg, onYes){
     <div class="modal-actions">
       <button class="btn" id="confirm-yes-btn">확인</button>
       <button class="btn btn-ghost" onclick="closeModal()">취소</button>
-    </div>`);
+    </div>`,true,'modal-box-confirm');
   setTimeout(()=>{
     const btn=getEl('confirm-yes-btn');
     if(btn) btn.onclick=()=>{closeModal();onYes();};
@@ -6610,7 +6681,7 @@ function restoreModalState(ov, state){
   });
   const mf=ov.querySelector('.member-form'); if(mf) mf.scrollTop=state.formScroll||0;
 }
-function showModal(html, allowClose=true){
+function showModal(html, allowClose=true, boxClass=''){
   let ov=getEl('modal-overlay');
   if(!ov){
     ov=document.createElement('div'); ov.id='modal-overlay';
@@ -6622,7 +6693,7 @@ function showModal(html, allowClose=true){
     _modalStack.push(captureModalState(ov));
   }
   _allowClose=allowClose;
-  ov.innerHTML=`<div class="modal-box" role="dialog" aria-modal="true">${html}</div>`;
+  ov.innerHTML=`<div class="modal-box ${escapeAttr(boxClass)}" role="dialog" aria-modal="true">${html}</div>`;
   ov.classList.add('active');
   setTimeout(()=>{
     const fi=ov.querySelector('input:not([type="hidden"]),select,textarea,button');
