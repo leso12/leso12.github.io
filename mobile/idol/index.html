@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta name="idol-sim-version" content="2.1.1">
+  <meta name="idol-sim-version" content="2.1.2">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>아이돌 시뮬레이터</title>
@@ -1351,6 +1354,44 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1p
     width:108px;
     min-width:0;
   }
+}
+
+/* ── idol-modal-alignment-v212 ── */
+#modal-overlay .modal-box-confirm {
+  width:min(calc(100vw - 32px),420px) !important;
+  max-width:420px !important;
+  text-align:center !important;
+}
+#modal-overlay .modal-box-summary {
+  width:min(calc(100vw - 32px),540px) !important;
+  max-width:540px !important;
+}
+#modal-overlay .modal-actions {
+  display:flex !important;
+  justify-content:center !important;
+  align-items:center !important;
+  width:100% !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+#modal-overlay .modal-box-confirm .modal-actions > button,
+#modal-overlay .modal-box-summary .modal-actions > button {
+  flex:0 0 110px !important;
+  width:110px !important;
+  min-width:110px !important;
+}
+#modal-overlay .modal-box-summary .summary-list,
+#modal-overlay .modal-box-summary .summary-list *,
+#modal-overlay .summary-list.summary-list-left,
+#modal-overlay .summary-list.summary-list-left * {
+  text-align:left !important;
+}
+#modal-overlay .modal-box-confirm .popup-msg {
+  text-align:center !important;
+}
+@media (max-width:640px) {
+  #modal-overlay .modal-box-confirm { width:min(calc(100vw - 24px),380px) !important; }
+  #modal-overlay .modal-box-summary { width:min(calc(100vw - 20px),500px) !important; }
 }
 </style>
 </head>
