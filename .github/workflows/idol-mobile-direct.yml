@@ -36,9 +36,10 @@ jobs:
           test -s mobile/idol/index.html
           grep -q 'window.IDOL_INLINE_BUILD=true' mobile/idol/index.html
           grep -qi '<html' mobile/idol/index.html
+          grep -q 'idol-sim-version" content="2.1.0' mobile/idol/index.html
 
           ACTUAL="$(sha256sum mobile/idol/index.html | awk '{print $1}')"
-          EXPECTED='f967e6b92e85a49b61349a7c2b59d6277b2f92bdce70379d3d43581ae4ac8a64'
+          EXPECTED='c7a5df5e3ddd8a7e8fdb5142443e18b59609042c6345ead0fc0ddd0cfc7439d1'
           echo "direct page sha256=$ACTUAL"
           test "$ACTUAL" = "$EXPECTED"
 
@@ -52,6 +53,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No change needed.'
           else
-            git commit -m 'Fix idol mobile: deploy direct single-file v20.2'
+            git commit -m 'Deploy idol mobile direct single-file v21'
             git push
           fi
