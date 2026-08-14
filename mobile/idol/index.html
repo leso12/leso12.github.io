@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta name="idol-sim-version" content="2.2.0">
+  <meta name="idol-sim-version" content="2.2.1">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -1401,7 +1401,138 @@ button { text-align:center !important; }
 .btn-sm,.ev-item,.tab-btn,.text-link-btn,.header-icon-btn,.activity-picker-btn,.activity-btn,.schedule-remove-one,.relation-detail-btn,.tab-save-btn,.btn-day,.btn-day2 { text-align:center !important; }
 button[style*="display:flex"],button[style*="display: flex"] { justify-content:center !important; }
 </style>
-\n<style id="idol-mobile-v220-layout">\n.mobile-data-tools { display:none; }\n\n@media (max-width:720px) {\n  html { font-size:14px; }\n  body { overflow-x:hidden; -webkit-tap-highlight-color:transparent; }\n  #app-header {\n    position:sticky; top:0; z-index:100;\n    min-height:52px; height:auto;\n    padding:6px max(10px,env(safe-area-inset-right)) 6px max(10px,env(safe-area-inset-left));\n    gap:8px;\n  }\n  .app-title { font-size:1rem; white-space:nowrap; }\n  .header-actions { gap:4px; justify-content:flex-end; }\n  .header-day,.header-money {\n    padding:4px 7px; border-radius:999px; background:var(--bg3);\n    font-size:.72rem; white-space:nowrap;\n  }\n  .header-icon-btn { width:38px; min-width:38px; min-height:38px; border-radius:10px; }\n\n  #tab-nav {\n    position:static !important; top:auto !important;\n    display:grid !important;\n    grid-template-columns:repeat(4,minmax(0,1fr));\n    gap:6px;\n    width:100%;\n    padding:8px 10px;\n    overflow:visible !important;\n    background:var(--bg);\n    border-bottom:0;\n    scroll-snap-type:none !important;\n  }\n  #tab-nav .tab-btn {\n    min-width:0 !important; width:100%; min-height:58px;\n    padding:6px 4px;\n    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;\n    white-space:normal !important; word-break:keep-all; overflow-wrap:normal;\n    line-height:1.18; text-align:center !important;\n    font-size:.72rem; font-weight:700;\n    color:var(--text-sub);\n    background:var(--bg2);\n    border:1px solid var(--border) !important;\n    border-radius:12px;\n    box-shadow:0 1px 5px rgba(124,92,191,.05);\n  }\n  #tab-nav .tab-btn::before { font-size:1.08rem; line-height:1; }\n  #tab-nav .tab-btn[data-tab="dashboard"]::before { content:'🏠'; }\n  #tab-nav .tab-btn[data-tab="members"]::before { content:'👥'; }\n  #tab-nav .tab-btn[data-tab="schedule"]::before { content:'🗓️'; }\n  #tab-nav .tab-btn[data-tab="relations"]::before { content:'💞'; }\n  #tab-nav .tab-btn[data-tab="album"]::before { content:'🎤'; }\n  #tab-nav .tab-btn[data-tab="settings"]::before { content:'⚙️'; }\n  #tab-nav .tab-btn[data-tab="log"]::before { content:'📋'; }\n  #tab-nav .tab-btn.active {\n    color:var(--accent);\n    background:var(--accent-soft);\n    border-color:var(--accent) !important;\n    box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 20%,transparent);\n  }\n  #tab-nav .tab-btn:hover { transform:none; }\n  #tab-nav .tab-save-group { display:none !important; }\n\n  .mobile-data-tools {\n    display:block;\n    margin:0 10px 10px;\n    padding:10px;\n    background:var(--bg2);\n    border:1px solid var(--border);\n    border-radius:14px;\n    box-shadow:var(--card-shadow);\n  }\n  .mobile-data-tools-head {\n    display:flex; align-items:baseline; justify-content:space-between; gap:8px;\n    margin-bottom:8px;\n  }\n  .mobile-data-tools-head strong { font-size:.78rem; color:var(--text-main); }\n  .mobile-data-tools-head span { font-size:.62rem; color:var(--text-sub); text-align:right; }\n  .mobile-data-grid {\n    display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px;\n  }\n  .mobile-data-btn {\n    min-width:0; min-height:54px;\n    padding:6px 3px;\n    display:flex; flex-direction:column; justify-content:center; align-items:center; gap:3px;\n    border:1px solid var(--border); border-radius:10px;\n    background:var(--bg); color:var(--text-main);\n    font-size:.66rem; font-weight:650; line-height:1.18;\n    white-space:normal; word-break:keep-all; text-align:center !important;\n    touch-action:manipulation;\n  }\n  .mobile-data-btn:active { background:var(--accent-soft); border-color:var(--accent); }\n  .mobile-tool-icon { font-size:1.05rem; line-height:1; }\n  .mobile-data-danger { color:var(--danger); }\n\n  #main-content {\n    width:100%; max-width:none;\n    padding:2px 10px calc(18px + env(safe-area-inset-bottom));\n    margin:0;\n  }\n  .card { padding:12px; border-radius:14px; }\n  .card + .card { margin-top:10px; }\n  .dash-grid { gap:7px; }\n  .member-grid,.relation-pair-grid { grid-template-columns:1fr !important; }\n  .member-card { padding:12px; }\n  .member-actions,.dash-actions,.settings-actions,.schedule-header-actions { gap:6px; }\n\n  button,.btn,.btn-sm,.ev-item,.activity-picker-btn,.activity-btn,.relation-detail-btn,.schedule-confirm-btn {\n    text-align:center !important;\n  }\n  .btn,.ev-item,.activity-picker-btn,.activity-btn,.relation-detail-btn,.schedule-confirm-btn {\n    min-height:44px; justify-content:center !important;\n  }\n  select,input,.input { min-height:44px; }\n\n  #log-full,.log-mini,.summary-list,.pair-timeline {\n    text-align:left !important; word-break:break-word; overflow-wrap:anywhere;\n  }\n  .summary-list > div,.pair-timeline-item,.log-card,.log-item { text-align:left !important; }\n\n  .modal-box { width:min(calc(100vw - 20px),560px); }\n}\n\n@media (max-width:380px) {\n  #tab-nav { grid-template-columns:repeat(3,minmax(0,1fr)); }\n  #tab-nav .tab-btn { min-height:56px; font-size:.69rem; }\n  .mobile-data-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }\n  .mobile-data-tools-head { align-items:flex-start; flex-direction:column; gap:2px; }\n  .mobile-data-tools-head span { text-align:left; }\n}\n</style>\n</head>
+
+<style id="idol-mobile-v220-layout">
+.mobile-data-tools { display:none; }
+
+@media (max-width:720px) {
+  html { font-size:14px; }
+  body { overflow-x:hidden; -webkit-tap-highlight-color:transparent; }
+  #app-header {
+    position:sticky; top:0; z-index:100;
+    min-height:52px; height:auto;
+    padding:6px max(10px,env(safe-area-inset-right)) 6px max(10px,env(safe-area-inset-left));
+    gap:8px;
+  }
+  .app-title { font-size:1rem; white-space:nowrap; }
+  .header-actions { gap:4px; justify-content:flex-end; }
+  .header-day,.header-money {
+    padding:4px 7px; border-radius:999px; background:var(--bg3);
+    font-size:.72rem; white-space:nowrap;
+  }
+  .header-icon-btn { width:38px; min-width:38px; min-height:38px; border-radius:10px; }
+
+  #tab-nav {
+    position:static !important; top:auto !important;
+    display:grid !important;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:6px;
+    width:100%;
+    padding:8px 10px;
+    overflow:visible !important;
+    background:var(--bg);
+    border-bottom:0;
+    scroll-snap-type:none !important;
+  }
+  #tab-nav .tab-btn {
+    min-width:0 !important; width:100%; min-height:58px;
+    padding:6px 4px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    white-space:normal !important; word-break:keep-all; overflow-wrap:normal;
+    line-height:1.18; text-align:center !important;
+    font-size:.72rem; font-weight:700;
+    color:var(--text-sub);
+    background:var(--bg2);
+    border:1px solid var(--border) !important;
+    border-radius:12px;
+    box-shadow:0 1px 5px rgba(124,92,191,.05);
+  }
+  #tab-nav .tab-btn::before { font-size:1.08rem; line-height:1; }
+  #tab-nav .tab-btn[data-tab="dashboard"]::before { content:'🏠'; }
+  #tab-nav .tab-btn[data-tab="members"]::before { content:'👥'; }
+  #tab-nav .tab-btn[data-tab="schedule"]::before { content:'🗓️'; }
+  #tab-nav .tab-btn[data-tab="relations"]::before { content:'💞'; }
+  #tab-nav .tab-btn[data-tab="album"]::before { content:'🎤'; }
+  #tab-nav .tab-btn[data-tab="settings"]::before { content:'⚙️'; }
+  #tab-nav .tab-btn[data-tab="log"]::before { content:'📋'; }
+  #tab-nav .tab-btn.active {
+    color:var(--accent);
+    background:var(--accent-soft);
+    border-color:var(--accent) !important;
+    box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 20%,transparent);
+  }
+  #tab-nav .tab-btn:hover { transform:none; }
+  #tab-nav .tab-save-group { display:none !important; }
+
+  .mobile-data-tools {
+    display:block;
+    margin:0 10px 10px;
+    padding:10px;
+    background:var(--bg2);
+    border:1px solid var(--border);
+    border-radius:14px;
+    box-shadow:var(--card-shadow);
+  }
+  .mobile-data-tools-head {
+    display:flex; align-items:baseline; justify-content:space-between; gap:8px;
+    margin-bottom:8px;
+  }
+  .mobile-data-tools-head strong { font-size:.78rem; color:var(--text-main); }
+  .mobile-data-tools-head span { font-size:.62rem; color:var(--text-sub); text-align:right; }
+  .mobile-data-grid {
+    display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px;
+  }
+  .mobile-data-btn {
+    min-width:0; min-height:54px;
+    padding:6px 3px;
+    display:flex; flex-direction:column; justify-content:center; align-items:center; gap:3px;
+    border:1px solid var(--border); border-radius:10px;
+    background:var(--bg); color:var(--text-main);
+    font-size:.66rem; font-weight:650; line-height:1.18;
+    white-space:normal; word-break:keep-all; text-align:center !important;
+    touch-action:manipulation;
+  }
+  .mobile-data-btn:active { background:var(--accent-soft); border-color:var(--accent); }
+  .mobile-tool-icon { font-size:1.05rem; line-height:1; }
+  .mobile-data-danger { color:var(--danger); }
+
+  #main-content {
+    width:100%; max-width:none;
+    padding:2px 10px calc(18px + env(safe-area-inset-bottom));
+    margin:0;
+  }
+  .card { padding:12px; border-radius:14px; }
+  .card + .card { margin-top:10px; }
+  .dash-grid { gap:7px; }
+  .member-grid,.relation-pair-grid { grid-template-columns:1fr !important; }
+  .member-card { padding:12px; }
+  .member-actions,.dash-actions,.settings-actions,.schedule-header-actions { gap:6px; }
+
+  button,.btn,.btn-sm,.ev-item,.activity-picker-btn,.activity-btn,.relation-detail-btn,.schedule-confirm-btn {
+    text-align:center !important;
+  }
+  .btn,.ev-item,.activity-picker-btn,.activity-btn,.relation-detail-btn,.schedule-confirm-btn {
+    min-height:44px; justify-content:center !important;
+  }
+  select,input,.input { min-height:44px; }
+
+  #log-full,.log-mini,.summary-list,.pair-timeline {
+    text-align:left !important; word-break:break-word; overflow-wrap:anywhere;
+  }
+  .summary-list > div,.pair-timeline-item,.log-card,.log-item { text-align:left !important; }
+
+  .modal-box { width:min(calc(100vw - 20px),560px); }
+}
+
+@media (max-width:380px) {
+  #tab-nav { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  #tab-nav .tab-btn { min-height:56px; font-size:.69rem; }
+  .mobile-data-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .mobile-data-tools-head { align-items:flex-start; flex-direction:column; gap:2px; }
+  .mobile-data-tools-head span { text-align:left; }
+}
+</style>
+</head>
 <body>
 
 <!-- ── 헤더 ── -->
