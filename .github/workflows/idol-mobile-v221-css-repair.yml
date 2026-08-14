@@ -1,0 +1,110 @@
+name: Idol Mobile v22.1 CSS Repair
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/idol-mobile-v221-css-repair.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: idol-mobile-v221-css-repair
+  cancel-in-progress: true
+
+jobs:
+  repair-mobile-css:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Repair escaped newlines in mobile v22 style block
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('mobile/idol/index.html')
+          s = p.read_text(encoding='utf-8')
+
+          # v22.0에서 CSS 블록에 문자 그대로 들어간 "\\n"을 실제 줄바꿈으로 복구한다.
+          marker = '<style id="idol-mobile-v220-layout">'
+          pos = s.find(marker)
+          if pos < 0:
+              raise SystemExit('v22 mobile style block not found')
+
+          start = pos
+          if s[max(0, pos-2):pos] == '\\n':
+              start = pos - 2
+          end_tag = '</style>'
+          end = s.find(end_tag, pos)
+          if end < 0:
+              raise SystemExit('v22 mobile style closing tag not found')
+          end += len(end_tag)
+          if s[end:end+2] == '\\n':
+              end += 2
+
+          block = s[start:end]
+          fixed = block.replace('\\n', '\n')
+          s = s[:start] + fixed + s[end:]
+
+          # 버전 표기 갱신.
+          s = re.sub(r'<meta name="idol-sim-version" content="[^"]+">',
+                     '<meta name="idol-sim-version" content="2.2.1">', s, count=1)
+
+          # 다시 같은 문제가 생겼는지 검사.
+          style_pos = s.find(marker)
+          style_end = s.find(end_tag, style_pos) + len(end_tag)
+          style_block = s[style_pos:style_end]
+          if '\\n' in style_block:
+              raise SystemExit('literal escaped newline remains in mobile style block')
+
+          # 화면 상단에 노출될 수 있는 잔여 문자도 제거.
+          s = s.replace('</style>\\n</head>', '</style>\n</head>')
+          s = s.replace('</style>\n\\n<style id="idol-mobile-v220-layout">', '</style>\n<style id="idol-mobile-v220-layout">')
+
+          p.write_text(s, encoding='utf-8')
+          PY
+
+          grep -q 'idol-sim-version" content="2.2.1' mobile/idol/index.html
+          grep -q '<style id="idol-mobile-v220-layout">' mobile/idol/index.html
+          grep -q 'grid-template-columns:repeat(4,minmax(0,1fr))' mobile/idol/index.html
+          grep -q 'class="mobile-data-tools"' mobile/idol/index.html
+          if python3 - <<'PY'
+          from pathlib import Path
+          s=Path('mobile/idol/index.html').read_text(encoding='utf-8')
+          a=s.index('<style id="idol-mobile-v220-layout">')
+          b=s.index('</style>',a)
+          raise SystemExit(1 if '\\n' in s[a:b] else 0)
+          PY
+          then
+            echo 'CSS escaped-newline repair verified.'
+          else
+            echo 'Escaped newline remains in CSS block.' >&2
+            exit 1
+          fi
+
+      - name: Commit repaired mobile page
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mobile/idol/index.html
+          if git diff --cached --quiet; then
+            echo 'No change needed.'
+            exit 0
+          fi
+          git commit -m 'Repair idol mobile v22.1 CSS rendering'
+          for i in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main || { git rebase --abort || true; sleep 2; continue; }
+            if git push origin HEAD:main; then exit 0; fi
+            sleep 2
+          done
+          echo 'Push failed after retries' >&2
+          exit 1
