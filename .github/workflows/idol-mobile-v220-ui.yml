@@ -1,0 +1,76 @@
+name: Idol Mobile v22 UI Redesign
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/idol-mobile-v220-ui.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: idol-mobile-v220-ui
+  cancel-in-progress: true
+
+jobs:
+  redesign-mobile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply mobile v22 layout
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          p=Path('mobile/idol/index.html')
+          s=p.read_text(encoding='utf-8')
+
+          s=re.sub(r'<meta name="idol-sim-version" content="[^"]+">', '<meta name="idol-sim-version" content="2.2.0">', s, count=1)
+
+          tools='''\n<section class="mobile-data-tools" aria-label="저장 및 데이터 도구">\n  <div class="mobile-data-tools-head">\n    <strong>저장 · 데이터</strong>\n    <span>플레이 데이터와 멤버 파일 관리</span>\n  </div>\n  <div class="mobile-data-grid">\n    <button class="mobile-data-btn" onclick="onSave()"><span class="mobile-tool-icon">💾</span><span>저장</span></button>\n    <button class="mobile-data-btn" onclick="onImport()"><span class="mobile-tool-icon">📥</span><span>불러오기</span></button>\n    <button class="mobile-data-btn" onclick="onExport()"><span class="mobile-tool-icon">📤</span><span>전체 백업</span></button>\n    <button class="mobile-data-btn" onclick="onExportMembers()"><span class="mobile-tool-icon">👥</span><span>멤버 저장</span></button>\n    <button class="mobile-data-btn" onclick="onImportMembers()"><span class="mobile-tool-icon">👥</span><span>멤버 불러오기</span></button>\n    <button class="mobile-data-btn" onclick="onExportLog()"><span class="mobile-tool-icon">📄</span><span>로그 저장</span></button>\n    <button class="mobile-data-btn mobile-data-danger" onclick="onReset()"><span class="mobile-tool-icon">🗑️</span><span>초기화</span></button>\n  </div>\n</section>\n'''
+          if 'class="mobile-data-tools"' not in s:
+              nav_end=s.find('</nav>')
+              assert nav_end >= 0, 'tab nav closing tag not found'
+              nav_end += len('</nav>')
+              s=s[:nav_end]+tools+s[nav_end:]
+
+          css=r'''\n<style id="idol-mobile-v220-layout">\n.mobile-data-tools { display:none; }\n\n@media (max-width:720px) {\n  html { font-size:14px; }\n  body { overflow-x:hidden; -webkit-tap-highlight-color:transparent; }\n  #app-header {\n    position:sticky; top:0; z-index:100;\n    min-height:52px; height:auto;\n    padding:6px max(10px,env(safe-area-inset-right)) 6px max(10px,env(safe-area-inset-left));\n    gap:8px;\n  }\n  .app-title { font-size:1rem; white-space:nowrap; }\n  .header-actions { gap:4px; justify-content:flex-end; }\n  .header-day,.header-money {\n    padding:4px 7px; border-radius:999px; background:var(--bg3);\n    font-size:.72rem; white-space:nowrap;\n  }\n  .header-icon-btn { width:38px; min-width:38px; min-height:38px; border-radius:10px; }\n\n  #tab-nav {\n    position:static !important; top:auto !important;\n    display:grid !important;\n    grid-template-columns:repeat(4,minmax(0,1fr));\n    gap:6px;\n    width:100%;\n    padding:8px 10px;\n    overflow:visible !important;\n    background:var(--bg);\n    border-bottom:0;\n    scroll-snap-type:none !important;\n  }\n  #tab-nav .tab-btn {\n    min-width:0 !important; width:100%; min-height:58px;\n    padding:6px 4px;\n    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;\n    white-space:normal !important; word-break:keep-all; overflow-wrap:normal;\n    line-height:1.18; text-align:center !important;\n    font-size:.72rem; font-weight:700;\n    color:var(--text-sub);\n    background:var(--bg2);\n    border:1px solid var(--border) !important;\n    border-radius:12px;\n    box-shadow:0 1px 5px rgba(124,92,191,.05);\n  }\n  #tab-nav .tab-btn::before { font-size:1.08rem; line-height:1; }\n  #tab-nav .tab-btn[data-tab="dashboard"]::before { content:'🏠'; }\n  #tab-nav .tab-btn[data-tab="members"]::before { content:'👥'; }\n  #tab-nav .tab-btn[data-tab="schedule"]::before { content:'🗓️'; }\n  #tab-nav .tab-btn[data-tab="relations"]::before { content:'💞'; }\n  #tab-nav .tab-btn[data-tab="album"]::before { content:'🎤'; }\n  #tab-nav .tab-btn[data-tab="settings"]::before { content:'⚙️'; }\n  #tab-nav .tab-btn[data-tab="log"]::before { content:'📋'; }\n  #tab-nav .tab-btn.active {\n    color:var(--accent);\n    background:var(--accent-soft);\n    border-color:var(--accent) !important;\n    box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 20%,transparent);\n  }\n  #tab-nav .tab-btn:hover { transform:none; }\n  #tab-nav .tab-save-group { display:none !important; }\n\n  .mobile-data-tools {\n    display:block;\n    margin:0 10px 10px;\n    padding:10px;\n    background:var(--bg2);\n    border:1px solid var(--border);\n    border-radius:14px;\n    box-shadow:var(--card-shadow);\n  }\n  .mobile-data-tools-head {\n    display:flex; align-items:baseline; justify-content:space-between; gap:8px;\n    margin-bottom:8px;\n  }\n  .mobile-data-tools-head strong { font-size:.78rem; color:var(--text-main); }\n  .mobile-data-tools-head span { font-size:.62rem; color:var(--text-sub); text-align:right; }\n  .mobile-data-grid {\n    display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px;\n  }\n  .mobile-data-btn {\n    min-width:0; min-height:54px;\n    padding:6px 3px;\n    display:flex; flex-direction:column; justify-content:center; align-items:center; gap:3px;\n    border:1px solid var(--border); border-radius:10px;\n    background:var(--bg); color:var(--text-main);\n    font-size:.66rem; font-weight:650; line-height:1.18;\n    white-space:normal; word-break:keep-all; text-align:center !important;\n    touch-action:manipulation;\n  }\n  .mobile-data-btn:active { background:var(--accent-soft); border-color:var(--accent); }\n  .mobile-tool-icon { font-size:1.05rem; line-height:1; }\n  .mobile-data-danger { color:var(--danger); }\n\n  #main-content {\n    width:100%; max-width:none;\n    padding:2px 10px calc(18px + env(safe-area-inset-bottom));\n    margin:0;\n  }\n  .card { padding:12px; border-radius:14px; }\n  .card + .card { margin-top:10px; }\n  .dash-grid { gap:7px; }\n  .member-grid,.relation-pair-grid { grid-template-columns:1fr !important; }\n  .member-card { padding:12px; }\n  .member-actions,.dash-actions,.settings-actions,.schedule-header-actions { gap:6px; }\n\n  button,.btn,.btn-sm,.ev-item,.activity-picker-btn,.activity-btn,.relation-detail-btn,.schedule-confirm-btn {\n    text-align:center !important;\n  }\n  .btn,.ev-item,.activity-picker-btn,.activity-btn,.relation-detail-btn,.schedule-confirm-btn {\n    min-height:44px; justify-content:center !important;\n  }\n  select,input,.input { min-height:44px; }\n\n  #log-full,.log-mini,.summary-list,.pair-timeline {\n    text-align:left !important; word-break:break-word; overflow-wrap:anywhere;\n  }\n  .summary-list > div,.pair-timeline-item,.log-card,.log-item { text-align:left !important; }\n\n  .modal-box { width:min(calc(100vw - 20px),560px); }\n}\n\n@media (max-width:380px) {\n  #tab-nav { grid-template-columns:repeat(3,minmax(0,1fr)); }\n  #tab-nav .tab-btn { min-height:56px; font-size:.69rem; }\n  .mobile-data-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }\n  .mobile-data-tools-head { align-items:flex-start; flex-direction:column; gap:2px; }\n  .mobile-data-tools-head span { text-align:left; }\n}\n</style>\n'''
+          if 'idol-mobile-v220-layout' not in s:
+              s=s.replace('</head>',css+'</head>',1)
+
+          s=s.replace('// v21.3 relation-primary-and-button-center-build','// v22.0 mobile-navigation-and-data-tools-build')
+          p.write_text(s,encoding='utf-8')
+          PY
+
+          grep -q 'idol-sim-version" content="2.2.0' mobile/idol/index.html
+          grep -q 'idol-mobile-v220-layout' mobile/idol/index.html
+          grep -q 'class="mobile-data-tools"' mobile/idol/index.html
+          grep -q 'grid-template-columns:repeat(4,minmax(0,1fr))' mobile/idol/index.html
+          grep -q '#tab-nav .tab-save-group { display:none !important; }' mobile/idol/index.html
+
+      - name: Commit mobile redesign
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mobile/idol/index.html
+          if git diff --cached --quiet; then
+            echo 'No change needed.'
+            exit 0
+          fi
+          git commit -m 'Deploy idol mobile v22 UI redesign'
+          for i in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main || { git rebase --abort || true; sleep 2; continue; }
+            if git push origin HEAD:main; then exit 0; fi
+            sleep 2
+          done
+          echo 'Push failed after retries' >&2
+          exit 1
