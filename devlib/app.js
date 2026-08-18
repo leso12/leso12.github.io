@@ -12,7 +12,7 @@
     s.textContent=code+'\n//# sourceURL=devlib-app-v2.7.1.js';
     document.body.appendChild(s);
     const addon=document.createElement('script');
-    addon.src='./guideline-history-addon.js?v=2.7.2';
+    addon.src='./v273-fixes-addon.js?v=2.7.3';
     addon.async=true;
     document.body.appendChild(addon);
   }catch(e){
