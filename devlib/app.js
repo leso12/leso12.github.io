@@ -1,5 +1,28 @@
 (async()=>{
   try{
+    // Security bridge: legacy/mobile code may still build ?key= URLs.
+    // Strip the key before the network request and send it in X-Devlib-Key instead,
+    // so long-lived editor keys are no longer written into Edge Function request logs.
+    const nativeFetch=window.fetch.bind(window);
+    window.fetch=(input,init={})=>{
+      try{
+        const raw=input instanceof Request?input.url:String(input);
+        const u=new URL(raw,location.href);
+        if(u.hostname==='vulpttgewjfkxojimyxl.supabase.co'&&u.pathname.includes('/functions/v1/devlib-mobile')&&u.searchParams.has('key')){
+          const key=u.searchParams.get('key')||'';
+          u.searchParams.delete('key');
+          const baseHeaders=new Headers(input instanceof Request?input.headers:(init.headers||{}));
+          if(key&&!baseHeaders.has('X-Devlib-Key'))baseHeaders.set('X-Devlib-Key',key);
+          if(input instanceof Request){
+            const req=new Request(u.toString(),input);
+            return nativeFetch(new Request(req,{headers:baseHeaders}),init);
+          }
+          return nativeFetch(u.toString(),{...init,headers:baseHeaders});
+        }
+      }catch{}
+      return nativeFetch(input,init);
+    };
+
     const r=await fetch('./app.payload.txt?v=2.7.1',{cache:'no-store'});
     if(!r.ok)throw new Error(`payload HTTP ${r.status}`);
     const b64=(await r.text()).trim();
