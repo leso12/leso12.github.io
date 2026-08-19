@@ -1,15 +1,13 @@
 {
-  "name": "추억보관함 Mobile",
-  "short_name": "추억보관함",
-  "id": "/mobile/memory/",
-  "start_url": "/mobile/memory/",
-  "scope": "/mobile/memory/",
-  "display": "standalone",
-  "background_color": "#fff8fb",
-  "theme_color": "#fff8fb",
-  "lang": "ko-KR",
-  "description": "추억보관함 PC 데이터와 호환되는 모바일 검토·관리 PWA",
-  "icons": [
-    {"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
-  ]
+  "name":"추억보관함 Mobile",
+  "short_name":"추억보관함",
+  "id":"/mobile/memory/",
+  "start_url":"/mobile/memory/",
+  "scope":"/mobile/memory/",
+  "display":"standalone",
+  "background_color":"#fff8fb",
+  "theme_color":"#fff8fb",
+  "lang":"ko-KR",
+  "description":"추억보관함 PC/공통 v2.10.23과 모바일 표시 규칙을 공유하는 PWA",
+  "icons":[{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
 }
