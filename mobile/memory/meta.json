@@ -2,9 +2,9 @@
   "projectId": "memory-archive",
   "mobileVersion": "0.1.0",
   "mobileSourceVersion": "2.10.21",
-  "mobileBuildStatus": "built",
-  "mobileQaStatus": "smoke-passed-static",
-  "mobileLastDeployedAt": "2026-08-19T20:40:00+09:00",
+  "mobileBuildStatus": "deployed",
+  "mobileQaStatus": "smoke-passed-static-live-check-pending",
+  "mobileLastDeployedAt": "2026-08-19T20:58:12+09:00",
   "testUrl": "https://leso12.github.io/mobile/memory/",
   "fixedUrl": "https://leso12.github.io/mobile/memory/",
   "schema": "if_archive_v1_db/state/root",
@@ -13,6 +13,7 @@
     "mobile UI is touch-first with bottom navigation and bottom sheets",
     "cards, characters, events, memories and logs are reviewable/editable",
     "ZETA log renderer uses v2.10.21 display rules",
-    "mobile independent collection/AI parsing intentionally disabled until common Core extraction"
+    "mobile independent collection/AI parsing intentionally disabled until common Core extraction",
+    "repository deployment completed; external live URL fetch could not be independently verified from the current tool environment"
   ]
 }
