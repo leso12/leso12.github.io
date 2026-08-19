@@ -11,10 +11,12 @@
     const s=document.createElement('script');
     s.textContent=code+'\n//# sourceURL=devlib-app-v2.7.1.js';
     document.body.appendChild(s);
-    const addon=document.createElement('script');
-    addon.src='./v273-fixes-addon.js?v=2.7.3';
-    addon.async=true;
-    document.body.appendChild(addon);
+    for(const [src,ver] of [['./v273-fixes-addon.js','2.7.3'],['./v274-integrity-addon.js','2.7.4']]){
+      const addon=document.createElement('script');
+      addon.src=`${src}?v=${ver}`;
+      addon.async=false;
+      document.body.appendChild(addon);
+    }
   }catch(e){
     console.error(e);
     const status=document.querySelector('#status');
