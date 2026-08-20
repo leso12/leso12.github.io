@@ -18,15 +18,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat .deploy/lumichat_v01523/part* | base64 -d > /tmp/lumichat-mobile.zip
+          cat .deploy/lumichat_v01528/part* | base64 -d > /tmp/lumichat-mobile.zip
           rm -rf /tmp/lumichat-unpack
           mkdir -p /tmp/lumichat-unpack
           unzip -q /tmp/lumichat-mobile.zip -d /tmp/lumichat-unpack
-          test -f /tmp/lumichat-unpack/lumichat_deploy_01523/index.html
+          test -f /tmp/lumichat-unpack/lumichat_deploy_01528/index.html
           rm -rf mobile/lumichat
           mkdir -p mobile/lumichat
-          cp -a /tmp/lumichat-unpack/lumichat_deploy_01523/. mobile/lumichat/
-          rm -rf .deploy/lumichat_v01523 .deploy/lumichat-trigger.txt
+          cp -a /tmp/lumichat-unpack/lumichat_deploy_01528/. mobile/lumichat/
+          rm -rf .deploy/lumichat_v01528 .deploy/lumichat-trigger.txt
       - name: Commit deployment
         shell: bash
         run: |
@@ -35,5 +35,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A mobile/lumichat .deploy
           git diff --cached --quiet && exit 0
-          git commit -m 'Deploy LumiChat mobile v0.15.23'
+          git commit -m 'Deploy LumiChat mobile v0.15.28'
           git push
