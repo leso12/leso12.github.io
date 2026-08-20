@@ -1,2 +1,2 @@
-deploy LumiChat mobile v0.15.23
-2026-08-18
+deploy LumiChat mobile v0.15.28
+2026-08-21
