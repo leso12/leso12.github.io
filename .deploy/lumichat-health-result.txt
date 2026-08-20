@@ -1,3 +1,6 @@
 frontend=v0.15.28
 backend={"ok":true,"version":"0.15.28","schemaVersion":19,"gateway":true}
-checked_at=2026-08-20T16:22:32Z
+bootstrap_ok=true
+sync_put={"ok":true,"revision":2,"schemaVersion":19}
+sync_get={"revision":2,"state":{"threads":[],"memories":[],"updatedAt":"2026-08-21T00:00:00.000Z","characters":[],"schemaVersion":19},"schemaVersion":19}
+checked_at=2026-08-20T16:26:45Z
