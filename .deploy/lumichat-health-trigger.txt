@@ -1,2 +1,2 @@
-deep check LumiChat mobile v0.15.28
+deep check LumiChat mobile v0.15.28 r2
 2026-08-21
