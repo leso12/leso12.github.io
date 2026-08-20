@@ -1,5 +1,5 @@
 {
-  "name":"추억보관함 Mobile",
+  "name":"추억보관함",
   "short_name":"추억보관함",
   "id":"/mobile/memory/",
   "start_url":"/mobile/memory/",
@@ -8,6 +8,6 @@
   "background_color":"#fff8fb",
   "theme_color":"#fff8fb",
   "lang":"ko-KR",
-  "description":"추억보관함 PC/공통 v2.10.23과 모바일 표시 규칙을 공유하는 PWA",
+  "description":"PC 원본과 같은 테마·설정·데이터를 사용하는 추억보관함 모바일 PWA",
   "icons":[{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
 }
