@@ -1,2 +1,0 @@
-deploy LumiChat mobile v0.15.28
-2026-08-21
