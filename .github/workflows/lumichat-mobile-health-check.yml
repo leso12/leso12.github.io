@@ -18,21 +18,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          FRONT=$(curl -fsSL --retry 4 --retry-delay 2 'https://leso12.github.io/mobile/lumichat/?health=01528r3')
+          FRONT=$(curl -fsSL --retry 4 --retry-delay 2 'https://leso12.github.io/mobile/lumichat/?health=01528r4')
           echo "$FRONT" | grep -q 'LumiChat v0.15.28 Mobile'
           BASE='https://vulpttgewjfkxojimyxl.supabase.co/functions/v1/lumichat-mobile-v01528'
           BACK=$(curl -fsSL --retry 4 --retry-delay 2 "$BASE?action=health")
-          echo "$BACK" | grep -q '"version":"0.15.28"'
-          echo "$BACK" | grep -q '"schemaVersion":19'
+          python3 -c 'import json,sys;x=json.loads(sys.stdin.read());assert x["version"]=="0.15.28" and x["schemaVersion"]==19' <<<"$BACK"
           TOKEN='LumiChatDeployProbe_01528_1234567890abcdef'
           BOOT=$(curl -fsSL -H 'content-type: application/json' -H "x-lumichat-device: $TOKEN" --data '{"action":"bootstrap"}' "$BASE")
-          echo "$BOOT" | grep -q '"version":"0.15.28"'
+          python3 -c 'import json,sys;x=json.loads(sys.stdin.read());assert x["config"]["version"]=="0.15.28" and x["config"]["schemaVersion"]==19' <<<"$BOOT"
           REV=$(python3 -c 'import json,sys;print(json.loads(sys.stdin.read()).get("revision",0))' <<<"$BOOT")
           PUT=$(curl -fsSL -H 'content-type: application/json' -H "x-lumichat-device: $TOKEN" --data "{\"action\":\"sync-put\",\"revision\":$REV,\"state\":{\"schemaVersion\":18,\"updatedAt\":\"2026-08-21T00:00:00.000Z\",\"characters\":[],\"threads\":[],\"memories\":[]}}" "$BASE")
-          echo "$PUT" | grep -q '"schemaVersion":19'
+          python3 -c 'import json,sys;x=json.loads(sys.stdin.read());assert x["schemaVersion"]==19' <<<"$PUT"
           GET=$(curl -fsSL -H 'content-type: application/json' -H "x-lumichat-device: $TOKEN" --data '{"action":"sync-get"}' "$BASE")
-          echo "$GET" | grep -q '"schemaVersion":19'
-          echo "$GET" | grep -q '"state":{"schemaVersion":19'
+          python3 -c 'import json,sys;x=json.loads(sys.stdin.read());assert x["schemaVersion"]==19 and x["state"]["schemaVersion"]==19' <<<"$GET"
           printf 'frontend=v0.15.28\nbackend=%s\nbootstrap_ok=true\nsync_put=%s\nsync_get=%s\nchecked_at=%s\n' "$BACK" "$PUT" "$GET" "$(date -u +%FT%TZ)" > .deploy/lumichat-health-result.txt
           rm -f .deploy/lumichat-health-trigger.txt
       - name: Commit health result
