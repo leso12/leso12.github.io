@@ -1,0 +1,35 @@
+name: LumiChat Mobile Health Check
+
+on:
+  push:
+    paths:
+      - '.deploy/lumichat-health-trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check deployed frontend and backend
+        shell: bash
+        run: |
+          set -euo pipefail
+          FRONT=$(curl -fsSL --retry 4 --retry-delay 2 'https://leso12.github.io/mobile/lumichat/?health=01528r2')
+          echo "$FRONT" | grep -q 'LumiChat v0.15.28 Mobile'
+          BACK=$(curl -fsSL --retry 4 --retry-delay 2 'https://vulpttgewjfkxojimyxl.supabase.co/functions/v1/lumichat-mobile-v01528?action=health')
+          echo "$BACK" | grep -q '"version":"0.15.28"'
+          echo "$BACK" | grep -q '"schemaVersion":19'
+          printf 'frontend=v0.15.28\nbackend=%s\nchecked_at=%s\n' "$BACK" "$(date -u +%FT%TZ)" > .deploy/lumichat-health-result.txt
+          rm -f .deploy/lumichat-health-trigger.txt
+      - name: Commit health result
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .deploy/lumichat-health-result.txt .deploy/lumichat-health-trigger.txt
+          git commit -m 'Verify LumiChat mobile v0.15.28 deployment'
+          git push
