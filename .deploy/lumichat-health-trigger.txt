@@ -1,0 +1,2 @@
+verify LumiChat mobile v0.15.29
+2026-08-21
