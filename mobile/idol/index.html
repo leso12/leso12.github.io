@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta name="idol-sim-version" content="2.2.2">
+  <meta name="idol-sim-version" content="2.3.0">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -1508,7 +1508,28 @@ button[style*="display:flex"],button[style*="display: flex"] { justify-content:c
   .settings-actions .btn { flex-basis:100%; }
 }
 </style>
-</head>
+<style id="idol-v230-dashboard-design">
+.dashboard-v23-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,.9fr);grid-template-areas:"hero kpi" "schedule alert" "schedule change" "logs logs";gap:14px;align-items:start}
+.dashboard-v23-card{min-width:0;background:var(--bg2);border:1px solid color-mix(in srgb,var(--border) 78%,transparent);border-radius:16px;padding:18px;box-shadow:0 4px 20px rgba(73,50,125,.055)}
+.dashboard-hero{grid-area:hero;display:flex;align-items:center;justify-content:space-between;gap:16px;overflow:hidden;position:relative;background:linear-gradient(135deg,color-mix(in srgb,var(--accent-soft) 66%,var(--bg2)),var(--bg2) 72%)}
+.dashboard-hero::after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:-62px;top:-78px;background:color-mix(in srgb,var(--accent) 9%,transparent);pointer-events:none}
+.dashboard-hero-main{min-width:0;position:relative;z-index:1}.dashboard-eyebrow,.dashboard-section-kicker{display:block;font-size:.62rem;letter-spacing:.11em;font-weight:800;color:var(--text-sub);opacity:.8}
+.dashboard-hero-title-row{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:3px 0 8px}.dashboard-hero-title-row h2{margin:0;font-size:1.58rem;letter-spacing:-.04em;color:var(--text-main)}
+.dashboard-activity-pill{display:inline-flex;align-items:center;min-height:28px;padding:4px 9px;border-radius:999px;background:var(--bg2);border:1px solid var(--border);color:var(--accent);font-size:.72rem;font-weight:750}
+.dashboard-hero-meta{display:flex;flex-wrap:wrap;gap:7px}.dashboard-hero-meta span{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:8px;background:color-mix(in srgb,var(--bg2) 72%,transparent);color:var(--text-sub);font-size:.7rem}.dashboard-hero-meta b{color:var(--text-main);font-weight:750}
+.dashboard-hero-link,.dashboard-section-link{border:0;background:transparent;color:var(--accent);font-size:.7rem;font-weight:750;white-space:nowrap;text-align:center}.dashboard-hero-link{position:relative;z-index:1;padding:8px 9px;border-radius:9px;background:color-mix(in srgb,var(--bg2) 82%,transparent);border:1px solid color-mix(in srgb,var(--border) 75%,transparent)}.dashboard-hero-link:hover,.dashboard-section-link:hover{background:var(--accent-soft)}
+.dashboard-kpi-card{grid-area:kpi}.dashboard-schedule-card{grid-area:schedule}.dashboard-alert-card{grid-area:alert}.dashboard-change-card{grid-area:change}.dashboard-log-card{grid-area:logs}
+.dashboard-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}.dashboard-section-head.compact{margin-bottom:9px}.dashboard-section-head h3{margin:1px 0 0;font-size:.88rem;color:var(--text-main);letter-spacing:-.02em}.dashboard-section-link{padding:4px 0}.dashboard-count-badge{min-width:0;padding:3px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:.64rem;font-weight:800}.dashboard-count-badge:empty{display:none}
+.dashboard-kpi-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}.dashboard-kpi-item{min-width:0;padding:7px 8px 5px;text-align:center;position:relative}.dashboard-kpi-item+.dashboard-kpi-item::before{content:"";position:absolute;left:0;top:10%;bottom:10%;width:1px;background:color-mix(in srgb,var(--border) 72%,transparent)}.dashboard-kpi-icon{display:block;font-size:1rem;line-height:1.2;margin-bottom:3px}.dashboard-kpi-label{display:block;font-size:.62rem;color:var(--text-sub);margin-bottom:2px}.dashboard-kpi-item strong{display:block;font-family:'Gowun Dodum','Noto Sans KR',sans-serif;color:var(--accent);font-size:1.25rem;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dashboard-schedule-list{display:flex;flex-direction:column;gap:7px;min-height:92px}.dashboard-schedule-item{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:9px;align-items:center;padding:9px 10px;border-radius:11px;background:var(--bg);border:1px solid color-mix(in srgb,var(--border) 70%,transparent)}.dashboard-schedule-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:var(--accent-soft);font-size:1rem}.dashboard-schedule-main{min-width:0}.dashboard-schedule-main b{display:block;font-size:.78rem;color:var(--text-main);margin-bottom:2px}.dashboard-schedule-main span{display:block;font-size:.67rem;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dashboard-schedule-count{font-size:.66rem;font-weight:800;color:var(--accent);padding:4px 7px;border-radius:999px;background:var(--accent-soft);white-space:nowrap}
+.dashboard-empty-state{min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center;color:var(--text-sub);background:var(--bg);border:1px dashed var(--border);border-radius:12px}.dashboard-empty-state>span{font-size:1.25rem}.dashboard-empty-state b{font-size:.78rem;color:var(--text-main)}.dashboard-empty-state small{font-size:.66rem}.dashboard-empty-state .dashboard-empty-action{margin-top:5px;min-height:34px;padding:5px 12px;border-radius:9px;background:var(--accent);color:#fff;font-weight:700;font-size:.68rem}
+.dashboard-day-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}.dashboard-day-actions .btn{width:100%;min-height:42px}.dashboard-helper{margin-top:7px;color:var(--text-sub);font-size:.62rem;line-height:1.4;text-align:left}
+.dashboard-alerts{display:flex;flex-direction:column;gap:7px}.dashboard-alert-item{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:start;padding:8px 9px;border-radius:10px;border:0;background:var(--bg)}.dashboard-alert-item.danger{background:color-mix(in srgb,#ffeded 72%,var(--bg2))}.dashboard-alert-item.warn{background:color-mix(in srgb,#fff6de 72%,var(--bg2))}.dashboard-alert-item.info{background:color-mix(in srgb,var(--accent-soft) 45%,var(--bg2))}.dashboard-alert-icon{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:var(--bg2)}.dashboard-alert-text{min-width:0;color:var(--text-sub);font-size:.66rem;line-height:1.45;text-align:left}.dashboard-alert-text b{color:var(--text-main)}
+.dashboard-relation-changes{display:flex;flex-direction:column;gap:7px}.dashboard-change-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 9px;border-radius:10px;background:var(--bg)}.dashboard-change-main{min-width:0}.dashboard-change-main b{display:block;font-size:.72rem;color:var(--text-main);margin-bottom:2px}.dashboard-change-main span{display:block;font-size:.64rem;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dashboard-change-delta{font-size:.68rem;font-weight:850;padding:4px 7px;border-radius:999px;white-space:nowrap}.dashboard-change-delta.up{color:#218c50;background:#e8f8ef}.dashboard-change-delta.down{color:var(--danger);background:#fdeeee}.dashboard-change-delta.flat{color:var(--text-sub);background:var(--bg3)}[data-theme="dark"] .dashboard-change-delta.up{background:#143526}[data-theme="dark"] .dashboard-change-delta.down{background:#3c2020}
+.dashboard-log-feed{max-height:235px!important;background:var(--bg)!important;border:0!important;border-radius:11px!important;padding:10px!important;text-align:left!important}
+@media(max-width:760px){.dashboard-v23-layout{grid-template-columns:1fr;grid-template-areas:"hero" "kpi" "schedule" "alert" "change" "logs";gap:9px}.dashboard-v23-card{padding:13px;border-radius:14px;box-shadow:0 2px 12px rgba(73,50,125,.045)}.dashboard-hero{padding:14px}.dashboard-hero-title-row h2{font-size:1.35rem}.dashboard-hero-link{display:none}.dashboard-hero-meta span:nth-child(2),.dashboard-hero-meta span:nth-child(3){display:none}.dashboard-kpi-card{padding:10px 8px}.dashboard-kpi-card .dashboard-section-head{display:none}.dashboard-kpi-item{padding:5px 4px 4px}.dashboard-kpi-item strong{font-size:1.12rem}.dashboard-schedule-item{grid-template-columns:34px minmax(0,1fr) auto;padding:8px}.dashboard-schedule-icon{width:34px;height:34px}.dashboard-log-feed{max-height:200px!important}#tab-nav .tab-btn{min-height:50px!important;padding:5px 3px!important}#tab-nav .tab-btn::before{font-size:.98rem!important}}
+@media(max-width:380px){.dashboard-hero-title-row{align-items:flex-start;flex-direction:column;gap:5px}.dashboard-activity-pill{min-height:25px}.dashboard-day-actions{grid-template-columns:1fr}}
+</style></head>
 <body>
 
 <!-- ── 헤더 ── -->
@@ -1552,50 +1573,73 @@ button[style*="display:flex"],button[style*="display: flex"] { justify-content:c
 <main id="main-content">
 
   <!-- 대시보드 -->
-  <section id="tab-dashboard" class="tab-panel active">
-    <div class="dash-grid">
-      <div class="dash-stat"><div class="dash-stat-label">그룹</div>
-        <div class="dash-stat-value" id="dash-group" style="font-size:.85rem">—</div></div>
-      <div class="dash-stat"><div class="dash-stat-label">📅 날짜</div>
-        <div class="dash-stat-value" id="dash-day">Day 1</div></div>
-      <div class="dash-stat"><div class="dash-stat-label">💰 소지금</div>
-        <div class="dash-stat-value" id="dash-money" style="font-size:.95rem">5,000원</div></div>
-      <div class="dash-stat"><div class="dash-stat-label">⭐ 인기도</div>
-        <div class="dash-stat-value" id="dash-pop">0</div></div>
-      <div class="dash-stat"><div class="dash-stat-label">💜 팬덤</div>
-        <div class="dash-stat-value" id="dash-fandom">0</div></div>
-      <div class="dash-stat"><div class="dash-stat-label">🏆 평판</div>
-        <div class="dash-stat-value" id="dash-rep">0</div></div>
-      <div class="dash-stat"><div class="dash-stat-label">👥 멤버</div>
-        <div class="dash-stat-value" id="dash-members">0명</div></div>
-      <div class="dash-stat"><div class="dash-stat-label">💿 컴백</div>
-        <div class="dash-stat-value" id="dash-album" style="font-size:.78rem">없음</div></div>
-    </div>
+<section id="tab-dashboard" class="tab-panel active dashboard-v23">
+  <div class="dashboard-v23-layout">
+    <section class="dashboard-v23-card dashboard-hero" aria-label="그룹 현황">
+      <div class="dashboard-hero-main">
+        <div class="dashboard-eyebrow">CURRENT GROUP</div>
+        <div class="dashboard-hero-title-row">
+          <h2 id="dash-group">—</h2>
+          <span class="dashboard-activity-pill" id="dash-album">활동 없음</span>
+        </div>
+        <div class="dashboard-hero-meta">
+          <span>👥 <b id="dash-members">0명</b></span>
+          <span>📅 <b id="dash-day">Day 1</b></span>
+          <span>💰 <b id="dash-money">5,000원</b></span>
+        </div>
+      </div>
+      <button class="dashboard-hero-link" onclick="switchTab('members')">멤버 보기 →</button>
+    </section>
 
-    <div class="card">
-      <div class="card-title">오늘 스케줄</div>
-      <div id="dash-schedule" style="font-size:.83rem;color:var(--text-sub)">배정 없음 (다음날 진행 시 전원 자동 휴식)</div>
-    </div>
+    <section class="dashboard-v23-card dashboard-kpi-card" aria-label="그룹 지표">
+      <div class="dashboard-section-head compact"><div><span class="dashboard-section-kicker">GROUP SCORE</span><h3>그룹 지표</h3></div></div>
+      <div class="dashboard-kpi-strip">
+        <div class="dashboard-kpi-item"><span class="dashboard-kpi-icon">⭐</span><span class="dashboard-kpi-label">인기도</span><strong id="dash-pop">0</strong></div>
+        <div class="dashboard-kpi-item"><span class="dashboard-kpi-icon">💜</span><span class="dashboard-kpi-label">팬덤</span><strong id="dash-fandom">0</strong></div>
+        <div class="dashboard-kpi-item"><span class="dashboard-kpi-icon">🏆</span><span class="dashboard-kpi-label">평판</span><strong id="dash-rep">0</strong></div>
+      </div>
+    </section>
 
-    <div class="card dashboard-alert-card" id="dash-alert-card">
-      <div class="card-title card-title-row"><span>오늘 주의사항</span><span class="card-title-sub" id="dash-alert-count"></span></div>
-      <div id="dash-alerts" class="dashboard-alerts"><div class="empty-hint compact">특이사항이 없습니다.</div></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Day 진행</div>
-      <div class="dash-actions">
-        <button class="btn btn-day"  onclick="onNextDay()">▶ 다음날</button>
+    <section class="dashboard-v23-card dashboard-schedule-card">
+      <div class="dashboard-section-head">
+        <div><span class="dashboard-section-kicker">TODAY</span><h3>오늘 스케줄</h3></div>
+        <button class="dashboard-section-link" onclick="switchTab('schedule')">스케줄 관리 →</button>
+      </div>
+      <div id="dash-schedule" class="dashboard-schedule-list"><div class="dashboard-empty-state"><span>🗓️</span><b>아직 일정이 없어요</b><small>멤버별 오늘 일정을 배정해보세요.</small></div></div>
+      <div class="dashboard-day-actions">
+        <button class="btn btn-day" onclick="onNextDay()">▶ 다음날</button>
         <button class="btn btn-day btn-day2" onclick="onNext7Days()">⏩ 7일 진행</button>
       </div>
-      <p class="note" style="margin-top:6px">스케줄 미배정 시 전원 자동 휴식 / 컨디션 불량 시 강제 휴식</p>
-    </div>
+      <div class="dashboard-helper">스케줄 미배정 시 전원 자동 휴식 · 컨디션 불량 시 강제 휴식</div>
+    </section>
 
-    <div class="log-section-title log-title-row"><span>최근 로그</span><button class="text-link-btn" onclick="switchTab('log')">전체 로그 보기 →</button></div>
-    <div class="log-mini log-feed" id="log-mini-dash"></div>
-  </section>
+    <section class="dashboard-v23-card dashboard-alert-card" id="dash-alert-card">
+      <div class="dashboard-section-head">
+        <div><span class="dashboard-section-kicker">CHECK</span><h3>오늘 체크</h3></div>
+        <span class="dashboard-count-badge" id="dash-alert-count"></span>
+      </div>
+      <div id="dash-alerts" class="dashboard-alerts"><div class="empty-hint compact">특이사항이 없습니다.</div></div>
+    </section>
 
-  <!-- 멤버 -->
+    <section class="dashboard-v23-card dashboard-change-card">
+      <div class="dashboard-section-head">
+        <div><span class="dashboard-section-kicker">RELATION</span><h3>최근 관계 변화</h3></div>
+        <button class="dashboard-section-link" onclick="switchTab('relations')">관계 보기 →</button>
+      </div>
+      <div id="dash-relation-changes" class="dashboard-relation-changes"><div class="empty-hint compact">최근 관계 변화가 없습니다.</div></div>
+    </section>
+
+    <section class="dashboard-v23-card dashboard-log-card">
+      <div class="dashboard-section-head">
+        <div><span class="dashboard-section-kicker">RECENT</span><h3>최근 로그</h3></div>
+        <button class="dashboard-section-link" onclick="switchTab('log')">전체 로그 →</button>
+      </div>
+      <div class="log-mini log-feed dashboard-log-feed" id="log-mini-dash"></div>
+    </section>
+  </div>
+</section>
+
+<!-- 멤버 -->
   <section id="tab-members" class="tab-panel">
     <div class="section-header member-section-header">
       <div>
@@ -4605,45 +4649,29 @@ function renderAll() {
 // ═══════════════════════════════════════════════════════
 // 대시보드
 // ═══════════════════════════════════════════════════════
-function renderDashboard() {
-  const s = APP.state;
-  const gn = s.groupName === '미설정' ? '미설정' : s.groupName;
-  setEl('dash-group',  gn);
-  setEl('dash-day',    'Day ' + s.day);
-  setEl('dash-money',  formatMoney(s.money));
-  setEl('dash-pop',    s.kpi.popularity);
-  setEl('dash-fandom', s.kpi.fandom.toLocaleString());
-  setEl('dash-rep',    s.kpi.reputation);
-  setEl('dash-members',s.members.length + '명');
-
-  const albumEl = getEl('dash-album');
-  if (albumEl) {
-    if (s.concert && s.concert.isPlanned)
-      albumEl.textContent = `콘서트 D-${s.concert.daysLeft}`;
-    else if (s.album.isReleased && s.album.comebackDaysLeft > 0)
-      albumEl.textContent = `컴백 중 D-${s.album.comebackDaysLeft}`;
-    else if (s.album.isPreparing)
-      albumEl.textContent = '앨범 준비 중';
-    else
-      albumEl.textContent = '활동 없음';
-  }
-
-  const schEl = getEl('dash-schedule');
-  if (schEl) {
-    if (s.schedule.length === 0) {
-      schEl.textContent = '배정 없음';
-    } else {
-      const counts = {};
-      s.schedule.forEach(e => {
-        const act = APP.scheduleData.find(a => a.id === e.activityId);
-        const label = act ? act.label : e.activityId;
-        counts[label] = (counts[label] || 0) + 1;
-      });
-      schEl.textContent = Object.entries(counts).map(([l,c]) => `${l} ${c}명`).join(' / ');
-    }
-  }
-  renderDashboardAlerts();
-  renderLogMini('log-mini-dash');
+function dashboardScheduleIcon(act){
+  const c=String(act?.category||'');
+  if(c==='practice')return '🎯';if(c==='album')return '💿';if(c==='comeback')return '🎤';if(c==='group')return '👥';if(c==='individual')return '✨';if(c==='recovery')return '🌿';if(c==='concert')return '🎪';return '🗓️';
+}
+function renderDashboardSchedule(){
+  const s=APP.state,el=getEl('dash-schedule');if(!el)return;
+  if(!Array.isArray(s.schedule)||!s.schedule.length){el.innerHTML='<div class="dashboard-empty-state"><span>🗓️</span><b>아직 일정이 없어요</b><small>멤버별 오늘 일정을 배정해보세요.</small><button class="dashboard-empty-action" onclick="switchTab(\'schedule\')">스케줄 배정하기</button></div>';return;}
+  const memberMap=new Map((s.members||[]).map(m=>[m.id,m])),groups=new Map();
+  s.schedule.forEach(e=>{const act=APP.scheduleData.find(a=>a.id===e.activityId)||{id:e.activityId,label:e.activityId,category:''};if(!groups.has(act.id))groups.set(act.id,{act,names:[]});const m=memberMap.get(e.memberId);if(m)groups.get(act.id).names.push(m.name);});
+  el.innerHTML=[...groups.values()].map(g=>`<div class="dashboard-schedule-item"><span class="dashboard-schedule-icon">${dashboardScheduleIcon(g.act)}</span><div class="dashboard-schedule-main"><b>${escapeHtml(g.act.label||g.act.id)}</b><span>${escapeHtml(g.names.join(' · ')||'배정 멤버 확인')}</span></div><span class="dashboard-schedule-count">${g.names.length||0}명</span></div>`).join('');
+}
+function getDashboardRelationChanges(){
+  const s=APP.state,out=[],memberMap=new Map((s.members||[]).map(m=>[m.id,m]));
+  (s.relations||[]).forEach(rel=>{const hist=(Array.isArray(rel.history)?rel.history:[]).filter(h=>Number(h.day)>=Math.max(0,Number(s.day||0)-6));if(!hist.length)return;hist.sort((a,b)=>(Number(b.day)||0)-(Number(a.day)||0)||Math.abs(Number(b.delta)||0)-Math.abs(Number(a.delta)||0));const h=hist[0],ids=String(rel.id||'').split(':'),a=memberMap.get(ids[0]),b=memberMap.get(ids[1]);if(!a||!b)return;out.push({day:Number(h.day)||0,delta:Number(h.delta)||0,a:a.name,b:b.name,text:String(h.text||'관계 이벤트')});});
+  return out.sort((x,y)=>y.day-x.day||Math.abs(y.delta)-Math.abs(x.delta)).slice(0,4);
+}
+function renderDashboardRelationChanges(){
+  const el=getEl('dash-relation-changes');if(!el)return;const items=getDashboardRelationChanges();if(!items.length){el.innerHTML='<div class="empty-hint compact">최근 7일 관계 변화가 없습니다.</div>';return;}el.innerHTML=items.map(x=>`<div class="dashboard-change-item"><div class="dashboard-change-main"><b>${escapeHtml(x.a)} × ${escapeHtml(x.b)} · Day ${x.day}</b><span>${escapeHtml(x.text)}</span></div><span class="dashboard-change-delta ${x.delta>0?'up':x.delta<0?'down':'flat'}">${x.delta>0?'↑ +':x.delta<0?'↓ ':''}${x.delta}</span></div>`).join('');
+}
+function renderDashboard(){
+  const s=APP.state,gn=s.groupName==='미설정'?'미설정':s.groupName;setEl('dash-group',gn);setEl('dash-day','Day '+s.day);setEl('dash-money',formatMoney(s.money));setEl('dash-pop',s.kpi.popularity);setEl('dash-fandom',s.kpi.fandom.toLocaleString());setEl('dash-rep',s.kpi.reputation);setEl('dash-members',s.members.length+'명');
+  const albumEl=getEl('dash-album');if(albumEl){if(s.concert&&s.concert.isPlanned)albumEl.textContent=`🎪 콘서트 D-${s.concert.daysLeft}`;else if(s.album.isReleased&&s.album.comebackDaysLeft>0)albumEl.textContent=`🎤 컴백 중 D-${s.album.comebackDaysLeft}`;else if(s.album.isPreparing)albumEl.textContent='💿 앨범 준비 중';else albumEl.textContent='🌿 활동 없음';}
+  renderDashboardSchedule();renderDashboardAlerts();renderDashboardRelationChanges();renderLogMini('log-mini-dash');
 }
 
 function getDashboardAlerts() {
@@ -6952,5 +6980,6 @@ document.addEventListener('DOMContentLoaded', init);
 </script>
 
 <!-- idol-mobile-v22.2 header-quick-tools build -->
+<!-- idol-sim-v23 dashboard-redesign build -->
 </body>
 </html>
