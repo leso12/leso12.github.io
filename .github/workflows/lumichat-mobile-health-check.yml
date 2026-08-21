@@ -18,20 +18,22 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          FRONT=$(curl -fsSL --retry 4 --retry-delay 2 'https://leso12.github.io/mobile/lumichat/?health=01528r4')
-          echo "$FRONT" | grep -q 'LumiChat v0.15.28 Mobile'
-          BASE='https://vulpttgewjfkxojimyxl.supabase.co/functions/v1/lumichat-mobile-v01528'
-          BACK=$(curl -fsSL --retry 4 --retry-delay 2 "$BASE?action=health")
-          python3 -c 'import json,sys;x=json.loads(sys.stdin.read());assert x["version"]=="0.15.28" and x["schemaVersion"]==19' <<<"$BACK"
-          TOKEN='LumiChatDeployProbe_01528_1234567890abcdef'
+          FRONT=$(curl -fsSL --retry 5 --retry-delay 2 'https://leso12.github.io/mobile/lumichat/?health=01529r1')
+          echo "$FRONT" | grep -q 'LumiChat v0.15.29 Mobile'
+          echo "$FRONT" | grep -q 'v01529-mobile-ux.js'
+          echo "$FRONT" | grep -q 'v01529-mobile-ux.css'
+          BASE='https://vulpttgewjfkxojimyxl.supabase.co/functions/v1/lumichat-mobile-v01529'
+          BACK=$(curl -fsSL --retry 5 --retry-delay 2 "$BASE?action=health")
+          python3 -c 'import json,sys;x=json.loads(sys.stdin.read());assert x["version"]=="0.15.29" and x["schemaVersion"]==19' <<<"$BACK"
+          TOKEN='LumiChatDeployProbe_01529_20260821_abcdef123456'
           BOOT=$(curl -fsSL -H 'content-type: application/json' -H "x-lumichat-device: $TOKEN" --data '{"action":"bootstrap"}' "$BASE")
-          python3 -c 'import json,sys;x=json.loads(sys.stdin.read());assert x["config"]["version"]=="0.15.28" and x["config"]["schemaVersion"]==19' <<<"$BOOT"
+          python3 -c 'import json,sys;x=json.loads(sys.stdin.read());assert x["config"]["version"]=="0.15.29" and x["config"]["schemaVersion"]==19' <<<"$BOOT"
           REV=$(python3 -c 'import json,sys;print(json.loads(sys.stdin.read()).get("revision",0))' <<<"$BOOT")
           PUT=$(curl -fsSL -H 'content-type: application/json' -H "x-lumichat-device: $TOKEN" --data "{\"action\":\"sync-put\",\"revision\":$REV,\"state\":{\"schemaVersion\":18,\"updatedAt\":\"2026-08-21T00:00:00.000Z\",\"characters\":[],\"threads\":[],\"memories\":[]}}" "$BASE")
           python3 -c 'import json,sys;x=json.loads(sys.stdin.read());assert x["schemaVersion"]==19' <<<"$PUT"
           GET=$(curl -fsSL -H 'content-type: application/json' -H "x-lumichat-device: $TOKEN" --data '{"action":"sync-get"}' "$BASE")
           python3 -c 'import json,sys;x=json.loads(sys.stdin.read());assert x["schemaVersion"]==19 and x["state"]["schemaVersion"]==19' <<<"$GET"
-          printf 'frontend=v0.15.28\nbackend=%s\nbootstrap_ok=true\nsync_put=%s\nsync_get=%s\nchecked_at=%s\n' "$BACK" "$PUT" "$GET" "$(date -u +%FT%TZ)" > .deploy/lumichat-health-result.txt
+          printf 'frontend=v0.15.29\nfrontend_ux=semantic-chat-novel+character-first+library-groups\nbackend=%s\nbootstrap_ok=true\nsync_put=%s\nsync_get=%s\nchecked_at=%s\n' "$BACK" "$PUT" "$GET" "$(date -u +%FT%TZ)" > .deploy/lumichat-health-result.txt
           rm -f .deploy/lumichat-health-trigger.txt
       - name: Commit health result
         shell: bash
@@ -39,5 +41,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add .deploy/lumichat-health-result.txt .deploy/lumichat-health-trigger.txt
-          git commit -m 'Verify LumiChat mobile v0.15.28 deep sync'
+          git commit -m 'Verify LumiChat mobile v0.15.29 deep sync'
           git push
