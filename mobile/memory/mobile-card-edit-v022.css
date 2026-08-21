@@ -1,0 +1,26 @@
+/* Memory Archive Mobile v0.2.2 — card edit parity */
+body.sheet-open .bottom-nav{pointer-events:none!important}
+.sheet-backdrop{z-index:1000!important}
+.sheet{z-index:1001!important;max-height:min(92dvh,900px)!important;padding-bottom:calc(18px + var(--safeB) + 2px)!important}
+.sheet-actions{z-index:5!important;padding-bottom:max(4px,var(--safeB))!important}
+.m-card-edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 10px;min-width:0}
+.m-card-edit-grid .field.full,.m-card-media-field,.m-card-edit-note{grid-column:1/-1}
+.m-card-edit-grid .field input{min-width:0}
+.m-card-media-row{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:15px;background:var(--muted)}
+.m-card-media-row.cover{grid-template-columns:132px minmax(0,1fr)}
+.m-card-media-preview{overflow:hidden;background:var(--panel2);display:grid;place-items:center;border:0!important;outline:0!important;box-shadow:none!important}
+.m-card-media-preview.avatar{width:82px;height:82px;border-radius:50%}
+.m-card-media-preview.cover{width:132px;height:82px;border-radius:12px}
+.m-card-media-preview img{display:block;width:100%;height:100%;object-fit:cover;border:0!important;outline:0!important;box-shadow:none!important}
+.m-card-media-fallback{display:block;width:100%;height:100%;background:#64676d url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='39' r='17' fill='%23b8bbc0'/%3E%3Cpath d='M15 91c6-23 20-34 35-34s29 11 35 34' fill='%23b8bbc0'/%3E%3C/svg%3E") center/cover no-repeat;border:0!important}
+.m-card-cover-empty{font-size:11px;color:var(--soft);padding:8px;text-align:center}
+.m-card-media-actions{display:flex;flex-wrap:wrap;gap:7px;min-width:0}
+.m-card-media-actions .btn{min-height:40px;padding:7px 10px;font-size:12px;flex:0 0 auto}
+.m-card-media-note{width:100%;font-size:10.5px;line-height:1.45;color:var(--soft)}
+.m-card-edit-note{margin-top:2px}
+@media(max-width:420px){
+ .m-card-edit-grid{grid-template-columns:1fr}
+ .m-card-edit-grid .field,.m-card-media-field,.m-card-edit-note{grid-column:1}
+ .m-card-media-row,.m-card-media-row.cover{grid-template-columns:84px minmax(0,1fr)}
+ .m-card-media-preview.avatar{width:74px;height:74px}.m-card-media-preview.cover{width:84px;height:70px}
+}
