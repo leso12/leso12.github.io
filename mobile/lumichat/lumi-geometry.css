@@ -1,0 +1,71 @@
+/* LumiChat Mobile canonical geometry system — v0.15.33 */
+:root{
+  --lumi-m-page:12px;
+  --lumi-m-gap:10px;
+  --lumi-m-radius-control:10px;
+  --lumi-m-radius-card:14px;
+  --lumi-m-radius-panel:18px;
+}
+
+/* Every top-level mobile surface uses one horizontal rail. */
+#app :is(.settings-card,.char-card,.memory-card,.mobile-home-panel,.mobile-home-widgets,.mobile-library-current,.mobile-library-section,.manage-item,.widget-lib-card,.manager-bulk-bar,.mobile-thread-card,.mobile-thread-card-v2,.mobile-history-row,.empty){
+  box-sizing:border-box!important;min-width:0!important;max-width:100%!important;
+}
+.settings-card,.mobile-library-current{margin-left:var(--lumi-m-page)!important;margin-right:var(--lumi-m-page)!important;}
+.settings-card{
+  width:calc(100% - (var(--lumi-m-page) * 2))!important;
+  margin-top:12px!important;margin-bottom:0!important;
+  padding:15px!important;border-radius:var(--lumi-m-radius-panel)!important;overflow:hidden!important;
+}
+.theme-settings-card{border-radius:var(--lumi-m-radius-panel)!important;}
+.mobile-theme-grid{width:100%!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;}
+.mobile-theme-card{width:100%!important;min-width:0!important;border-radius:12px!important;overflow:hidden!important;}
+
+/* Library: section edges, cards and current-character block line up exactly. */
+.mobile-library-current{width:calc(100% - (var(--lumi-m-page) * 2))!important;margin-top:12px!important;margin-bottom:0!important;border-radius:var(--lumi-m-radius-panel)!important;}
+.mobile-library-section{width:100%!important;padding:24px var(--lumi-m-page) 4px!important;margin:0!important;border-radius:0!important;}
+.mobile-library-section+.mobile-library-section{padding-top:26px!important;}
+.mobile-library-grid{width:100%!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;}
+.mobile-library-card{width:100%!important;min-width:0!important;min-height:92px!important;border-radius:var(--lumi-m-radius-card)!important;}
+
+/* Conversation and normal cards. */
+.conversation-page{padding-left:var(--lumi-m-page)!important;padding-right:var(--lumi-m-page)!important;}
+.mobile-thread-list,.mobile-thread-list-v2{display:grid!important;gap:9px!important;width:100%!important;}
+.mobile-thread-card,.mobile-thread-card-v2{width:100%!important;margin:0!important;border-radius:var(--lumi-m-radius-card)!important;overflow:hidden!important;}
+.char-grid,.memory-list{padding-left:var(--lumi-m-page)!important;padding-right:var(--lumi-m-page)!important;}
+.char-card,.memory-card{width:100%!important;margin:0!important;border-radius:var(--lumi-m-radius-card)!important;}
+
+/* Manager sheets: bulk bar and every entity card share the exact same width. */
+.manager-sheet{width:100%!important;min-width:0!important;}
+.manager-title,.manager-bulk-bar,.manager-list,.manager-list>.manage-item{width:100%!important;max-width:100%!important;box-sizing:border-box!important;}
+.manager-list{display:grid!important;grid-template-columns:1fr!important;gap:9px!important;}
+.manager-bulk-bar{margin:0!important;padding:10px!important;border-radius:var(--lumi-m-radius-card)!important;}
+.manage-item{
+  margin:0!important;padding:13px 12px 12px 44px!important;
+  border-radius:var(--lumi-m-radius-card)!important;
+  grid-template-columns:minmax(0,1fr)!important;align-items:stretch!important;
+}
+.manage-item>div:first-of-type{min-width:0!important;padding-right:28px!important;}
+.manage-actions{width:100%!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;margin-top:10px!important;}
+.manage-actions button,.manager-bulk-bar button{width:100%!important;border-radius:var(--lumi-m-radius-control)!important;}
+.manage-select{right:11px!important;top:12px!important;left:auto!important;}
+
+/* Widget and sheet cards. */
+.widget-lib-card{width:100%!important;border-radius:var(--lumi-m-radius-card)!important;}
+.sheet-card{border-radius:22px 22px 0 0!important;}
+.sheet-form>*{min-width:0!important;max-width:100%!important;}
+
+/* Composer is a deliberate floating surface but obeys the same side inset. */
+.chat-page>.composer{width:calc(100% - (var(--lumi-m-page) * 2))!important;margin-left:var(--lumi-m-page)!important;margin-right:var(--lumi-m-page)!important;border-radius:var(--lumi-m-radius-card)!important;}
+.chat-page>.composer textarea{border-radius:12px!important;}
+
+@media(max-width:390px){
+  :root{--lumi-m-page:10px;--lumi-m-radius-panel:16px;}
+  .mobile-library-grid{grid-template-columns:1fr 1fr!important;}
+  .mobile-theme-grid{grid-template-columns:1fr!important;}
+  .manage-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+}
+@media(max-width:340px){
+  .mobile-library-grid{grid-template-columns:1fr!important;}
+  .manage-actions{grid-template-columns:1fr!important;}
+}
