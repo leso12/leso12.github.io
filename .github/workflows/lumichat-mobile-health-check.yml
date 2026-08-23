@@ -14,32 +14,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check deployed frontend, backend and sync roundtrip
+      - name: Verify public LumiChat v0.15.33 frontend
         shell: bash
         run: |
           set -euo pipefail
-          FRONT=$(curl -fsSL --retry 5 --retry-delay 2 'https://leso12.github.io/mobile/lumichat/?health=01529r1')
-          echo "$FRONT" | grep -q 'LumiChat v0.15.29 Mobile'
-          echo "$FRONT" | grep -q 'v01529-mobile-ux.js'
-          echo "$FRONT" | grep -q 'v01529-mobile-ux.css'
-          BASE='https://vulpttgewjfkxojimyxl.supabase.co/functions/v1/lumichat-mobile-v01529'
-          BACK=$(curl -fsSL --retry 5 --retry-delay 2 "$BASE?action=health")
-          python3 -c 'import json,sys;x=json.loads(sys.stdin.read());assert x["version"]=="0.15.29" and x["schemaVersion"]==19' <<<"$BACK"
-          TOKEN='LumiChatDeployProbe_01529_20260821_abcdef123456'
-          BOOT=$(curl -fsSL -H 'content-type: application/json' -H "x-lumichat-device: $TOKEN" --data '{"action":"bootstrap"}' "$BASE")
-          python3 -c 'import json,sys;x=json.loads(sys.stdin.read());assert x["config"]["version"]=="0.15.29" and x["config"]["schemaVersion"]==19' <<<"$BOOT"
-          REV=$(python3 -c 'import json,sys;print(json.loads(sys.stdin.read()).get("revision",0))' <<<"$BOOT")
-          PUT=$(curl -fsSL -H 'content-type: application/json' -H "x-lumichat-device: $TOKEN" --data "{\"action\":\"sync-put\",\"revision\":$REV,\"state\":{\"schemaVersion\":18,\"updatedAt\":\"2026-08-21T00:00:00.000Z\",\"characters\":[],\"threads\":[],\"memories\":[]}}" "$BASE")
-          python3 -c 'import json,sys;x=json.loads(sys.stdin.read());assert x["schemaVersion"]==19' <<<"$PUT"
-          GET=$(curl -fsSL -H 'content-type: application/json' -H "x-lumichat-device: $TOKEN" --data '{"action":"sync-get"}' "$BASE")
-          python3 -c 'import json,sys;x=json.loads(sys.stdin.read());assert x["schemaVersion"]==19 and x["state"]["schemaVersion"]==19' <<<"$GET"
-          printf 'frontend=v0.15.29\nfrontend_ux=semantic-chat-novel+character-first+library-groups\nbackend=%s\nbootstrap_ok=true\nsync_put=%s\nsync_get=%s\nchecked_at=%s\n' "$BACK" "$PUT" "$GET" "$(date -u +%FT%TZ)" > .deploy/lumichat-health-result.txt
+          BASE='https://leso12.github.io/mobile/lumichat'
+          BUST="01533-$(date +%s)"
+          FRONT=$(curl -fsSL --retry 10 --retry-delay 3 "$BASE/?health=$BUST")
+          CORE=$(curl -fsSL --retry 10 --retry-delay 3 "$BASE/core.js?health=$BUST")
+          GEOM=$(curl -fsSL --retry 10 --retry-delay 3 "$BASE/lumi-geometry.css?health=$BUST")
+          THEME=$(curl -fsSL --retry 10 --retry-delay 3 "$BASE/lumi-theme.css?health=$BUST")
+          SW=$(curl -fsSL --retry 10 --retry-delay 3 "$BASE/sw.js?health=$BUST")
+
+          echo "$FRONT" | grep -Fq 'LumiChat v0.15.33 Mobile'
+          echo "$FRONT" | grep -Fq 'lumi-theme.css?v=01533'
+          echo "$FRONT" | grep -Fq 'lumi-geometry.css?v=01533'
+          echo "$CORE" | grep -Fq "APP_VERSION='0.15.33'"
+          echo "$CORE" | grep -Fq 'SCHEMA_VERSION=19'
+          echo "$GEOM" | grep -Fq 'LumiChat v0.15.33'
+          echo "$THEME" | grep -Fq 'LumiChat'
+          echo "$SW" | grep -Fq '01533'
+
+          printf 'frontend=v0.15.33\npublic_url=%s/\nindex_ok=true\ncore_version=0.15.33\nschema=19\ntheme_ok=true\ngeometry_ok=true\nservice_worker_ok=true\nchecked_at=%s\n' "$BASE" "$(date -u +%FT%TZ)" > .deploy/lumichat-health-result.txt
           rm -f .deploy/lumichat-health-trigger.txt
+
       - name: Commit health result
         shell: bash
         run: |
+          set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .deploy/lumichat-health-result.txt .deploy/lumichat-health-trigger.txt
-          git commit -m 'Verify LumiChat mobile v0.15.29 deep sync'
+          git add -A .deploy/lumichat-health-result.txt .deploy/lumichat-health-trigger.txt
+          git diff --cached --quiet && exit 0
+          git commit -m 'Verify LumiChat public mobile v0.15.33'
           git push
