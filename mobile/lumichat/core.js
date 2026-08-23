@@ -1,6 +1,6 @@
 import { demoSeed } from './demo.js';
 
-export const APP_VERSION='0.15.28';
+export const APP_VERSION='0.15.33';
 export const SCHEMA_VERSION=19;
 const EDGE='https://vulpttgewjfkxojimyxl.supabase.co/functions/v1/lumichat-mobile';
 const EDGE_TIMEOUT=30000,BOOT_TIMEOUT=9000;
@@ -99,6 +99,7 @@ export function normalize(s){
   s.settings={...base.settings,...(s.settings||{})};
   s.settings.deletedItems=arr(s.settings.deletedItems);s.settings.trash=arr(s.settings.trash).filter(x=>x&&x.deletedAt&&Date.now()-new Date(x.deletedAt).getTime()<30*86400000);s.settings.mediaMeta=s.settings.mediaMeta&&typeof s.settings.mediaMeta==='object'?s.settings.mediaMeta:{};s.settings.tts={voiceURI:'',rate:1,pitch:1,volume:1,autoRead:false,...(s.settings.tts||{})};
   s.settings.inputContextTokens=Math.max(2000,Math.min(30000,Number(s.settings.inputContextTokens||5000)));
+  for(const x of s.extras){x.enabled=true}
   for(const p of s.personas){p.readPolicy=normalizeReadPolicy(p.readPolicy,'required');p.triggerKeywords=arr(p.triggerKeywords)}
   for(const g of s.guides){g.readPolicy=normalizeReadPolicy(g.readPolicy,'required');g.triggerKeywords=arr(g.triggerKeywords)}
   for(const m of s.memories){if(m.status==='candidate')m.status='approved';m.readPolicy=normalizeReadPolicy(m.readPolicy,m.pinned?'required':'auto');m.triggerKeywords=arr(m.triggerKeywords);m.tags=arr(m.tags)}
