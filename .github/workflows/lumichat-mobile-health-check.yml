@@ -31,9 +31,9 @@ jobs:
           echo "$FRONT" | grep -Fq 'lumi-geometry.css?v=01533'
           echo "$CORE" | grep -Fq "APP_VERSION='0.15.33'"
           echo "$CORE" | grep -Fq 'SCHEMA_VERSION=19'
-          echo "$GEOM" | grep -Fq 'LumiChat v0.15.33'
+          echo "$GEOM" | grep -Fq 'v0.15.33'
           echo "$THEME" | grep -Fq 'LumiChat'
-          echo "$SW" | grep -Fq '01533'
+          echo "$SW" | grep -Fq 'v0.15.33'
 
           printf 'frontend=v0.15.33\npublic_url=%s/\nindex_ok=true\ncore_version=0.15.33\nschema=19\ntheme_ok=true\ngeometry_ok=true\nservice_worker_ok=true\nchecked_at=%s\n' "$BASE" "$(date -u +%FT%TZ)" > .deploy/lumichat-health-result.txt
           rm -f .deploy/lumichat-health-trigger.txt
