@@ -1,7 +1,9 @@
-frontend=v0.15.29
-frontend_ux=semantic-chat-novel+character-first+library-groups
-backend={"ok":true,"version":"0.15.29","schemaVersion":19,"gateway":true}
-bootstrap_ok=true
-sync_put={"ok":true,"revision":1,"schemaVersion":19}
-sync_get={"revision":1,"state":{"threads":[],"memories":[],"updatedAt":"2026-08-21T00:00:00.000Z","characters":[],"schemaVersion":19},"schemaVersion":19}
-checked_at=2026-08-21T06:19:16Z
+frontend=v0.15.33
+public_url=https://leso12.github.io/mobile/lumichat/
+index_ok=true
+core_version=0.15.33
+schema=19
+theme_ok=true
+geometry_ok=true
+service_worker_ok=true
+checked_at=2026-08-23T17:03:54Z
