@@ -14,12 +14,57 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Deploy validated LumiChat v0.15.33 mobile bundle
+      - name: Rebuild and validate LumiChat v0.15.33 bundle
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          ZIP=.deploy/lumichat_v01533.zip
-          test -f "$ZIP"
+          OUT=/tmp/lumichat-mobile.b64
+          ZIP=/tmp/lumichat-mobile.zip
+          : > "$OUT"
+
+          # Verified contiguous source ranges: 0..80000
+          cat .deploy/lumichat_v01533_parts/part00 >> "$OUT"
+          cat .deploy/lumichat_v01533_parts/part01a >> "$OUT"
+          cat .deploy/lumichat_v01533_parts/part01b >> "$OUT"
+          cat .deploy/lumichat_v01533_parts/part02 >> "$OUT"
+          cat .deploy/lumichat_v01533_parts/part03 >> "$OUT"
+          cat .deploy/lumichat_v01533_parts/part05 >> "$OUT"
+          cat .deploy/lumichat_v01533_parts/part06 >> "$OUT"
+          cat .deploy/lumichat_v01533_parts/part07 >> "$OUT"
+
+          # part08 begins at byte 80000; only its verified first 10000 bytes are used.
+          head -c 10000 .deploy/lumichat_v01533_parts/part08 >> "$OUT"
+
+          # Verified 90000..130000
+          cat .deploy/lumichat_v01533_parts/part09 >> "$OUT"
+          cat .deploy/lumichat_v01533_parts/part11 >> "$OUT"
+
+          # Verified 120000..140000 source; take only 130000..140000.
+          tail -c 10000 .deploy/lumichat_v01533b/part06 >> "$OUT"
+          cat .deploy/lumichat_v01533b/part07a >> "$OUT"
+
+          fetch_blob_text() {
+            curl -fsSL \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/$1" \
+              | jq -r '.content' | tr -d '\n' | base64 -d
+          }
+
+          # Exact missing 149590..150000 range.
+          fetch_blob_text f11aacd0cbe737cc95b2f0b49c90cb1a0b2417c3 >> "$OUT"
+          cat .deploy/lumichat_v01533b/part07b >> "$OUT"
+          cat .deploy/lumichat_v01533b/part08a >> "$OUT"
+          # Exact 168000..175136 tail.
+          fetch_blob_text 5b3161a04b0c82e6de2dbaf67bc698c200ae7d36 >> "$OUT"
+
+          test "$(wc -c < "$OUT")" -eq 175136
+          base64 -d "$OUT" > "$ZIP"
+          echo 'b0390e83ce20ae1c9e3342761c37ddd7bbf60aee60922189d37d560cd50f6433  /tmp/lumichat-mobile.zip' | sha256sum -c -
+          unzip -t "$ZIP"
+
           rm -rf /tmp/lumichat-01533
           mkdir -p /tmp/lumichat-01533
           unzip -q "$ZIP" -d /tmp/lumichat-01533
@@ -29,17 +74,21 @@ jobs:
           test -f "$SRC/core.js"
           test -f "$SRC/lumi-theme.css"
           test -f "$SRC/lumi-geometry.css"
+          grep -Fq 'LumiChat v0.15.33 Mobile' "$SRC/index.html"
+          grep -Fq "APP_VERSION='0.15.33'" "$SRC/core.js"
+
           rm -rf mobile/lumichat
           mkdir -p mobile/lumichat
           cp -a "$SRC"/. mobile/lumichat/
-          rm -f .deploy/lumichat_v01533.zip .deploy/lumichat-01533-trigger.txt
+          rm -f .deploy/lumichat-01533-trigger.txt
+
       - name: Commit deployment
         shell: bash
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A mobile/lumichat .deploy
+          git add -A mobile/lumichat .deploy/lumichat-01533-trigger.txt
           git diff --cached --quiet && exit 0
           git commit -m 'Deploy LumiChat mobile v0.15.33 geometry normalization'
           git push
