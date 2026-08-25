@@ -1,5 +1,4 @@
-/* LumiChat v0.15.28 mobile stability layer */
-.form-tabs.five{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:0!important;overflow:visible!important;padding-inline:8px!important}
-.form-tabs.five button{min-width:0!important;width:100%!important;padding:9px 4px!important;font-size:13px!important;white-space:nowrap!important}
-@media(max-width:360px){.form-tabs.five{padding-inline:4px!important}.form-tabs.five button{padding-inline:2px!important;font-size:12px!important;letter-spacing:-.035em!important}}
-@media(max-width:330px){.form-tabs.five button{font-size:11px!important}}
+/* Legacy compatibility shell — v0.15.34
+   The old v0.15.28 five-tab fixed grid conflicted with narrow screens.
+   Canonical tab geometry now lives only in lumi-geometry.css. */
+.form-tabs.five button{white-space:nowrap;}
