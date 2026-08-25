@@ -1,9 +1,10 @@
-frontend=v0.15.33
+frontend=v0.15.34
 public_url=https://leso12.github.io/mobile/lumichat/
 index_ok=true
-core_version=0.15.33
+core_version=0.15.34
 schema=19
 theme_ok=true
-geometry_ok=true
+p0_geometry_ok=true
+legacy_fixed_tabs_removed=true
 service_worker_ok=true
-checked_at=2026-08-23T17:03:54Z
+checked_at=2026-08-25T05:30:54Z
