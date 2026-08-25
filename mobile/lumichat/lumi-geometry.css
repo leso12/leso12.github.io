@@ -1,4 +1,4 @@
-/* LumiChat Mobile P0 layout foundation — v0.15.34
+/* LumiChat Mobile P0 layout foundation — v0.15.36
    Single source of truth for mobile rail, spacing, radius, touch size, tabs and safe-area.
    Page-specific legacy styles may keep color/typography, but they must not redefine these geometry rules. */
 :root{
@@ -322,4 +322,298 @@ textarea{border-radius:var(--lumi-m-radius-control)!important;}
   .bottom-nav{display:none!important;}
   .sheet-card{max-height:100dvh!important;border-radius:var(--lumi-m-radius-panel) var(--lumi-m-radius-panel) 0 0!important;}
   .chat-page>.composer{margin-bottom:max(6px,var(--lumi-m-bottom-safe))!important;}
+}
+
+/* ---------- P1 overlay roles — v0.15.36 ---------- */
+#sheet{position:fixed;inset:0;z-index:70;pointer-events:none}
+#sheet:not([hidden]){pointer-events:auto}
+#sheet .overlay-backdrop{position:fixed;inset:0}
+.overlay-card{box-sizing:border-box!important;overscroll-behavior:contain;outline:0}
+.overlay-close{
+  position:sticky!important;top:0!important;z-index:8!important;float:right!important;
+  width:var(--lumi-m-touch-min)!important;height:var(--lumi-m-touch-min)!important;
+  margin:0 0 2px 10px!important;padding:0!important;border-radius:999px!important;
+  font-size:28px!important;line-height:1!important;
+}
+/* quick actions / selectors */
+.overlay-bottom{
+  left:50%!important;right:auto!important;top:auto!important;bottom:0!important;
+  width:min(100%,var(--lumi-m-content-max))!important;max-width:var(--lumi-m-content-max)!important;
+  height:auto!important;max-height:min(88dvh,calc(100dvh - var(--lumi-m-top-safe)))!important;
+  transform:translateX(-50%)!important;
+  padding:28px var(--lumi-m-page) calc(18px + var(--lumi-m-bottom-safe))!important;
+  border-radius:var(--lumi-m-radius-sheet) var(--lumi-m-radius-sheet) 0 0!important;
+  overflow-x:hidden!important;overflow-y:auto!important;
+}
+.overlay-bottom::before{
+  content:"";position:absolute;top:9px;left:50%;width:42px;height:4px;
+  transform:translateX(-50%);border-radius:999px;background:var(--line-strong,var(--line));opacity:.75;
+}
+/* deep chat settings */
+.overlay-side{
+  left:auto!important;right:0!important;top:0!important;bottom:0!important;
+  width:min(88vw,560px)!important;max-width:560px!important;height:100dvh!important;max-height:100dvh!important;
+  transform:none!important;
+  padding:calc(16px + var(--lumi-m-top-safe)) var(--lumi-m-page) calc(18px + var(--lumi-m-bottom-safe))!important;
+  border-radius:var(--lumi-m-radius-panel) 0 0 var(--lumi-m-radius-panel)!important;
+  overflow-x:hidden!important;overflow-y:auto!important;
+}
+/* short destructive / confirmation decisions */
+.overlay-dialog{
+  left:50%!important;right:auto!important;top:50%!important;bottom:auto!important;
+  width:min(calc(100% - (var(--lumi-m-page) * 2)),460px)!important;max-width:460px!important;
+  max-height:min(80dvh,620px)!important;transform:translate(-50%,-50%)!important;
+  padding:20px!important;border-radius:var(--lumi-m-radius-panel)!important;
+  overflow-x:hidden!important;overflow-y:auto!important;
+}
+.overlay-dialog .sheet-actions{position:static!important;padding:4px 0 0!important;background:transparent!important;bottom:auto!important}
+/* editors / management screens */
+.overlay-page{
+  left:50%!important;right:auto!important;top:0!important;bottom:auto!important;
+  width:min(100%,var(--lumi-m-content-max))!important;max-width:var(--lumi-m-content-max)!important;
+  height:100dvh!important;max-height:100dvh!important;transform:translateX(-50%)!important;
+  padding:0!important;border:0!important;border-radius:0!important;
+  overflow-x:hidden!important;overflow-y:auto!important;
+}
+.overlay-page+.anything{display:none}
+body.overlay-page-open .overlay-backdrop{background:var(--surface-0,var(--bg))!important;opacity:1!important}
+body.overlay-side-open .overlay-backdrop{background:rgba(0,0,0,.58)!important}
+body.overlay-dialog-open .overlay-backdrop{background:rgba(0,0,0,.68)!important}
+
+/* Full-page manager/editor gets its own safe page rail. */
+.overlay-page>.sheet-form:not(.creator-form){
+  min-height:100dvh!important;width:100%!important;
+  padding:calc(18px + var(--lumi-m-top-safe)) var(--lumi-m-page) calc(92px + var(--lumi-m-bottom-safe))!important;
+}
+.overlay-page>.sheet-form:not(.creator-form)>h2:first-of-type,
+.overlay-page>.manager-sheet .manager-title{margin-top:0!important}
+.overlay-page .sheet-actions{
+  position:sticky!important;bottom:0!important;z-index:9!important;
+  margin-left:calc(var(--lumi-m-page) * -1)!important;margin-right:calc(var(--lumi-m-page) * -1)!important;
+  padding:10px var(--lumi-m-page) calc(10px + var(--lumi-m-bottom-safe))!important;
+}
+
+/* ---------- P1 make hub navigation ---------- */
+.mobile-library-tabs{
+  width:100%;display:flex;flex-wrap:nowrap;gap:22px;overflow-x:auto;overflow-y:hidden;
+  padding:14px var(--lumi-m-page) 0;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  border-bottom:1px solid var(--line);
+}
+.mobile-library-tabs::-webkit-scrollbar{display:none}
+.mobile-library-tabs button{
+  flex:0 0 auto!important;width:auto!important;min-width:max-content!important;
+  min-height:46px!important;padding:8px 0 10px!important;border:0!important;border-radius:0!important;
+  background:transparent!important;white-space:nowrap!important;position:relative;
+}
+.mobile-library-tabs button.active::after{
+  content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:var(--accent);
+}
+.mobile-library-tab-panel{padding-top:18px!important}
+.mobile-library-secondary-link{width:100%!important;margin-top:var(--lumi-m-card-gap)!important;border-radius:var(--lumi-m-radius-control)!important}
+
+/* ---------- P2 mobile form system — v0.15.36 ---------- */
+.sheet-form,.creator-form,.episode-inline-form{font-size:16px}
+.sheet-form label:not(.check):not(.switch-row):not(.widget-check):not(.manage-select),
+.creator-form label:not(.check):not(.switch-row):not(.expert-switch),
+.episode-inline-form label{
+  display:grid!important;grid-template-columns:1fr!important;align-items:start!important;
+  gap:8px!important;min-width:0!important;line-height:1.4!important;
+}
+.sheet-form input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.sheet-form select,.sheet-form textarea,
+.creator-form input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.creator-form select,.creator-form textarea,
+.episode-inline-form input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.episode-inline-form select,.episode-inline-form textarea{
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  min-height:var(--lumi-m-control-h)!important;padding:11px 13px!important;
+  border-radius:var(--lumi-m-radius-control)!important;font-size:16px!important;line-height:1.45!important;
+}
+.sheet-form textarea,.creator-form textarea,.episode-inline-form textarea{min-height:112px!important;resize:vertical!important}
+.sheet-form input[type="color"],.creator-form input[type="color"]{
+  width:100%!important;height:var(--lumi-m-control-h)!important;min-height:var(--lumi-m-control-h)!important;padding:5px!important;
+}
+#app input[type="checkbox"],#sheet input[type="checkbox"],#app input[type="radio"],#sheet input[type="radio"]{
+  width:22px!important;height:22px!important;min-width:22px!important;max-width:22px!important;
+  min-height:22px!important;max-height:22px!important;padding:0!important;flex:0 0 22px!important;
+}
+#app input[type="range"],#sheet input[type="range"]{
+  width:100%!important;height:44px!important;min-height:44px!important;padding:0!important;border:0!important;background:transparent!important;
+}
+.check,.switch-row,.widget-check,.mobile-ref-list label{
+  min-height:var(--lumi-m-touch-min)!important;align-items:center!important;gap:10px!important;
+}
+.check{display:grid!important;grid-template-columns:22px minmax(0,1fr)!important}
+.switch-row{display:grid!important;grid-template-columns:22px auto minmax(0,1fr)!important}
+.widget-check{grid-template-columns:22px minmax(0,1fr)!important}
+.sheet-form fieldset,.creator-form fieldset{
+  min-width:0!important;margin:0!important;padding:0!important;border:0!important;display:grid!important;gap:10px!important;
+}
+.sheet-form legend,.creator-form legend{padding:0!important;margin:0 0 4px!important;font-weight:800!important}
+.sheet-form .grid2,.creator-form .grid2{grid-template-columns:1fr!important;gap:14px!important}
+.sheet-form .hint,.creator-form .hint,.episode-inline-form .hint{margin:0!important;line-height:1.55!important}
+.mobile-display-segment,.episode-mode-tabs{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:4px!important;
+  width:100%!important;padding:4px!important;border:1px solid var(--line)!important;border-radius:var(--lumi-m-radius-control)!important;
+}
+.mobile-display-segment button,.episode-mode-tabs button{width:100%!important;margin:0!important;border:0!important;border-radius:9px!important}
+.mobile-speaker-color-row{grid-template-columns:minmax(0,1fr) 72px!important;align-items:center!important}
+.mobile-speaker-color-row input[type="color"]{width:72px!important}
+.mobile-setting-menu{display:grid!important;gap:2px!important}
+.mobile-setting-menu>button{
+  width:100%!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;
+  min-height:64px!important;padding:12px 4px!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;background:transparent!important;text-align:left!important;
+}
+.mobile-setting-menu>button span{display:grid!important;gap:3px!important}
+.mobile-setting-menu>button small{font-weight:400!important}
+
+@media(max-width:430px){
+  .overlay-side{width:90vw!important}
+  .overlay-dialog{width:calc(100% - 28px)!important}
+}
+@media(max-width:360px){
+  .overlay-side{width:94vw!important;border-radius:14px 0 0 14px!important}
+  .mobile-library-tabs{gap:18px!important}
+}
+.mobile-library-tab-panel .mobile-library-grid{grid-template-columns:1fr!important}
+.mobile-library-tab-panel .mobile-library-card{grid-template-columns:42px minmax(0,1fr) auto!important;min-height:78px!important}
+.mobile-library-tab-panel .mobile-library-card>em{grid-column:auto!important;align-self:center!important}
+
+/* v0.15.36 P1 full-page sticky action containment.
+   overlay-page is transformed to stay centered on wide screens, so the legacy
+   fixed creator bar must anchor to that page rather than the viewport midpoint. */
+.overlay-page .creator-savebar{
+  position:fixed!important;
+  left:0!important;
+  right:0!important;
+  bottom:0!important;
+  transform:none!important;
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+}
+.overlay-page .creator-form>[data-panel]{padding-bottom:calc(104px + var(--lumi-m-bottom-safe))!important}
+@media(max-width:370px){
+  .creator-head{grid-template-columns:var(--lumi-m-touch-min) minmax(0,1fr) auto!important}
+  .creator-head h2{min-width:0!important;font-size:18px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  .creator-head .expert-switch{max-width:96px!important}
+}
+
+
+/* ---------- P3 list & management normalization — v0.15.36 ---------- */
+.mobile-list-page-head{align-items:center!important}
+.mobile-character-manager-page{gap:14px!important}
+.mobile-character-manager-page>#mobileCharacterLibrarySearch{width:100%!important}
+.mobile-character-library{display:grid!important;grid-template-columns:1fr!important;gap:var(--lumi-m-card-gap)!important}
+.mobile-character-row{
+  width:100%!important;display:grid!important;grid-template-columns:72px minmax(0,1fr) auto!important;
+  align-items:center!important;gap:12px!important;padding:12px!important;margin:0!important;
+  border:1px solid var(--line)!important;border-radius:var(--lumi-m-radius-card)!important;background:var(--surface-2)!important;
+}
+.mobile-character-row .mobile-library-avatar{width:72px!important;height:88px!important;border-radius:var(--lumi-m-radius-control)!important}
+.mobile-character-row-copy{display:grid!important;gap:4px!important;min-width:0!important}
+.mobile-character-row-copy b{font-size:16px!important}
+.mobile-character-row-copy small{display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden!important;line-height:1.45!important;color:var(--muted)!important}
+.mobile-character-row-copy em{font-style:normal!important;font-size:11px!important;color:var(--muted)!important}
+.mobile-character-edit{align-self:stretch!important;min-width:64px!important;border-radius:var(--lumi-m-radius-control)!important}
+
+.manager-sheet{gap:14px!important}
+.manager-title{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:12px!important}
+.manager-title>div{display:grid!important;gap:3px!important;min-width:0!important}
+.manager-title h2,.manager-title p{margin:0!important}
+.manager-bulk-bar{
+  display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:8px!important;
+  position:sticky!important;top:0!important;z-index:6!important;background:var(--surface-1)!important;border:1px solid var(--line)!important;
+}
+.manager-bulk-bar label{display:flex!important;align-items:center!important;gap:8px!important;min-height:44px!important;padding:0 6px!important}
+.manager-bulk-bar button{width:auto!important;flex:1 1 112px!important;min-width:0!important}
+.mobile-manage-row{
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:12px!important;
+  padding:14px 12px 12px 46px!important;background:var(--surface-2)!important;border:1px solid var(--line)!important;
+}
+.mobile-manage-copy{display:grid!important;gap:4px!important;min-width:0!important;padding:0!important}
+.mobile-manage-copy small{font-size:11px!important;color:var(--muted)!important}
+.mobile-manage-copy b{font-size:16px!important;line-height:1.35!important}
+.mobile-manage-copy p{margin:0!important;display:-webkit-box!important;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden!important;color:var(--muted)!important;line-height:1.5!important}
+.mobile-manage-actions{width:auto!important;display:grid!important;grid-template-columns:minmax(72px,auto) 44px!important;gap:8px!important;margin:0!important;align-self:stretch!important}
+.mobile-manage-actions button{width:auto!important;min-height:44px!important;margin:0!important}
+.mobile-manage-more{min-width:44px!important;padding-inline:0!important;font-size:22px!important}
+
+.memory-list{gap:12px!important}
+.memory-card{padding:14px!important;border:1px solid var(--line)!important;background:var(--surface-2)!important}
+.memory-card>header{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important;align-items:start!important}
+.memory-card>header b{font-size:16px!important;line-height:1.4!important}
+.memory-card>header span{font-size:11px!important;white-space:nowrap!important;color:var(--muted)!important}
+.memory-card>p{margin:10px 0 0!important;line-height:1.58!important;display:-webkit-box!important;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden!important}
+.memory-card>footer{display:flex!important;justify-content:flex-end!important;gap:8px!important;margin-top:12px!important;overflow-x:auto!important;scrollbar-width:none}
+.memory-card>footer::-webkit-scrollbar{display:none}
+.memory-card>footer button{flex:0 0 auto!important;min-height:40px!important;border-radius:var(--lumi-m-radius-control)!important}
+
+.mobile-thread-card-v2{
+  grid-template-columns:104px minmax(0,1fr)!important;gap:14px!important;padding:0 0 16px!important;
+  border-bottom:1px solid var(--line)!important;background:transparent!important;
+}
+.mobile-thread-portrait{width:104px!important;height:136px!important;border-radius:var(--lumi-m-radius-card)!important;overflow:hidden!important}
+.mobile-thread-info{display:grid!important;align-content:start!important;gap:5px!important;min-width:0!important}
+.mobile-thread-info>p{margin:0!important;display:-webkit-box!important;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden!important;line-height:1.48!important}
+.mobile-thread-info>small{color:var(--muted)!important}
+.mobile-thread-continue{width:100%!important;margin-top:4px!important;min-height:42px!important;border-radius:var(--lumi-m-radius-control)!important}
+
+/* ---------- P4 chat surface & composer — v0.15.36 ---------- */
+.chat-page{min-width:0!important;overflow:hidden!important}
+.mobile-chat-head-v2{min-width:0!important}
+.mobile-chat-title{min-width:0!important}
+.mobile-chat-title h1{max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+.chat-page>.messages{padding-bottom:24px!important}
+.msg{max-width:100%!important;min-width:0!important}
+.msg footer{
+  width:100%!important;display:flex!important;flex-wrap:nowrap!important;gap:4px!important;overflow-x:auto!important;
+  scrollbar-width:none!important;overscroll-behavior-inline:contain!important;padding-bottom:2px!important;
+}
+.msg footer::-webkit-scrollbar{display:none}
+.msg footer button{flex:0 0 auto!important;white-space:nowrap!important}
+.mobile-composer-v2{
+  display:grid!important;grid-template-columns:1fr!important;gap:8px!important;
+  margin:0 var(--lumi-m-page-compact) max(8px,var(--lumi-m-bottom-safe))!important;
+  padding:10px!important;border:1px solid var(--line)!important;border-radius:var(--lumi-m-radius-panel)!important;
+  background:var(--surface-1)!important;box-shadow:0 -8px 30px rgba(0,0,0,.18)!important;
+}
+.mobile-composer-input-row{display:grid!important;grid-template-columns:minmax(0,1fr) 46px!important;gap:8px!important;align-items:end!important}
+.mobile-composer-input-row textarea{width:100%!important;min-height:46px!important;max-height:160px!important;padding:10px 12px!important;border:0!important;border-radius:var(--lumi-m-radius-control)!important;background:var(--surface-input)!important}
+.mobile-composer-input-row .send{width:46px!important;height:46px!important;margin:0!important;border-radius:var(--lumi-m-radius-control)!important}
+.mobile-composer-tools{display:flex!important;align-items:center!important;gap:6px!important;overflow-x:auto!important;scrollbar-width:none!important;padding-top:1px!important}
+.mobile-composer-tools::-webkit-scrollbar{display:none}
+.mobile-composer-tools button{
+  flex:0 0 auto!important;display:inline-flex!important;align-items:center!important;gap:5px!important;
+  min-height:40px!important;padding:6px 10px!important;border-radius:999px!important;white-space:nowrap!important;
+}
+.mobile-composer-tools button span{font-size:11px!important}
+.one-shot-chip{width:100%!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;border-radius:999px!important}
+.mobile-chat-memory-list{display:grid!important;gap:8px!important}
+.mobile-chat-memory-list>button{width:100%!important;display:grid!important;gap:4px!important;text-align:left!important;padding:12px!important;border-radius:var(--lumi-m-radius-card)!important}
+.mobile-chat-memory-list>button span{display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden!important;color:var(--muted)!important;line-height:1.45!important}
+.mobile-chat-memory-list>button small{color:var(--muted)!important}
+
+@media(max-width:390px){
+  .mobile-character-row{grid-template-columns:64px minmax(0,1fr)!important}
+  .mobile-character-row .mobile-library-avatar{width:64px!important;height:82px!important}
+  .mobile-character-edit{grid-column:2!important;width:100%!important;min-height:40px!important}
+  .mobile-manage-row{grid-template-columns:1fr!important}
+  .mobile-manage-actions{width:100%!important;grid-template-columns:minmax(0,1fr) 44px!important}
+  .mobile-thread-card-v2{grid-template-columns:92px minmax(0,1fr)!important;gap:12px!important}
+  .mobile-thread-portrait{width:92px!important;height:124px!important}
+}
+
+/* v0.15.36 P4 specificity guard: the legacy .chat-page>.composer rule is
+   intentionally retained for older layouts, but the new mobile composer owns
+   its internal row structure. Keep the outer composer single-column so the
+   quick-action rail never gets squeezed into the legacy send-button column. */
+.chat-page>.composer.mobile-composer-v2{
+  grid-template-columns:1fr!important;
+  width:auto!important;
+  margin:0 var(--lumi-m-page-compact) max(8px,var(--lumi-m-bottom-safe))!important;
+}
+.chat-page>.composer.mobile-composer-v2 .mobile-composer-tools{
+  width:100%!important;min-width:0!important;
 }

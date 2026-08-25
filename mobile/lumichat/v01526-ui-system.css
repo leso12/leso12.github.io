@@ -65,9 +65,6 @@ body{padding-bottom:calc(62px + var(--safe-b))}
 .empty{border-radius:8px;background:#202122;border-color:#3e4045;margin:16px}.hero{margin-top:8vh}
 
 /* creator becomes a full-screen CaveDuck-style editor, not a bottom sheet */
-#sheet:has(#charForm) .sheet-backdrop{display:none}
-#sheet:has(#charForm) .sheet-card{left:0;right:0;bottom:0;top:0;transform:none;width:100%;max-width:none;max-height:100dvh;border:0;border-radius:0;padding:0;background:var(--bg);overflow:auto;box-shadow:none}
-#sheet:has(#charForm){z-index:90}
 .creator-form{display:block;min-height:100dvh;padding-bottom:80px;background:var(--bg)}
 .creator-head{position:sticky;top:0;z-index:10;display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:8px;min-height:58px;padding:calc(8px + env(safe-area-inset-top,0px)) 14px 8px;background:#1a1b1bf7;border-bottom:1px solid #303236}
 .creator-head h2{font-size:20px;line-height:28px;margin:0;font-weight:800}
