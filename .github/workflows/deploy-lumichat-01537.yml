@@ -1,0 +1,72 @@
+name: Deploy LumiChat Mobile v0.15.37 P5
+
+on:
+  push:
+    paths:
+      - '.deploy/lumichat-01537-trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply P5 viewport and keyboard fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          base=Path('mobile/lumichat')
+          for name in ['core.js','index.html','lumi-geometry.css','sw.js','v01528-mobile-stability.css']:
+              p=base/name; s=p.read_text(encoding='utf-8')
+              s=s.replace('0.15.36','0.15.37').replace('01536','01537')
+              p.write_text(s,encoding='utf-8')
+
+          p=base/'lumi-geometry.css'; s=p.read_text(encoding='utf-8')
+          s=s.replace('max-height:calc(100dvh - max(8px,var(--lumi-m-top-safe)))!important;','max-height:calc(var(--vh,100dvh) - max(8px,var(--lumi-m-top-safe)))!important;')
+          s=s.replace('.chat-page{width:100%!important;max-width:100%!important;height:100dvh!important;min-height:0!important;}','.chat-page{width:100%!important;max-width:100%!important;height:var(--vh,100dvh)!important;min-height:0!important;}')
+          s=s.replace('.sheet-card{max-height:100dvh!important;border-radius:','.sheet-card{max-height:var(--vh,100dvh)!important;border-radius:')
+          s=s.replace('height:auto!important;max-height:min(88dvh,calc(100dvh - var(--lumi-m-top-safe)))!important;','height:auto!important;max-height:min(calc(var(--vh,100dvh) * .88),calc(var(--vh,100dvh) - var(--lumi-m-top-safe)))!important;')
+          s=s.replace('width:min(88vw,560px)!important;max-width:560px!important;height:100dvh!important;max-height:100dvh!important;','width:min(88vw,560px)!important;max-width:560px!important;height:var(--vh,100dvh)!important;max-height:var(--vh,100dvh)!important;')
+          s=s.replace('max-height:min(80dvh,620px)!important;','max-height:min(calc(var(--vh,100dvh) * .80),620px)!important;')
+          s=s.replace('height:100dvh!important;max-height:100dvh!important;transform:translateX(-50%)!important;','height:var(--vh,100dvh)!important;max-height:var(--vh,100dvh)!important;transform:translateX(-50%)!important;')
+          s=s.replace('min-height:100dvh!important;width:100%!important;','min-height:var(--vh,100dvh)!important;width:100%!important;')
+          s=s.replace('  min-height:100dvh;','  min-height:var(--vh,100dvh);')
+          p5='''\n/* ---------- P5 device viewport / keyboard / safe-area — v0.15.37 ---------- */\n:root{--lumi-m-keyboard-gap:0px;}\nbody.keyboard-open{--lumi-m-keyboard-gap:8px;}\nbody.keyboard-open .bottom-nav{display:none!important;}\nbody.keyboard-open .chat-page>.composer{\n  margin-bottom:max(var(--lumi-m-keyboard-gap),var(--lumi-m-bottom-safe))!important;\n}\nbody.keyboard-open .overlay-bottom,\nbody.keyboard-open .sheet-card{\n  bottom:max(0px,calc(100dvh - var(--vh,100dvh)))!important;\n  padding-bottom:max(12px,var(--lumi-m-bottom-safe))!important;\n}\nbody.keyboard-open .overlay-dialog{top:calc(var(--vh,100dvh) / 2)!important;}\n.overlay-side,.overlay-page,.chat-page{overscroll-behavior-y:contain;}\n@supports(height:100svh){\n  .overlay-dialog{max-height:min(calc(var(--vh,100svh) * .80),620px)!important;}\n}\n'''
+          if 'P5 device viewport / keyboard / safe-area' not in s: s+=p5
+          p.write_text(s,encoding='utf-8')
+
+          p=base/'app.js'; s=p.read_text(encoding='utf-8')
+          old="const setVh=()=>document.documentElement.style.setProperty('--vh',`${window.visualViewport?.height||innerHeight}px`);window.addEventListener('resize',setVh);window.visualViewport?.addEventListener('resize',setVh);"
+          new="const setVh=()=>{const vv=window.visualViewport;const h=Math.max(1,Math.round(vv?.height||innerHeight));document.documentElement.style.setProperty('--vh',`${h}px`);document.body.classList.toggle('keyboard-open',!!vv&&innerHeight-h>120)};window.addEventListener('resize',setVh,{passive:true});window.visualViewport?.addEventListener('resize',setVh,{passive:true});window.visualViewport?.addEventListener('scroll',setVh,{passive:true});setVh();"
+          if old not in s: raise SystemExit('old setVh pattern not found')
+          p.write_text(s.replace(old,new),encoding='utf-8')
+          PY
+      - name: Verify P5 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'LumiChat v0.15.37 Mobile' mobile/lumichat/index.html
+          grep -Fq 'app.js?boot=01537' mobile/lumichat/index.html
+          grep -Fq 'lumichat-mobile-v01531' mobile/lumichat/index.html
+          grep -Fq "APP_VERSION='0.15.37'" mobile/lumichat/core.js
+          grep -Fq 'SCHEMA_VERSION=19' mobile/lumichat/core.js
+          grep -Fq 'P5 device viewport / keyboard / safe-area' mobile/lumichat/lumi-geometry.css
+          grep -Fq 'height:var(--vh,100dvh)!important' mobile/lumichat/lumi-geometry.css
+          grep -Fq "visualViewport?.addEventListener('scroll',setVh" mobile/lumichat/app.js
+          grep -Fq "classList.toggle('keyboard-open'" mobile/lumichat/app.js
+          grep -Fq 'v0.15.37' mobile/lumichat/sw.js
+          rm -f .deploy/lumichat-01537-trigger.txt
+      - name: Commit deployed P5
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mobile/lumichat/app.js mobile/lumichat/core.js mobile/lumichat/index.html mobile/lumichat/lumi-geometry.css mobile/lumichat/sw.js mobile/lumichat/v01528-mobile-stability.css .deploy/lumichat-01537-trigger.txt
+          git commit -m 'Deploy LumiChat mobile v0.15.37 P5 device QA'
+          git push
