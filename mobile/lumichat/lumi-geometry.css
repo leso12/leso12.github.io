@@ -1,4 +1,4 @@
-/* LumiChat Mobile P0 layout foundation — v0.15.36
+/* LumiChat Mobile P0 layout foundation — v0.15.37
    Single source of truth for mobile rail, spacing, radius, touch size, tabs and safe-area.
    Page-specific legacy styles may keep color/typography, but they must not redefine these geometry rules. */
 :root{
@@ -25,7 +25,7 @@
 html,body,#app{width:100%;min-width:0;max-width:100%;}
 html,body{overflow-x:hidden;}
 body{
-  min-height:100dvh;
+  min-height:var(--vh,100dvh);
   padding-bottom:calc(var(--lumi-m-nav-h) + var(--lumi-m-bottom-safe))!important;
 }
 #app{
@@ -255,7 +255,7 @@ textarea{border-radius:var(--lumi-m-radius-control)!important;}
   bottom:0!important;
   width:min(100%,var(--lumi-m-content-max))!important;
   max-width:var(--lumi-m-content-max)!important;
-  max-height:calc(100dvh - max(8px,var(--lumi-m-top-safe)))!important;
+  max-height:calc(var(--vh,100dvh) - max(8px,var(--lumi-m-top-safe)))!important;
   transform:translateX(-50%)!important;
   padding:18px var(--lumi-m-page) calc(18px + var(--lumi-m-bottom-safe))!important;
   border-radius:var(--lumi-m-radius-sheet) var(--lumi-m-radius-sheet) 0 0!important;
@@ -289,7 +289,7 @@ textarea{border-radius:var(--lumi-m-radius-control)!important;}
 .bottom-nav button{min-height:52px!important;}
 
 /* ---------- chat composer ---------- */
-.chat-page{width:100%!important;max-width:100%!important;height:100dvh!important;min-height:0!important;}
+.chat-page{width:100%!important;max-width:100%!important;height:var(--vh,100dvh)!important;min-height:0!important;}
 .chat-page>.messages{min-width:0!important;overflow-x:hidden!important;}
 .chat-page>.composer{
   width:calc(100% - (var(--lumi-m-page) * 2))!important;
@@ -320,11 +320,11 @@ textarea{border-radius:var(--lumi-m-radius-control)!important;}
 @media(orientation:landscape) and (max-height:600px){
   body:not(:has(.chat-page)){padding-bottom:0!important;}
   .bottom-nav{display:none!important;}
-  .sheet-card{max-height:100dvh!important;border-radius:var(--lumi-m-radius-panel) var(--lumi-m-radius-panel) 0 0!important;}
+  .sheet-card{max-height:var(--vh,100dvh)!important;border-radius:var(--lumi-m-radius-panel) var(--lumi-m-radius-panel) 0 0!important;}
   .chat-page>.composer{margin-bottom:max(6px,var(--lumi-m-bottom-safe))!important;}
 }
 
-/* ---------- P1 overlay roles — v0.15.36 ---------- */
+/* ---------- P1 overlay roles — v0.15.37 ---------- */
 #sheet{position:fixed;inset:0;z-index:70;pointer-events:none}
 #sheet:not([hidden]){pointer-events:auto}
 #sheet .overlay-backdrop{position:fixed;inset:0}
@@ -339,7 +339,7 @@ textarea{border-radius:var(--lumi-m-radius-control)!important;}
 .overlay-bottom{
   left:50%!important;right:auto!important;top:auto!important;bottom:0!important;
   width:min(100%,var(--lumi-m-content-max))!important;max-width:var(--lumi-m-content-max)!important;
-  height:auto!important;max-height:min(88dvh,calc(100dvh - var(--lumi-m-top-safe)))!important;
+  height:auto!important;max-height:min(calc(var(--vh,100dvh) * .88),calc(var(--vh,100dvh) - var(--lumi-m-top-safe)))!important;
   transform:translateX(-50%)!important;
   padding:28px var(--lumi-m-page) calc(18px + var(--lumi-m-bottom-safe))!important;
   border-radius:var(--lumi-m-radius-sheet) var(--lumi-m-radius-sheet) 0 0!important;
@@ -352,7 +352,7 @@ textarea{border-radius:var(--lumi-m-radius-control)!important;}
 /* deep chat settings */
 .overlay-side{
   left:auto!important;right:0!important;top:0!important;bottom:0!important;
-  width:min(88vw,560px)!important;max-width:560px!important;height:100dvh!important;max-height:100dvh!important;
+  width:min(88vw,560px)!important;max-width:560px!important;height:var(--vh,100dvh)!important;max-height:var(--vh,100dvh)!important;
   transform:none!important;
   padding:calc(16px + var(--lumi-m-top-safe)) var(--lumi-m-page) calc(18px + var(--lumi-m-bottom-safe))!important;
   border-radius:var(--lumi-m-radius-panel) 0 0 var(--lumi-m-radius-panel)!important;
@@ -362,7 +362,7 @@ textarea{border-radius:var(--lumi-m-radius-control)!important;}
 .overlay-dialog{
   left:50%!important;right:auto!important;top:50%!important;bottom:auto!important;
   width:min(calc(100% - (var(--lumi-m-page) * 2)),460px)!important;max-width:460px!important;
-  max-height:min(80dvh,620px)!important;transform:translate(-50%,-50%)!important;
+  max-height:min(calc(var(--vh,100dvh) * .80),620px)!important;transform:translate(-50%,-50%)!important;
   padding:20px!important;border-radius:var(--lumi-m-radius-panel)!important;
   overflow-x:hidden!important;overflow-y:auto!important;
 }
@@ -371,7 +371,7 @@ textarea{border-radius:var(--lumi-m-radius-control)!important;}
 .overlay-page{
   left:50%!important;right:auto!important;top:0!important;bottom:auto!important;
   width:min(100%,var(--lumi-m-content-max))!important;max-width:var(--lumi-m-content-max)!important;
-  height:100dvh!important;max-height:100dvh!important;transform:translateX(-50%)!important;
+  height:var(--vh,100dvh)!important;max-height:var(--vh,100dvh)!important;transform:translateX(-50%)!important;
   padding:0!important;border:0!important;border-radius:0!important;
   overflow-x:hidden!important;overflow-y:auto!important;
 }
@@ -382,7 +382,7 @@ body.overlay-dialog-open .overlay-backdrop{background:rgba(0,0,0,.68)!important}
 
 /* Full-page manager/editor gets its own safe page rail. */
 .overlay-page>.sheet-form:not(.creator-form){
-  min-height:100dvh!important;width:100%!important;
+  min-height:var(--vh,100dvh)!important;width:100%!important;
   padding:calc(18px + var(--lumi-m-top-safe)) var(--lumi-m-page) calc(92px + var(--lumi-m-bottom-safe))!important;
 }
 .overlay-page>.sheet-form:not(.creator-form)>h2:first-of-type,
@@ -411,7 +411,7 @@ body.overlay-dialog-open .overlay-backdrop{background:rgba(0,0,0,.68)!important}
 .mobile-library-tab-panel{padding-top:18px!important}
 .mobile-library-secondary-link{width:100%!important;margin-top:var(--lumi-m-card-gap)!important;border-radius:var(--lumi-m-radius-control)!important}
 
-/* ---------- P2 mobile form system — v0.15.36 ---------- */
+/* ---------- P2 mobile form system — v0.15.37 ---------- */
 .sheet-form,.creator-form,.episode-inline-form{font-size:16px}
 .sheet-form label:not(.check):not(.switch-row):not(.widget-check):not(.manage-select),
 .creator-form label:not(.check):not(.switch-row):not(.expert-switch),
@@ -479,7 +479,7 @@ body.overlay-dialog-open .overlay-backdrop{background:rgba(0,0,0,.68)!important}
 .mobile-library-tab-panel .mobile-library-card{grid-template-columns:42px minmax(0,1fr) auto!important;min-height:78px!important}
 .mobile-library-tab-panel .mobile-library-card>em{grid-column:auto!important;align-self:center!important}
 
-/* v0.15.36 P1 full-page sticky action containment.
+/* v0.15.37 P1 full-page sticky action containment.
    overlay-page is transformed to stay centered on wide screens, so the legacy
    fixed creator bar must anchor to that page rather than the viewport midpoint. */
 .overlay-page .creator-savebar{
@@ -501,7 +501,7 @@ body.overlay-dialog-open .overlay-backdrop{background:rgba(0,0,0,.68)!important}
 }
 
 
-/* ---------- P3 list & management normalization — v0.15.36 ---------- */
+/* ---------- P3 list & management normalization — v0.15.37 ---------- */
 .mobile-list-page-head{align-items:center!important}
 .mobile-character-manager-page{gap:14px!important}
 .mobile-character-manager-page>#mobileCharacterLibrarySearch{width:100%!important}
@@ -560,7 +560,7 @@ body.overlay-dialog-open .overlay-backdrop{background:rgba(0,0,0,.68)!important}
 .mobile-thread-info>small{color:var(--muted)!important}
 .mobile-thread-continue{width:100%!important;margin-top:4px!important;min-height:42px!important;border-radius:var(--lumi-m-radius-control)!important}
 
-/* ---------- P4 chat surface & composer — v0.15.36 ---------- */
+/* ---------- P4 chat surface & composer — v0.15.37 ---------- */
 .chat-page{min-width:0!important;overflow:hidden!important}
 .mobile-chat-head-v2{min-width:0!important}
 .mobile-chat-title{min-width:0!important}
@@ -605,7 +605,7 @@ body.overlay-dialog-open .overlay-backdrop{background:rgba(0,0,0,.68)!important}
   .mobile-thread-portrait{width:92px!important;height:124px!important}
 }
 
-/* v0.15.36 P4 specificity guard: the legacy .chat-page>.composer rule is
+/* v0.15.37 P4 specificity guard: the legacy .chat-page>.composer rule is
    intentionally retained for older layouts, but the new mobile composer owns
    its internal row structure. Keep the outer composer single-column so the
    quick-action rail never gets squeezed into the legacy send-button column. */
@@ -616,4 +616,22 @@ body.overlay-dialog-open .overlay-backdrop{background:rgba(0,0,0,.68)!important}
 }
 .chat-page>.composer.mobile-composer-v2 .mobile-composer-tools{
   width:100%!important;min-width:0!important;
+}
+
+/* ---------- P5 device viewport / keyboard / safe-area — v0.15.37 ---------- */
+:root{--lumi-m-keyboard-gap:0px;}
+body.keyboard-open{--lumi-m-keyboard-gap:8px;}
+body.keyboard-open .bottom-nav{display:none!important;}
+body.keyboard-open .chat-page>.composer{
+  margin-bottom:max(var(--lumi-m-keyboard-gap),var(--lumi-m-bottom-safe))!important;
+}
+body.keyboard-open .overlay-bottom,
+body.keyboard-open .sheet-card{
+  bottom:max(0px,calc(100dvh - var(--vh,100dvh)))!important;
+  padding-bottom:max(12px,var(--lumi-m-bottom-safe))!important;
+}
+body.keyboard-open .overlay-dialog{top:calc(var(--vh,100dvh) / 2)!important;}
+.overlay-side,.overlay-page,.chat-page{overscroll-behavior-y:contain;}
+@supports(height:100svh){
+  .overlay-dialog{max-height:min(calc(var(--vh,100svh) * .80),620px)!important;}
 }

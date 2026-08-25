@@ -1,4 +1,4 @@
-/* Legacy compatibility shell — v0.15.36
+/* Legacy compatibility shell — v0.15.37
    The old v0.15.28 five-tab fixed grid conflicted with narrow screens.
    Canonical tab geometry now lives only in lumi-geometry.css. */
 .form-tabs.five button{white-space:nowrap;}
