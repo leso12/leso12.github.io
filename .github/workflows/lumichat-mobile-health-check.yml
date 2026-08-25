@@ -14,28 +14,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify public LumiChat v0.15.33 frontend
+      - name: Verify public LumiChat v0.15.34 P0 frontend
         shell: bash
         run: |
           set -euo pipefail
           BASE='https://leso12.github.io/mobile/lumichat'
-          BUST="01533-$(date +%s)"
-          FRONT=$(curl -fsSL --retry 10 --retry-delay 3 "$BASE/?health=$BUST")
-          CORE=$(curl -fsSL --retry 10 --retry-delay 3 "$BASE/core.js?health=$BUST")
-          GEOM=$(curl -fsSL --retry 10 --retry-delay 3 "$BASE/lumi-geometry.css?health=$BUST")
-          THEME=$(curl -fsSL --retry 10 --retry-delay 3 "$BASE/lumi-theme.css?health=$BUST")
-          SW=$(curl -fsSL --retry 10 --retry-delay 3 "$BASE/sw.js?health=$BUST")
+          BUST="01534-$(date +%s)"
+          FRONT=$(curl -fsSL --retry 12 --retry-delay 3 "$BASE/?health=$BUST")
+          CORE=$(curl -fsSL --retry 12 --retry-delay 3 "$BASE/core.js?health=$BUST")
+          GEOM=$(curl -fsSL --retry 12 --retry-delay 3 "$BASE/lumi-geometry.css?health=$BUST")
+          STABLE=$(curl -fsSL --retry 12 --retry-delay 3 "$BASE/v01528-mobile-stability.css?health=$BUST")
+          THEME=$(curl -fsSL --retry 12 --retry-delay 3 "$BASE/lumi-theme.css?health=$BUST")
+          SW=$(curl -fsSL --retry 12 --retry-delay 3 "$BASE/sw.js?health=$BUST")
 
-          echo "$FRONT" | grep -Fq 'LumiChat v0.15.33 Mobile'
-          echo "$FRONT" | grep -Fq 'lumi-theme.css?v=01533'
-          echo "$FRONT" | grep -Fq 'lumi-geometry.css?v=01533'
-          echo "$CORE" | grep -Fq "APP_VERSION='0.15.33'"
+          echo "$FRONT" | grep -Fq 'LumiChat v0.15.34 Mobile'
+          echo "$FRONT" | grep -Fq 'lumi-theme.css?v=01534'
+          echo "$FRONT" | grep -Fq 'lumi-geometry.css?v=01534'
+          echo "$CORE" | grep -Fq "APP_VERSION='0.15.34'"
           echo "$CORE" | grep -Fq 'SCHEMA_VERSION=19'
-          echo "$GEOM" | grep -Fq 'v0.15.33'
+          echo "$GEOM" | grep -Fq -- '--lumi-m-page:16px'
+          echo "$GEOM" | grep -Fq -- '--lumi-m-touch-min:44px'
+          echo "$GEOM" | grep -Fq 'overflow-x:auto!important'
+          ! echo "$STABLE" | grep -Fq 'grid-template-columns:repeat(5'
           echo "$THEME" | grep -Fq 'LumiChat'
-          echo "$SW" | grep -Fq 'v0.15.33'
+          echo "$SW" | grep -Fq 'v0.15.34'
 
-          printf 'frontend=v0.15.33\npublic_url=%s/\nindex_ok=true\ncore_version=0.15.33\nschema=19\ntheme_ok=true\ngeometry_ok=true\nservice_worker_ok=true\nchecked_at=%s\n' "$BASE" "$(date -u +%FT%TZ)" > .deploy/lumichat-health-result.txt
+          printf 'frontend=v0.15.34\npublic_url=%s/\nindex_ok=true\ncore_version=0.15.34\nschema=19\ntheme_ok=true\np0_geometry_ok=true\nlegacy_fixed_tabs_removed=true\nservice_worker_ok=true\nchecked_at=%s\n' "$BASE" "$(date -u +%FT%TZ)" > .deploy/lumichat-health-result.txt
           rm -f .deploy/lumichat-health-trigger.txt
 
       - name: Commit health result
@@ -46,5 +50,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A .deploy/lumichat-health-result.txt .deploy/lumichat-health-trigger.txt
           git diff --cached --quiet && exit 0
-          git commit -m 'Verify LumiChat public mobile v0.15.33'
+          git commit -m 'Verify LumiChat public mobile v0.15.34 P0'
           git push
