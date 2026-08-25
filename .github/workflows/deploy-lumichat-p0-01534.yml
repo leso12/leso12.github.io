@@ -1,0 +1,57 @@
+name: Deploy LumiChat Mobile v0.15.34 P0
+
+on:
+  push:
+    paths:
+      - '.deploy/lumichat-p0-01534-trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply v0.15.34 public version and cache bump
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          idx=Path('mobile/lumichat/index.html')
+          s=idx.read_text(encoding='utf-8')
+          s=s.replace('0.15.33','0.15.34').replace('01533','01534')
+          idx.write_text(s,encoding='utf-8')
+
+          core=Path('mobile/lumichat/core.js')
+          s=core.read_text(encoding='utf-8')
+          s=s.replace("export const APP_VERSION='0.15.33';","export const APP_VERSION='0.15.34';",1)
+          core.write_text(s,encoding='utf-8')
+
+          sw=Path('mobile/lumichat/sw.js')
+          s=sw.read_text(encoding='utf-8')
+          s=s.replace('v0.15.33','v0.15.34',1)
+          sw.write_text(s,encoding='utf-8')
+          PY
+
+          grep -Fq 'LumiChat v0.15.34 Mobile' mobile/lumichat/index.html
+          grep -Fq 'lumi-geometry.css?v=01534' mobile/lumichat/index.html
+          grep -Fq "APP_VERSION='0.15.34'" mobile/lumichat/core.js
+          grep -Fq 'SCHEMA_VERSION=19' mobile/lumichat/core.js
+          grep -Fq -- '--lumi-m-page:16px' mobile/lumichat/lumi-geometry.css
+          grep -Fq 'overflow-x:auto!important' mobile/lumichat/lumi-geometry.css
+          ! grep -Fq 'grid-template-columns:repeat(5' mobile/lumichat/v01528-mobile-stability.css
+          grep -Fq 'v0.15.34' mobile/lumichat/sw.js
+          rm -f .deploy/lumichat-p0-01534-trigger.txt
+      - name: Commit public v0.15.34 P0
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mobile/lumichat/index.html mobile/lumichat/core.js mobile/lumichat/sw.js .deploy/lumichat-p0-01534-trigger.txt
+          git diff --cached --quiet && exit 0
+          git commit -m 'Deploy LumiChat mobile v0.15.34 P0 layout foundation'
+          git push
