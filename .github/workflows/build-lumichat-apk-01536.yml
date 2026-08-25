@@ -1,0 +1,94 @@
+name: Build LumiChat Android APK v0.15.36
+
+on:
+  push:
+    paths:
+      - '.deploy/lumichat-apk-01536-trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Install SDK
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Generate wrapper
+        shell: bash
+        run: |
+          set -euo pipefail
+          R="$RUNNER_TEMP/lumi"
+          mkdir -p "$R/app/src/main/java/io/github/leso12/lumichat" "$R/app/src/main/res/values"
+          cat > "$R/settings.gradle" <<'EOF'
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
+          rootProject.name='LumiChat'; include ':app'
+          EOF
+          cat > "$R/build.gradle" <<'EOF'
+          plugins { id 'com.android.application' version '8.7.3' apply false }
+          EOF
+          cat > "$R/app/build.gradle" <<'EOF'
+          plugins { id 'com.android.application' }
+          android {
+            namespace 'io.github.leso12.lumichat'; compileSdk 35
+            defaultConfig { applicationId 'io.github.leso12.lumichat'; minSdk 26; targetSdk 35; versionCode 1536; versionName '0.15.36' }
+            buildTypes { debug { minifyEnabled false } }
+          }
+          EOF
+          cat > "$R/app/src/main/res/values/styles.xml" <<'EOF'
+          <resources><style name="AppTheme" parent="android:style/Theme.Material.NoActionBar"><item name="android:fontFamily">sans</item><item name="android:windowLightStatusBar">false</item><item name="android:statusBarColor">#0B0C0E</item><item name="android:navigationBarColor">#000000</item></style></resources>
+          EOF
+          cat > "$R/app/src/main/AndroidManifest.xml" <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android"><uses-permission android:name="android.permission.INTERNET"/><application android:allowBackup="true" android:label="LumiChat" android:theme="@style/AppTheme" android:usesCleartextTraffic="false"><activity android:name=".MainActivity" android:configChanges="keyboard|keyboardHidden|orientation|screenSize|smallestScreenSize|uiMode" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>
+          EOF
+          cat > "$R/app/src/main/java/io/github/leso12/lumichat/MainActivity.java" <<'EOF'
+          package io.github.leso12.lumichat;
+          import android.app.*; import android.os.*; import android.content.*; import android.graphics.Color; import android.net.Uri; import android.view.*; import android.webkit.*; import android.widget.*;
+          public class MainActivity extends Activity {
+            static final String HOME="https://leso12.github.io/mobile/lumichat/"; static final int PICK=1536; WebView w; ValueCallback<Uri[]> cb;
+            public void onCreate(Bundle b){super.onCreate(b);getWindow().setStatusBarColor(Color.rgb(11,12,14));getWindow().setNavigationBarColor(Color.BLACK);w=new WebView(this);setContentView(w);WebSettings s=w.getSettings();s.setJavaScriptEnabled(true);s.setDomStorageEnabled(true);s.setDatabaseEnabled(true);s.setAllowContentAccess(true);s.setAllowFileAccess(true);s.setMediaPlaybackRequiresUserGesture(false);s.setSupportZoom(false);s.setUserAgentString(s.getUserAgentString()+" LumiChatAndroid/0.15.36");CookieManager.getInstance().setAcceptCookie(true);CookieManager.getInstance().setAcceptThirdPartyCookies(w,true);w.setWebViewClient(new WebViewClient(){public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r){return route(r.getUrl());} public boolean shouldOverrideUrlLoading(WebView v,String u){return route(Uri.parse(u));}});w.setWebChromeClient(new WebChromeClient(){public boolean onShowFileChooser(WebView v,ValueCallback<Uri[]> c,FileChooserParams p){if(cb!=null)cb.onReceiveValue(null);cb=c;try{startActivityForResult(p.createIntent(),PICK);return true;}catch(Exception e){cb=null;return false;}}});w.setDownloadListener((u,a,d,m,l)->{try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(u)));}catch(Exception e){Toast.makeText(this,"다운로드 링크를 열 수 없어요.",Toast.LENGTH_SHORT).show();}});if(b==null)w.loadUrl(HOME);else w.restoreState(b);}
+            boolean route(Uri u){if("https".equalsIgnoreCase(u.getScheme())&&"leso12.github.io".equalsIgnoreCase(u.getHost()))return false;try{startActivity(new Intent(Intent.ACTION_VIEW,u));}catch(Exception e){}return true;}
+            protected void onActivityResult(int q,int r,Intent d){super.onActivityResult(q,r,d);if(q==PICK&&cb!=null){cb.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(r,d));cb=null;}}
+            protected void onSaveInstanceState(Bundle b){w.saveState(b);super.onSaveInstanceState(b);} public void onBackPressed(){if(w!=null&&w.canGoBack())w.goBack();else super.onBackPressed();}
+          }
+          EOF
+          printf 'org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8\nandroid.useAndroidX=false\n' > "$R/gradle.properties"
+      - name: Build and verify APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/lumi"
+          gradle --no-daemon :app:assembleDebug
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          test -f "$APK"
+          unzip -l "$APK" | grep -q AndroidManifest.xml
+          unzip -l "$APK" | grep -q classes.dex
+          mkdir -p "$GITHUB_WORKSPACE/mobile/lumichat/downloads"
+          cp "$APK" "$GITHUB_WORKSPACE/mobile/lumichat/downloads/LumiChat-v0.15.36-P1-P4.apk"
+          cd "$GITHUB_WORKSPACE"
+          sha256sum mobile/lumichat/downloads/LumiChat-v0.15.36-P1-P4.apk > .deploy/lumichat-apk-01536.sha256
+          rm -f .deploy/lumichat-apk-01536-trigger.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LumiChat-v0.15.36-P1-P4-APK
+          path: mobile/lumichat/downloads/LumiChat-v0.15.36-P1-P4.apk
+      - name: Commit APK
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mobile/lumichat/downloads/LumiChat-v0.15.36-P1-P4.apk .deploy/lumichat-apk-01536.sha256 .deploy/lumichat-apk-01536-trigger.txt
+          git commit -m 'Build LumiChat Android APK v0.15.36 P1-P4'
+          git push
