@@ -1,0 +1,64 @@
+name: Deploy LumiChat Mobile v0.15.39 P7
+
+on:
+  push:
+    paths:
+      - '.deploy/lumichat01539/trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify staged chunks and reconstruct patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '38bcda607db524f60b36a39dc7b4dcc3e359d138f31cdec65fb2483612d70218  .deploy/lumichat01539/chunk00.txt' | sha256sum -c -
+          echo 'c9cb2e3e75544a0ae74f0ecad98b12688ab598b51edbfe9d3a33926943842663  .deploy/lumichat01539/chunk01.txt' | sha256sum -c -
+          echo 'f09d9b9b39ca5a2d1713edb57333a12cbd730fb23e0fa54e6697c613497e4038  .deploy/lumichat01539/chunk02.txt' | sha256sum -c -
+          echo '216012a86eeed1d0403efc683ff6b36ec08c8397915a91432d3e4cb2330c77ad  .deploy/lumichat01539/chunk03.txt' | sha256sum -c -
+          cat .deploy/lumichat01539/chunk00.txt \
+              .deploy/lumichat01539/chunk01.txt \
+              .deploy/lumichat01539/chunk02.txt \
+              .deploy/lumichat01539/chunk03.txt > /tmp/lumichat01539.b64
+          base64 -d /tmp/lumichat01539.b64 > /tmp/lumichat01539.patch.gz
+          echo '2a35ca938b46018605df4897abc51894f9c7769e4e7d8f8b1223e39790aab5e9  /tmp/lumichat01539.patch.gz' | sha256sum -c -
+          gunzip -c /tmp/lumichat01539.patch.gz > /tmp/lumichat01539.patch
+          echo 'a9034376deea3283c7cde3af2b2f83ea9df15a41ad6f25df15a1fc902a2191df  /tmp/lumichat01539.patch' | sha256sum -c -
+          git apply --check /tmp/lumichat01539.patch
+          git apply /tmp/lumichat01539.patch
+
+      - name: Verify v0.15.39 P7 mobile source
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'LumiChat v0.15.39 Mobile' mobile/lumichat/index.html
+          grep -Fq 'app.js?boot=01539' mobile/lumichat/index.html
+          grep -Fq 'lumichat-mobile-v01531' mobile/lumichat/index.html
+          grep -Fq "APP_VERSION='0.15.39'" mobile/lumichat/core.js
+          grep -Fq 'SCHEMA_VERSION=19' mobile/lumichat/core.js
+          grep -Fq 'mobile-chat-tools-sheet' mobile/lumichat/app.js
+          grep -Fq '대화 관리' mobile/lumichat/app.js
+          grep -Fq 'P7 component consistency + unclipped sheets — v0.15.39' mobile/lumichat/lumi-geometry.css
+          grep -Fq -- '--lumi-m-action-h:58px' mobile/lumichat/lumi-geometry.css
+          grep -Fq 'P7 canonical component coverage — v0.15.39' mobile/lumichat/lumi-theme.css
+          grep -Fq '.display-mode-chat .mobile-speaker-block.pc .mobile-speaker-meta{display:flex' mobile/lumichat/v01529-mobile-ux.css
+          grep -Fq 'v0.15.39' mobile/lumichat/sw.js
+          rm -rf .deploy/lumichat01539
+
+      - name: Commit deployed mobile v0.15.39
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A mobile/lumichat .deploy/lumichat01539
+          git diff --cached --quiet && exit 0
+          git commit -m 'Deploy LumiChat mobile v0.15.39 P7 component consistency'
+          git push
