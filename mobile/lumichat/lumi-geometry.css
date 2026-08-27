@@ -1,4 +1,4 @@
-/* LumiChat Mobile P0 layout foundation — v0.15.37
+/* LumiChat Mobile canonical geometry — v0.15.38
    Single source of truth for mobile rail, spacing, radius, touch size, tabs and safe-area.
    Page-specific legacy styles may keep color/typography, but they must not redefine these geometry rules. */
 :root{
@@ -151,6 +151,8 @@ textarea{border-radius:var(--lumi-m-radius-control)!important;}
   gap:var(--lumi-m-card-gap)!important;
   padding-left:var(--lumi-m-page)!important;
   padding-right:var(--lumi-m-page)!important;
+  position:relative!important;top:auto!important;z-index:2!important;
+  background:var(--surface-1)!important;border-bottom:1px solid var(--line)!important;backdrop-filter:none!important;
 }
 .char-grid{padding-top:16px!important;padding-bottom:calc(var(--lumi-m-nav-h) + var(--lumi-m-bottom-safe) + 18px)!important;}
 .memory-list{padding-top:8px!important;padding-bottom:calc(var(--lumi-m-nav-h) + var(--lumi-m-bottom-safe) + 18px)!important;}
@@ -223,30 +225,40 @@ textarea{border-radius:var(--lumi-m-radius-control)!important;}
   min-width:max-content!important;
   white-space:nowrap!important;
   scroll-snap-align:start;
+  color:var(--text)!important;
+  opacity:1!important;
 }
-.form-tabs.five button{padding-left:12px!important;padding-right:12px!important;font-size:15px!important;letter-spacing:normal!important;}
+.form-tabs.five button{position:relative!important;padding-left:12px!important;padding-right:12px!important;font-size:15px!important;letter-spacing:normal!important;border:0!important;background:transparent!important;box-shadow:none!important;}
+.form-tabs.five button::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:3px;border-radius:999px;background:var(--accent);transform:scaleX(0);transform-origin:center;transition:transform .16s ease;}
+.form-tabs.five button.active{color:var(--text)!important;font-weight:800!important;border:0!important;background:transparent!important;box-shadow:none!important;}
+.form-tabs.five button.active::after{transform:scaleX(1);}
 
 /* ---------- creator/editor foundation ---------- */
 .creator-form{width:100%!important;max-width:100%!important;}
+.overlay-page:has(>.creator-form){overflow:hidden!important;}
+.overlay-page>.creator-form{height:var(--vh,100dvh)!important;min-height:0!important;display:grid!important;grid-template-rows:auto auto minmax(0,1fr) auto!important;overflow:hidden!important;padding-bottom:0!important;background:var(--surface-0)!important;}
 .creator-head{
   width:100%!important;
   min-height:calc(58px + var(--lumi-m-top-safe))!important;
   padding:calc(8px + var(--lumi-m-top-safe)) var(--lumi-m-page) 8px!important;
+  position:relative!important;top:auto!important;z-index:3!important;
+  background:var(--surface-1)!important;border-bottom:1px solid var(--line)!important;backdrop-filter:none!important;
 }
-.creator-back{width:var(--lumi-m-touch-min)!important;height:var(--lumi-m-touch-min)!important;padding:0!important;}
-.creator-form>[data-panel]{width:100%!important;padding:18px var(--lumi-m-page) 30px!important;}
+.creator-back{width:var(--lumi-m-touch-min)!important;height:var(--lumi-m-touch-min)!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:var(--text)!important;box-shadow:none!important;}
+.creator-form>[data-panel]{width:100%!important;min-height:0!important;padding:18px var(--lumi-m-page) 28px!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;scrollbar-width:none!important;background:var(--surface-0)!important;}
+.creator-form>[data-panel]::-webkit-scrollbar{display:none!important;}
 .creator-section{width:100%!important;gap:14px!important;}
 .creator-form input,.creator-form select,.creator-form textarea,.episode-inline-form input,.episode-inline-form select,.episode-inline-form textarea{border-radius:var(--lumi-m-radius-control)!important;}
 .creator-savebar{
-  width:100%!important;
-  max-width:var(--lumi-m-content-max)!important;
-  left:50%!important;
-  right:auto!important;
-  transform:translateX(-50%)!important;
+  position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;transform:none!important;
+  width:100%!important;max-width:none!important;margin:0!important;box-sizing:border-box!important;
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
   gap:var(--lumi-m-inline-gap)!important;
   padding:10px var(--lumi-m-page) calc(10px + var(--lumi-m-bottom-safe))!important;
+  background:var(--surface-1)!important;border-top:1px solid var(--line)!important;z-index:5!important;
 }
-.creator-savebar button{min-height:var(--lumi-m-control-h)!important;border-radius:var(--lumi-m-radius-control)!important;}
+.creator-savebar button{width:100%!important;min-height:var(--lumi-m-control-h)!important;border-radius:var(--lumi-m-radius-control)!important;}
+.creator-form .episode-inline-actions{display:none!important;}
 
 /* ---------- sheets + safe areas ---------- */
 .sheet-card{
@@ -324,7 +336,7 @@ textarea{border-radius:var(--lumi-m-radius-control)!important;}
   .chat-page>.composer{margin-bottom:max(6px,var(--lumi-m-bottom-safe))!important;}
 }
 
-/* ---------- P1 overlay roles — v0.15.37 ---------- */
+/* ---------- P1 overlay roles — v0.15.38 ---------- */
 #sheet{position:fixed;inset:0;z-index:70;pointer-events:none}
 #sheet:not([hidden]){pointer-events:auto}
 #sheet .overlay-backdrop{position:fixed;inset:0}
@@ -403,7 +415,7 @@ body.overlay-dialog-open .overlay-backdrop{background:rgba(0,0,0,.68)!important}
 .mobile-library-tabs button{
   flex:0 0 auto!important;width:auto!important;min-width:max-content!important;
   min-height:46px!important;padding:8px 0 10px!important;border:0!important;border-radius:0!important;
-  background:transparent!important;white-space:nowrap!important;position:relative;
+  background:transparent!important;white-space:nowrap!important;position:relative;color:var(--text)!important;opacity:1!important;
 }
 .mobile-library-tabs button.active::after{
   content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:var(--accent);
@@ -411,7 +423,7 @@ body.overlay-dialog-open .overlay-backdrop{background:rgba(0,0,0,.68)!important}
 .mobile-library-tab-panel{padding-top:18px!important}
 .mobile-library-secondary-link{width:100%!important;margin-top:var(--lumi-m-card-gap)!important;border-radius:var(--lumi-m-radius-control)!important}
 
-/* ---------- P2 mobile form system — v0.15.37 ---------- */
+/* ---------- P2 mobile form system — v0.15.38 ---------- */
 .sheet-form,.creator-form,.episode-inline-form{font-size:16px}
 .sheet-form label:not(.check):not(.switch-row):not(.widget-check):not(.manage-select),
 .creator-form label:not(.check):not(.switch-row):not(.expert-switch),
@@ -479,29 +491,15 @@ body.overlay-dialog-open .overlay-backdrop{background:rgba(0,0,0,.68)!important}
 .mobile-library-tab-panel .mobile-library-card{grid-template-columns:42px minmax(0,1fr) auto!important;min-height:78px!important}
 .mobile-library-tab-panel .mobile-library-card>em{grid-column:auto!important;align-self:center!important}
 
-/* v0.15.37 P1 full-page sticky action containment.
-   overlay-page is transformed to stay centered on wide screens, so the legacy
-   fixed creator bar must anchor to that page rather than the viewport midpoint. */
-.overlay-page .creator-savebar{
-  position:fixed!important;
-  left:0!important;
-  right:0!important;
-  bottom:0!important;
-  transform:none!important;
-  width:100%!important;
-  max-width:none!important;
-  margin:0!important;
-  box-sizing:border-box!important;
-}
-.overlay-page .creator-form>[data-panel]{padding-bottom:calc(104px + var(--lumi-m-bottom-safe))!important}
+/* v0.15.38 creator action containment is handled by the four-row full-page grid above. */
 @media(max-width:370px){
   .creator-head{grid-template-columns:var(--lumi-m-touch-min) minmax(0,1fr) auto!important}
   .creator-head h2{min-width:0!important;font-size:18px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-  .creator-head .expert-switch{max-width:96px!important}
+  .creator-head .expert-switch{max-width:108px!important;font-size:13px!important}
 }
 
 
-/* ---------- P3 list & management normalization — v0.15.37 ---------- */
+/* ---------- P3 list & management normalization — v0.15.38 ---------- */
 .mobile-list-page-head{align-items:center!important}
 .mobile-character-manager-page{gap:14px!important}
 .mobile-character-manager-page>#mobileCharacterLibrarySearch{width:100%!important}
@@ -560,7 +558,7 @@ body.overlay-dialog-open .overlay-backdrop{background:rgba(0,0,0,.68)!important}
 .mobile-thread-info>small{color:var(--muted)!important}
 .mobile-thread-continue{width:100%!important;margin-top:4px!important;min-height:42px!important;border-radius:var(--lumi-m-radius-control)!important}
 
-/* ---------- P4 chat surface & composer — v0.15.37 ---------- */
+/* ---------- P4 chat surface & composer — v0.15.38 ---------- */
 .chat-page{min-width:0!important;overflow:hidden!important}
 .mobile-chat-head-v2{min-width:0!important}
 .mobile-chat-title{min-width:0!important}
@@ -618,7 +616,7 @@ body.overlay-dialog-open .overlay-backdrop{background:rgba(0,0,0,.68)!important}
   width:100%!important;min-width:0!important;
 }
 
-/* ---------- P5 device viewport / keyboard / safe-area — v0.15.37 ---------- */
+/* ---------- P5 device viewport / keyboard / safe-area — v0.15.38 ---------- */
 :root{--lumi-m-keyboard-gap:0px;}
 body.keyboard-open{--lumi-m-keyboard-gap:8px;}
 body.keyboard-open .bottom-nav{display:none!important;}
@@ -635,3 +633,15 @@ body.keyboard-open .overlay-dialog{top:calc(var(--vh,100dvh) / 2)!important;}
 @supports(height:100svh){
   .overlay-dialog{max-height:min(calc(var(--vh,100svh) * .80),620px)!important;}
 }
+
+
+/* ---------- P6 mobile editor visual polish — v0.15.38 ----------
+   CaveDuck screenshots are used only for mobile composition/spacing reference.
+   LumiChat keeps its own theme: tabs use one text color and selection is expressed
+   only by weight + accent underline. Full-page editors have exactly one action row. */
+body[data-theme] .creator-form :is(.hint,.section-note,.episode-choice span,.example-index){color:var(--text)!important;opacity:.72!important;}
+body[data-theme] .creator-form :is(label,.section-title,.creator-head h2,.form-tabs.five button){color:var(--text)!important;}
+body[data-theme] .creator-form .form-tabs.five button.active{color:var(--text)!important;}
+body[data-theme] .creator-form .creator-head,body[data-theme] .creator-form .form-tabs.five,body[data-theme] .creator-form .creator-savebar{background:var(--surface-1)!important;}
+body[data-theme] .creator-form .episode-inline-form{background:transparent!important;border:0!important;border-radius:0!important;padding-left:0!important;padding-right:0!important;}
+body[data-theme] .creator-form .creator-section+.creator-section{border-top-color:var(--line)!important;}

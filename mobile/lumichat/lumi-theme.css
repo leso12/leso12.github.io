@@ -1,4 +1,4 @@
-/* LumiChat Mobile canonical theme system — v0.15.32
+/* LumiChat Mobile canonical theme system — v0.15.38
    Palette and surface semantics match PC. This file is loaded last so every mobile view follows profile.theme. */
 :root{--mobile-font-scale:1;--surface-0:#0b0c0e;--surface-1:#111316;--surface-2:#17191d;--surface-3:#202329;--surface-input:#24272d;--surface-hover:#2b2f36;--line-strong:rgba(239,232,219,.16);--accent-contrast:#17130a;--danger:#df7f87;--shadow-soft:0 10px 28px rgba(0,0,0,.25)}
 html{font-size:calc(16px * var(--mobile-font-scale,1))}
@@ -57,3 +57,6 @@ body[data-theme] .hint,body[data-theme] .section-note,body[data-theme] .tool-lis
 .mobile-theme-card.active{border-color:color-mix(in srgb,var(--accent) 58%,var(--line))!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 12%,transparent)!important}
 .mobile-theme-card[data-mobile-theme="midnight"] i{background:linear-gradient(135deg,#111316 52%,#d8b45c 52%)}.mobile-theme-card[data-mobile-theme="ocean"] i{background:linear-gradient(135deg,#0a1824 52%,#74b9d7 52%)}.mobile-theme-card[data-mobile-theme="wine"] i{background:linear-gradient(135deg,#211015 52%,#c97f8d 52%)}.mobile-theme-card[data-mobile-theme="forest"] i{background:linear-gradient(135deg,#0f1c16 52%,#8db59a 52%)}.mobile-theme-card[data-mobile-theme="dawn"] i{background:linear-gradient(135deg,#f1f4f5 52%,#557f96 52%)}.mobile-theme-card[data-mobile-theme="lavender"] i{background:linear-gradient(135deg,#f8f6fa 52%,#806e98 52%)}.mobile-theme-card[data-mobile-theme="rose"] i{background:linear-gradient(135deg,#faf6f6 52%,#a86c7d 52%)}.mobile-theme-card[data-mobile-theme="paper"] i{background:linear-gradient(135deg,#f4eee5 52%,#8d6d4e 52%)}
 @media(max-width:360px){.mobile-theme-grid{grid-template-columns:1fr}}
+
+/* v0.15.38 editor typography: hierarchy by opacity/weight, not gray tab states. */
+body[data-theme] .creator-form :is(.hint,.section-note,.episode-choice span,.example-index){color:var(--text)!important;}
