@@ -19,15 +19,27 @@ jobs:
         run: |
           set -euo pipefail
           BASE='https://leso12.github.io/mobile/lumichat'
-          BUST="01538-$(date +%s)"
-          FRONT=$(curl -fsSL --retry 20 --retry-delay 3 "$BASE/?health=$BUST")
-          CORE=$(curl -fsSL --retry 20 --retry-delay 3 "$BASE/core.js?health=$BUST")
-          APP=$(curl -fsSL --retry 20 --retry-delay 3 "$BASE/app.js?health=$BUST")
-          EDITORS=$(curl -fsSL --retry 20 --retry-delay 3 "$BASE/editors.js?health=$BUST")
-          GEOM=$(curl -fsSL --retry 20 --retry-delay 3 "$BASE/lumi-geometry.css?health=$BUST")
-          LEGACY=$(curl -fsSL --retry 20 --retry-delay 3 "$BASE/v01526-ui-system.css?health=$BUST")
-          UX=$(curl -fsSL --retry 20 --retry-delay 3 "$BASE/v01529-mobile-ux.css?health=$BUST")
-          SW=$(curl -fsSL --retry 20 --retry-delay 3 "$BASE/sw.js?health=$BUST")
+          READY=''
+          for i in $(seq 1 40); do
+            BUST="01538-${GITHUB_RUN_ID}-${i}-$(date +%s)"
+            FRONT=$(curl -fsSL "$BASE/?health=$BUST" || true)
+            if echo "$FRONT" | grep -Fq 'LumiChat v0.15.38 Mobile'; then
+              READY=1
+              break
+            fi
+            echo "Waiting for Pages propagation ($i/40)..."
+            sleep 5
+          done
+          test -n "$READY"
+          BUST="01538-${GITHUB_RUN_ID}-final-$(date +%s)"
+          FRONT=$(curl -fsSL "$BASE/?health=$BUST")
+          CORE=$(curl -fsSL "$BASE/core.js?health=$BUST")
+          APP=$(curl -fsSL "$BASE/app.js?health=$BUST")
+          EDITORS=$(curl -fsSL "$BASE/editors.js?health=$BUST")
+          GEOM=$(curl -fsSL "$BASE/lumi-geometry.css?health=$BUST")
+          LEGACY=$(curl -fsSL "$BASE/v01526-ui-system.css?health=$BUST")
+          UX=$(curl -fsSL "$BASE/v01529-mobile-ux.css?health=$BUST")
+          SW=$(curl -fsSL "$BASE/sw.js?health=$BUST")
           echo "$FRONT" | grep -Fq 'LumiChat v0.15.38 Mobile'
           echo "$FRONT" | grep -Fq 'lumi-geometry.css?v=01538'
           echo "$FRONT" | grep -Fq 'lumichat-mobile-v01531'
