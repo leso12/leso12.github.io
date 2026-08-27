@@ -1,0 +1,63 @@
+name: LumiChat Mobile Public Health v0.15.39 P7
+
+on:
+  push:
+    paths:
+      - '.deploy/lumichat-health-01539-trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify public LumiChat v0.15.39 P7
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='https://leso12.github.io/mobile/lumichat'
+          OK=''
+          for i in $(seq 1 50); do
+            BUST="01539-${GITHUB_RUN_ID}-${i}-$(date +%s)"
+            if curl -fsSL "$BASE/?health=$BUST" -o /tmp/front.html && grep -Fq 'LumiChat v0.15.39 Mobile' /tmp/front.html; then
+              OK=1
+              break
+            fi
+            echo "Waiting for GitHub Pages propagation ($i/50)..."
+            sleep 5
+          done
+          test -n "$OK"
+          BUST="01539-${GITHUB_RUN_ID}-final-$(date +%s)"
+          curl -fsSL "$BASE/?health=$BUST" -o /tmp/front.html
+          curl -fsSL "$BASE/core.js?health=$BUST" -o /tmp/core.js
+          curl -fsSL "$BASE/app.js?health=$BUST" -o /tmp/app.js
+          curl -fsSL "$BASE/lumi-geometry.css?health=$BUST" -o /tmp/geometry.css
+          curl -fsSL "$BASE/lumi-theme.css?health=$BUST" -o /tmp/theme.css
+          curl -fsSL "$BASE/v01529-mobile-ux.css?health=$BUST" -o /tmp/ux.css
+          curl -fsSL "$BASE/sw.js?health=$BUST" -o /tmp/sw.js
+          grep -Fq 'LumiChat v0.15.39 Mobile' /tmp/front.html
+          grep -Fq 'app.js?boot=01539' /tmp/front.html
+          grep -Fq 'lumichat-mobile-v01531' /tmp/front.html
+          grep -Fq "APP_VERSION='0.15.39'" /tmp/core.js
+          grep -Fq 'SCHEMA_VERSION=19' /tmp/core.js
+          grep -Fq 'mobile-chat-tools-sheet' /tmp/app.js
+          grep -Fq 'P7 component consistency + unclipped sheets — v0.15.39' /tmp/geometry.css
+          grep -Fq -- '--lumi-m-action-h:58px' /tmp/geometry.css
+          grep -Fq 'P7 canonical component coverage — v0.15.39' /tmp/theme.css
+          grep -Fq '.display-mode-chat .mobile-speaker-block.pc .mobile-speaker-meta{display:flex' /tmp/ux.css
+          grep -Fq 'v0.15.39' /tmp/sw.js
+          printf 'frontend=v0.15.39\npublic_url=%s/\nindex_ok=true\ncore_version=0.15.39\nschema=19\nbackend_gateway=v01531\np7_equal_action_height=true\np7_grouped_chat_tools=true\np7_theme_coverage=true\np7_user_identity=true\nservice_worker_ok=true\nchecked_at=%s\n' "$BASE" "$(date -u +%FT%TZ)" > .deploy/lumichat-health-01539-result.txt
+          rm -f .deploy/lumichat-health-01539-trigger.txt
+      - name: Commit health result
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A .deploy/lumichat-health-01539-result.txt .deploy/lumichat-health-01539-trigger.txt
+          git diff --cached --quiet && exit 0
+          git commit -m 'Verify LumiChat public mobile v0.15.39 P7'
+          git push
