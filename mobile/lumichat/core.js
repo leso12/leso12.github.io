@@ -1,6 +1,6 @@
 import { demoSeed } from './demo.js';
 
-export const APP_VERSION='0.15.38';
+export const APP_VERSION='0.15.39';
 export const SCHEMA_VERSION=19;
 const EDGE='https://vulpttgewjfkxojimyxl.supabase.co/functions/v1/lumichat-mobile';
 const EDGE_TIMEOUT=30000,BOOT_TIMEOUT=9000;

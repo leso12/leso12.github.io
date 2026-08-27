@@ -60,3 +60,27 @@ body[data-theme] .hint,body[data-theme] .section-note,body[data-theme] .tool-lis
 
 /* v0.15.38 editor typography: hierarchy by opacity/weight, not gray tab states. */
 body[data-theme] .creator-form :is(.hint,.section-note,.episode-choice span,.example-index){color:var(--text)!important;}
+
+
+/* ---------- P7 canonical component coverage — v0.15.39 ----------
+   Every app-owned surface follows the active LumiChat theme. User widget iframe
+   internals are intentionally excluded. */
+body[data-theme] :is(.mobile-library-card,.mobile-character-row,.mobile-setting-summary,.mobile-setting-menu>button,.mobile-tool-grid>button,.mobile-sheet-close,.mobile-new-character-card,.mobile-new-selected-character,.mobile-display-mode-choice label>span){
+  background:var(--surface-2)!important;color:var(--text)!important;border-color:var(--line-strong)!important;box-shadow:none!important;
+}
+body[data-theme] :is(.mobile-library-icon,.mobile-home-widget-icon,.mini-avatar,.mobile-speaker-avatar){
+  background:color-mix(in srgb,var(--accent) 9%,var(--surface-3))!important;color:var(--text)!important;border-color:var(--line)!important;
+}
+body[data-theme] .mobile-library-current{background:color-mix(in srgb,var(--accent) 7%,var(--surface-2))!important;border-color:color-mix(in srgb,var(--accent) 28%,var(--line))!important;color:var(--text)!important}
+body[data-theme] .mobile-library-current :is(b,small,em){color:var(--text)!important}
+body[data-theme] .mobile-library-card :is(b,small,em),body[data-theme] .mobile-character-row :is(b,small,em){color:var(--text)!important}
+body[data-theme] .mobile-library-card small,body[data-theme] .mobile-character-row small{opacity:.76!important}
+body[data-theme] .mobile-tool-section{border-color:var(--line)!important}
+body[data-theme] .mobile-tool-section>h3{color:var(--text)!important}
+body[data-theme] .mobile-tool-grid>button:hover,body[data-theme] .mobile-setting-menu>button:hover{background:var(--surface-hover)!important}
+body[data-theme] .mobile-speaker-block .mobile-inline-speaker{color:var(--text)!important}
+body[data-theme] .display-mode-chat .mobile-speaker-block.char .mobile-speaker-bubble{background:var(--assistant-bubble)!important;border-color:var(--line)!important}
+body[data-theme] .display-mode-chat .mobile-speaker-block.extra .mobile-speaker-bubble{background:var(--surface-3)!important;border-color:var(--line)!important}
+body[data-theme] .display-mode-chat .mobile-speaker-block.pc .mobile-speaker-bubble{background:var(--user-bubble)!important;border-color:var(--line-strong)!important}
+body[data-theme] :is(.overlay-bottom,.overlay-side,.overlay-dialog,.overlay-page){background:var(--surface-1)!important;color:var(--text)!important;border-color:var(--line-strong)!important}
+body[data-theme] .mobile-tool-danger .danger-soft{background:color-mix(in srgb,var(--danger) 9%,var(--surface-2))!important;color:var(--danger)!important;border-color:color-mix(in srgb,var(--danger) 38%,var(--line))!important}
