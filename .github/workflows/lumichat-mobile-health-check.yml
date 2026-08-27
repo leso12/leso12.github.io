@@ -14,29 +14,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify public LumiChat v0.15.37 P5 frontend
+      - name: Verify public LumiChat v0.15.38 P6 frontend
         shell: bash
         run: |
           set -euo pipefail
           BASE='https://leso12.github.io/mobile/lumichat'
-          BUST="01537-$(date +%s)"
-          FRONT=$(curl -fsSL --retry 12 --retry-delay 3 "$BASE/?health=$BUST")
-          CORE=$(curl -fsSL --retry 12 --retry-delay 3 "$BASE/core.js?health=$BUST")
-          APP=$(curl -fsSL --retry 12 --retry-delay 3 "$BASE/app.js?health=$BUST")
-          GEOM=$(curl -fsSL --retry 12 --retry-delay 3 "$BASE/lumi-geometry.css?health=$BUST")
-          SW=$(curl -fsSL --retry 12 --retry-delay 3 "$BASE/sw.js?health=$BUST")
-          echo "$FRONT" | grep -Fq 'LumiChat v0.15.37 Mobile'
-          echo "$FRONT" | grep -Fq 'lumi-geometry.css?v=01537'
+          BUST="01538-$(date +%s)"
+          FRONT=$(curl -fsSL --retry 20 --retry-delay 3 "$BASE/?health=$BUST")
+          CORE=$(curl -fsSL --retry 20 --retry-delay 3 "$BASE/core.js?health=$BUST")
+          APP=$(curl -fsSL --retry 20 --retry-delay 3 "$BASE/app.js?health=$BUST")
+          EDITORS=$(curl -fsSL --retry 20 --retry-delay 3 "$BASE/editors.js?health=$BUST")
+          GEOM=$(curl -fsSL --retry 20 --retry-delay 3 "$BASE/lumi-geometry.css?health=$BUST")
+          LEGACY=$(curl -fsSL --retry 20 --retry-delay 3 "$BASE/v01526-ui-system.css?health=$BUST")
+          UX=$(curl -fsSL --retry 20 --retry-delay 3 "$BASE/v01529-mobile-ux.css?health=$BUST")
+          SW=$(curl -fsSL --retry 20 --retry-delay 3 "$BASE/sw.js?health=$BUST")
+          echo "$FRONT" | grep -Fq 'LumiChat v0.15.38 Mobile'
+          echo "$FRONT" | grep -Fq 'lumi-geometry.css?v=01538'
           echo "$FRONT" | grep -Fq 'lumichat-mobile-v01531'
-          echo "$CORE" | grep -Fq "APP_VERSION='0.15.37'"
+          echo "$CORE" | grep -Fq "APP_VERSION='0.15.38'"
           echo "$CORE" | grep -Fq 'SCHEMA_VERSION=19'
-          echo "$APP" | grep -Fq "visualViewport?.addEventListener('scroll',setVh"
-          echo "$APP" | grep -Fq "classList.toggle('keyboard-open'"
-          echo "$GEOM" | grep -Fq 'P5 device viewport / keyboard / safe-area'
-          echo "$GEOM" | grep -Fq 'height:var(--vh,100dvh)!important'
-          echo "$GEOM" | grep -Fq 'calc(100dvh - var(--vh,100dvh))'
-          echo "$SW" | grep -Fq 'v0.15.37'
-          printf 'frontend=v0.15.37\npublic_url=%s/\nindex_ok=true\ncore_version=0.15.37\nschema=19\nbackend_gateway=v01531\np5_visual_viewport=true\np5_keyboard_sheet_offset=true\nservice_worker_ok=true\nchecked_at=%s\n' "$BASE" "$(date -u +%FT%TZ)" > .deploy/lumichat-health-result.txt
+          echo "$APP" | grep -Fq "primary.textContent='에피소드 저장'"
+          echo "$EDITORS" | grep -Fq 'creatorSecondaryAction'
+          echo "$GEOM" | grep -Fq 'P6 mobile editor visual polish — v0.15.38'
+          echo "$GEOM" | grep -Fq '.form-tabs.five button.active::after'
+          echo "$GEOM" | grep -Fq '.creator-form .episode-inline-actions{display:none!important}'
+          ! echo "$LEGACY" | grep -Fq 'color:#fff;border-bottom-color:#fff'
+          ! echo "$UX" | grep -Fq '.expert-switch span:last-child{display:none'
+          echo "$SW" | grep -Fq 'v0.15.38'
+          printf 'frontend=v0.15.38\npublic_url=%s/\nindex_ok=true\ncore_version=0.15.38\nschema=19\nbackend_gateway=v01531\np6_tabs_same_text_color=true\np6_accent_underline=true\np6_single_action_row=true\np6_legacy_white_tab_removed=true\np6_expert_label_visible=true\nservice_worker_ok=true\nchecked_at=%s\n' "$BASE" "$(date -u +%FT%TZ)" > .deploy/lumichat-health-result.txt
           rm -f .deploy/lumichat-health-trigger.txt
       - name: Commit health result
         shell: bash
@@ -46,5 +51,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A .deploy/lumichat-health-result.txt .deploy/lumichat-health-trigger.txt
           git diff --cached --quiet && exit 0
-          git commit -m 'Verify LumiChat public mobile v0.15.37 P5'
+          git commit -m 'Verify LumiChat public mobile v0.15.38 P6'
           git push
