@@ -22,8 +22,7 @@ jobs:
           READY=''
           for i in $(seq 1 40); do
             BUST="01538-${GITHUB_RUN_ID}-${i}-$(date +%s)"
-            FRONT=$(curl -fsSL "$BASE/?health=$BUST" || true)
-            if echo "$FRONT" | grep -Fq 'LumiChat v0.15.38 Mobile'; then
+            if curl -fsSL "$BASE/?health=$BUST" -o /tmp/front.html && grep -Fq 'LumiChat v0.15.38 Mobile' /tmp/front.html; then
               READY=1
               break
             fi
@@ -32,27 +31,29 @@ jobs:
           done
           test -n "$READY"
           BUST="01538-${GITHUB_RUN_ID}-final-$(date +%s)"
-          FRONT=$(curl -fsSL "$BASE/?health=$BUST")
-          CORE=$(curl -fsSL "$BASE/core.js?health=$BUST")
-          APP=$(curl -fsSL "$BASE/app.js?health=$BUST")
-          EDITORS=$(curl -fsSL "$BASE/editors.js?health=$BUST")
-          GEOM=$(curl -fsSL "$BASE/lumi-geometry.css?health=$BUST")
-          LEGACY=$(curl -fsSL "$BASE/v01526-ui-system.css?health=$BUST")
-          UX=$(curl -fsSL "$BASE/v01529-mobile-ux.css?health=$BUST")
-          SW=$(curl -fsSL "$BASE/sw.js?health=$BUST")
-          echo "$FRONT" | grep -Fq 'LumiChat v0.15.38 Mobile'
-          echo "$FRONT" | grep -Fq 'lumi-geometry.css?v=01538'
-          echo "$FRONT" | grep -Fq 'lumichat-mobile-v01531'
-          echo "$CORE" | grep -Fq "APP_VERSION='0.15.38'"
-          echo "$CORE" | grep -Fq 'SCHEMA_VERSION=19'
-          echo "$APP" | grep -Fq "primary.textContent='에피소드 저장'"
-          echo "$EDITORS" | grep -Fq 'creatorSecondaryAction'
-          echo "$GEOM" | grep -Fq 'P6 mobile editor visual polish — v0.15.38'
-          echo "$GEOM" | grep -Fq '.form-tabs.five button.active::after'
-          echo "$GEOM" | grep -Fq '.creator-form .episode-inline-actions{display:none!important}'
-          ! echo "$LEGACY" | grep -Fq 'color:#fff;border-bottom-color:#fff'
-          ! echo "$UX" | grep -Fq '.expert-switch span:last-child{display:none'
-          echo "$SW" | grep -Fq 'v0.15.38'
+          curl -fsSL "$BASE/?health=$BUST" -o /tmp/front.html
+          curl -fsSL "$BASE/core.js?health=$BUST" -o /tmp/core.js
+          curl -fsSL "$BASE/app.js?health=$BUST" -o /tmp/app.js
+          curl -fsSL "$BASE/editors.js?health=$BUST" -o /tmp/editors.js
+          curl -fsSL "$BASE/lumi-geometry.css?health=$BUST" -o /tmp/geometry.css
+          curl -fsSL "$BASE/v01526-ui-system.css?health=$BUST" -o /tmp/legacy.css
+          curl -fsSL "$BASE/v01529-mobile-ux.css?health=$BUST" -o /tmp/ux.css
+          curl -fsSL "$BASE/sw.js?health=$BUST" -o /tmp/sw.js
+
+          grep -Fq 'LumiChat v0.15.38 Mobile' /tmp/front.html
+          grep -Fq 'lumi-geometry.css?v=01538' /tmp/front.html
+          grep -Fq 'lumichat-mobile-v01531' /tmp/front.html
+          grep -Fq "APP_VERSION='0.15.38'" /tmp/core.js
+          grep -Fq 'SCHEMA_VERSION=19' /tmp/core.js
+          grep -Fq "primary.textContent='에피소드 저장'" /tmp/app.js
+          grep -Fq 'creatorSecondaryAction' /tmp/editors.js
+          grep -Fq 'P6 mobile editor visual polish — v0.15.38' /tmp/geometry.css
+          grep -Fq '.form-tabs.five button.active::after' /tmp/geometry.css
+          grep -Fq '.creator-form .episode-inline-actions{display:none!important}' /tmp/geometry.css
+          ! grep -Fq 'color:#fff;border-bottom-color:#fff' /tmp/legacy.css
+          ! grep -Fq '.expert-switch span:last-child{display:none' /tmp/ux.css
+          grep -Fq 'v0.15.38' /tmp/sw.js
+
           printf 'frontend=v0.15.38\npublic_url=%s/\nindex_ok=true\ncore_version=0.15.38\nschema=19\nbackend_gateway=v01531\np6_tabs_same_text_color=true\np6_accent_underline=true\np6_single_action_row=true\np6_legacy_white_tab_removed=true\np6_expert_label_visible=true\nservice_worker_ok=true\nchecked_at=%s\n' "$BASE" "$(date -u +%FT%TZ)" > .deploy/lumichat-health-result.txt
           rm -f .deploy/lumichat-health-trigger.txt
       - name: Commit health result
