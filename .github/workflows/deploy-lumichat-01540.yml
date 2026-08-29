@@ -1,0 +1,70 @@
+name: Deploy LumiChat Mobile v0.15.40 P8
+
+on:
+  push:
+    paths:
+      - '.deploy/lumichat01540/trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify staged chunks and reconstruct patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'ef3064d52ec0e73652399f3d54ff30432062c1c1f1d072057b4f86b08a4eaf7e  .deploy/lumichat01540/chunk00.txt' | sha256sum -c -
+          echo 'f4615fca868e9b77c607351f86dff50965a48e5bd4822dbfab83f0bf002c123c  .deploy/lumichat01540/chunk01.txt' | sha256sum -c -
+          echo '0ba175331f5c29230f49ed7fb9ed36059a54afb28761d85e60b0b5e3a6838679  .deploy/lumichat01540/chunk02.txt' | sha256sum -c -
+          echo '59fedfc4d4187b563679be38a9370d5863f26988c0460f6ce4f687445863d680  .deploy/lumichat01540/chunk03.txt' | sha256sum -c -
+          echo 'b69fdbee018ac1203edeccb3378bfe04ffd09127950e78d75d3dd5b6a35ebdc7  .deploy/lumichat01540/chunk04.txt' | sha256sum -c -
+          echo 'dc064a57b6dac6e9089c89cc04670e9605cc172ddb204058f423b17b82bb1606  .deploy/lumichat01540/chunk05.txt' | sha256sum -c -
+          cat .deploy/lumichat01540/chunk00.txt \
+              .deploy/lumichat01540/chunk01.txt \
+              .deploy/lumichat01540/chunk02.txt \
+              .deploy/lumichat01540/chunk03.txt \
+              .deploy/lumichat01540/chunk04.txt \
+              .deploy/lumichat01540/chunk05.txt > /tmp/lumichat01540.b64
+          echo '07e526f91e76ad5e2d30908b6ee28280b415bbb974e72fd839cffd6acccffaa1  /tmp/lumichat01540.b64' | sha256sum -c -
+          base64 -d /tmp/lumichat01540.b64 > /tmp/lumichat01540.patch.gz
+          echo '5e6c76e7542d8311b74dd3be5fc5882561e4d0efc10e7751f9d590024f533a3c  /tmp/lumichat01540.patch.gz' | sha256sum -c -
+          gunzip -c /tmp/lumichat01540.patch.gz > /tmp/lumichat01540.patch
+          echo '7ec36e4ab68364f9673c1eb5f8d7281e5fddf97a4e31abb26a756815b7abac96  /tmp/lumichat01540.patch' | sha256sum -c -
+          git apply --check /tmp/lumichat01540.patch
+          git apply /tmp/lumichat01540.patch
+
+      - name: Verify v0.15.40 P8 mobile source
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'LumiChat v0.15.40 Mobile' mobile/lumichat/index.html
+          grep -Fq 'app.js?boot=01540' mobile/lumichat/index.html
+          grep -Fq 'lumichat-mobile-v01531' mobile/lumichat/index.html
+          grep -Fq "APP_VERSION='0.15.40'" mobile/lumichat/core.js
+          grep -Fq 'SCHEMA_VERSION=19' mobile/lumichat/core.js
+          grep -Fq 'mobile-settings-group' mobile/lumichat/app.js
+          grep -Fq '아직 북마크가 없어요' mobile/lumichat/app.js
+          grep -Fq '기록 · 보관' mobile/lumichat/app.js
+          grep -Fq 'mobile-managed-editor' mobile/lumichat/managers.js
+          grep -Fq 'P8 clean settings / forms / empty states — v0.15.40' mobile/lumichat/lumi-geometry.css
+          grep -Fq -- '--lumi-m-row-h:60px' mobile/lumichat/lumi-geometry.css
+          grep -Fq 'P8 clean-settings theme coverage — v0.15.40' mobile/lumichat/lumi-theme.css
+          grep -Fq 'v0.15.40' mobile/lumichat/sw.js
+          rm -rf .deploy/lumichat01540
+
+      - name: Commit deployed mobile v0.15.40
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A mobile/lumichat .deploy/lumichat01540
+          git diff --cached --quiet && exit 0
+          git commit -m 'Deploy LumiChat mobile v0.15.40 P8 clean settings'
+          git push
