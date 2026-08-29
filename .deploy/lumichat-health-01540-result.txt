@@ -1,0 +1,14 @@
+frontend=v0.15.40
+public_url=https://leso12.github.io/mobile/lumichat/
+index_ok=true
+core_version=0.15.40
+schema=19
+backend_gateway=v01531
+p8_grouped_thread_settings=true
+p8_appearance_sections=true
+p8_bookmark_empty_state=true
+p8_row_control_geometry=true
+p8_theme_coverage=true
+p8_managed_editor=true
+service_worker_ok=true
+checked_at=2026-08-29T21:13:06Z
