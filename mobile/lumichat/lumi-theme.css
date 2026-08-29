@@ -84,3 +84,13 @@ body[data-theme] .display-mode-chat .mobile-speaker-block.extra .mobile-speaker-
 body[data-theme] .display-mode-chat .mobile-speaker-block.pc .mobile-speaker-bubble{background:var(--user-bubble)!important;border-color:var(--line-strong)!important}
 body[data-theme] :is(.overlay-bottom,.overlay-side,.overlay-dialog,.overlay-page){background:var(--surface-1)!important;color:var(--text)!important;border-color:var(--line-strong)!important}
 body[data-theme] .mobile-tool-danger .danger-soft{background:color-mix(in srgb,var(--danger) 9%,var(--surface-2))!important;color:var(--danger)!important;border-color:color-mix(in srgb,var(--danger) 38%,var(--line))!important}
+
+
+/* ---------- P8 clean-settings theme coverage — v0.15.40 ---------- */
+body[data-theme] :is(.mobile-settings-group .mobile-setting-menu,.mobile-speaker-colors,.mobile-empty-state,.mobile-bookmark-row){background:var(--surface-2)!important;color:var(--text)!important;border-color:var(--line)!important;}
+body[data-theme] :is(.mobile-settings-group>h3,.mobile-setting-menu>button b,.mobile-setting-menu>button small,.mobile-setting-summary b,.mobile-setting-summary small,.mobile-speaker-color-row b,.mobile-speaker-color-row small,.mobile-empty-state b,.mobile-empty-state p){color:var(--text)!important;}
+body[data-theme] .mobile-setting-menu>button:hover{background:var(--surface-hover)!important;}
+body[data-theme] .mobile-display-segment{background:var(--surface-3)!important;border-color:var(--line)!important;}
+body[data-theme] .mobile-display-segment>button{background:transparent!important;color:var(--text)!important;border-color:transparent!important;}
+body[data-theme] .mobile-display-segment>button.active{background:var(--accent)!important;color:var(--accent-contrast)!important;border-color:var(--accent)!important;}
+body[data-theme] .mobile-bookmark-edit{background:var(--surface-3)!important;color:var(--text)!important;border-color:var(--line)!important;}

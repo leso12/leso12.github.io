@@ -678,3 +678,64 @@ body[data-theme] .creator-form .creator-section+.creator-section{border-top-colo
 .mobile-setting-menu>button em{flex:0 0 auto!important;}
 @media(max-width:520px){.mobile-library-tab-panel .mobile-library-grid{grid-template-columns:1fr!important;}}
 @media(max-width:350px){.mobile-tool-grid{grid-template-columns:1fr!important;}}
+
+
+/* ---------- P8 clean settings / forms / empty states — v0.15.40 ----------
+   Mobile composition follows the clean information hierarchy seen in the reference
+   screenshots: flat grouped rows, one rail, consistent controls, and explicit empty states. */
+:root{
+  --lumi-m-row-h:60px;
+  --lumi-m-control-h:50px;
+  --lumi-m-section-gap:24px;
+}
+.mobile-thread-settings-home,.mobile-appearance-sheet{gap:20px!important;}
+.mobile-settings-group{display:grid!important;gap:10px!important;margin:0!important;min-width:0!important;}
+.mobile-settings-group>h3{margin:0!important;padding:0 2px!important;font-size:15px!important;line-height:1.35!important;}
+.mobile-settings-group>.hint{margin:0!important;line-height:1.55!important;}
+.mobile-settings-group .mobile-setting-menu{
+  display:grid!important;gap:0!important;width:100%!important;overflow:hidden!important;
+  border:1px solid var(--line)!important;border-radius:var(--lumi-m-radius-card)!important;background:var(--surface-2)!important;
+}
+.mobile-settings-group .mobile-setting-menu>button{
+  min-height:var(--lumi-m-row-h)!important;height:auto!important;margin:0!important;padding:11px 14px!important;
+  border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;background:transparent!important;
+  display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;text-align:left!important;
+}
+.mobile-settings-group .mobile-setting-menu>button:last-child{border-bottom:0!important;}
+.mobile-setting-menu>button>span{display:grid!important;gap:3px!important;min-width:0!important;}
+.mobile-setting-menu>button :is(b,small){color:var(--text)!important;}
+.mobile-setting-menu>button small{font-size:11px!important;line-height:1.4!important;opacity:.72!important;}
+.mobile-setting-menu>button em{font-style:normal!important;font-size:28px!important;line-height:1!important;opacity:.78!important;}
+.mobile-setting-summary{min-height:72px!important;padding:12px 14px!important;border-radius:var(--lumi-m-radius-card)!important;}
+.mobile-setting-summary>span:last-child{display:grid!important;gap:3px!important;min-width:0!important;}
+.mobile-setting-summary :is(b,small){color:var(--text)!important;}
+.mobile-setting-summary small{opacity:.72!important;}
+.mobile-display-segment{min-height:52px!important;padding:4px!important;border-radius:var(--lumi-m-radius-control)!important;}
+.mobile-display-segment>button{min-height:44px!important;border-radius:calc(var(--lumi-m-radius-control) - 3px)!important;}
+.mobile-speaker-colors{display:grid!important;gap:0!important;margin:0!important;padding:0!important;border:1px solid var(--line)!important;border-radius:var(--lumi-m-radius-card)!important;overflow:hidden!important;}
+#sheet .sheet-form .mobile-speaker-color-row{min-height:68px!important;margin:0!important;padding:10px 14px!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;}
+#sheet .sheet-form .mobile-speaker-color-row:last-child{border-bottom:0!important;}
+#sheet .sheet-form .mobile-speaker-color-row>span{display:grid!important;gap:3px!important;min-width:0!important;}
+#sheet .sheet-form .mobile-speaker-color-row :is(b,small){color:var(--text)!important;}
+#sheet .sheet-form .mobile-speaker-color-row small{opacity:.72!important;}
+#sheet .sheet-form .mobile-speaker-color-row input[type="color"]{width:46px!important;height:46px!important;min-height:46px!important;padding:3px!important;flex:0 0 46px!important;border-radius:999px!important;}
+.sheet-form>label:not(.check),.mobile-managed-editor>label:not(.check){display:grid!important;gap:8px!important;margin:0!important;color:var(--text)!important;}
+.sheet-form :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),select){min-height:var(--lumi-m-control-h)!important;height:var(--lumi-m-control-h)!important;padding:10px 13px!important;}
+.sheet-form textarea{min-height:116px!important;padding:12px 13px!important;line-height:1.55!important;resize:vertical!important;}
+.sheet-form .sheet-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;width:100%!important;margin-top:4px!important;}
+.sheet-form .sheet-actions>button{min-height:56px!important;height:56px!important;margin:0!important;}
+.mobile-managed-editor-personas textarea{min-height:112px!important;}
+.mobile-managed-editor-personas>label:has(input[type="color"]){grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;}
+.mobile-managed-editor-personas>label:has(input[type="color"])>small{grid-column:1/-1!important;color:var(--text)!important;opacity:.72!important;}
+.mobile-managed-editor-personas input[type="color"]{width:48px!important;height:48px!important;min-height:48px!important;padding:3px!important;border-radius:999px!important;}
+.mobile-empty-state{min-height:220px!important;padding:30px 20px!important;display:grid!important;place-items:center!important;align-content:center!important;gap:10px!important;text-align:center!important;border:1px solid var(--line)!important;border-radius:var(--lumi-m-radius-card)!important;background:var(--surface-2)!important;}
+.mobile-empty-state>span{font-size:34px!important;line-height:1!important;color:var(--accent)!important;}
+.mobile-empty-state>b{font-size:17px!important;color:var(--text)!important;}
+.mobile-empty-state>p{max-width:280px!important;margin:0!important;color:var(--text)!important;opacity:.72!important;line-height:1.55!important;}
+.mobile-bookmark-list{display:grid!important;gap:10px!important;}
+.mobile-bookmark-row{grid-template-columns:minmax(0,1fr) 56px!important;padding:0!important;overflow:hidden!important;background:var(--surface-2)!important;}
+.mobile-bookmark-row>.episode-choice{min-height:76px!important;padding:12px 14px!important;border:0!important;border-radius:0!important;background:transparent!important;}
+.mobile-bookmark-edit{height:100%!important;min-height:76px!important;border:0!important;border-left:1px solid var(--line)!important;border-radius:0!important;}
+/* Settings and tools scan as single-column rows on phones; two columns return only when space is real. */
+@media(max-width:520px){.mobile-tool-grid{grid-template-columns:1fr!important;}}
+@media(min-width:700px){.mobile-tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
