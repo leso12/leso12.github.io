@@ -34,7 +34,7 @@
     const s=document.createElement('script');
     s.textContent=code+'\n//# sourceURL=devlib-app-v2.7.1.js';
     document.body.appendChild(s);
-    for(const [src,ver] of [['./v273-fixes-addon.js','2.7.3'],['./v274-integrity-addon.js','2.7.4']]){
+    for(const [src,ver] of [['./v273-fixes-addon.js','2.7.3'],['./v274-integrity-addon.js','2.7.4'],['./v275-hierarchy-guide-addon.js','2.7.5']]){
       const addon=document.createElement('script');
       addon.src=`${src}?v=${ver}`;
       addon.async=false;
