@@ -1,5 +1,6 @@
 (async()=>{
   try{
+    document.title='개발 서재 · Mobile Hub v2.7.5';
     // Security bridge: legacy/mobile code may still build ?key= URLs.
     // Strip the key before the network request and send it in X-Devlib-Key instead,
     // so long-lived editor keys are no longer written into Edge Function request logs.
