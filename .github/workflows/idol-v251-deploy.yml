@@ -1,0 +1,58 @@
+name: Idol Simulator v25.1 Verified Deploy
+
+on:
+  push:
+    paths:
+      - '.github/workflows/idol-v251-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: idol-v251-verified-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Reconstruct and verify v25.1
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f .idol-v251/payload.gz.b64
+          base64 -d .idol-v251/payload.gz.b64 | gzip -d > /tmp/idol-v251-index.html
+          echo '75c659d88e8748c9311c1f4ea7f33c09233661dbb158777ab27e4f3a0c83b2cb  /tmp/idol-v251-index.html' | sha256sum -c -
+          grep -q '<meta name="idol-sim-version" content="2.5.1">' /tmp/idol-v251-index.html
+          python3 - <<'PY'
+          import re, pathlib
+          s=pathlib.Path('/tmp/idol-v251-index.html').read_text(encoding='utf-8')
+          scripts='\n'.join(re.findall(r'<script[^>]*>(.*?)</script>',s,re.S))
+          pathlib.Path('/tmp/idol-v251-scripts.js').write_text(scripts,encoding='utf-8')
+          ids=re.findall(r'\bid=["\']([^"\']+)["\']',s)
+          dup=sorted({x for x in ids if ids.count(x)>1})
+          if dup:
+              raise SystemExit('duplicate ids: '+', '.join(dup[:20]))
+          print('HTML duplicate-id check: PASS')
+          PY
+          node --check /tmp/idol-v251-scripts.js
+
+      - name: Replace production page exactly
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/idol-v251-index.html mobile/idol/index.html
+          rm -rf .idol-v251
+          rm -f .github/workflows/idol-v251-deploy.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Deploy idol simulator v25.1 verified build'
+          git push origin HEAD:main
