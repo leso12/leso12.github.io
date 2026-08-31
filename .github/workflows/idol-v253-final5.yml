@@ -1,0 +1,47 @@
+name: Idol Simulator v25.3 Final Verified Deploy
+
+on:
+  push:
+    paths:
+      - '.github/workflows/idol-v253-final5.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Build and verify v25.3
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '7add022cd9fe9f875ed157ba44c4b614d1bc23849db48de8769fb1ccfccc7061  mobile/idol/index.html' | sha256sum -c -
+          python3 .idol-v253/transform.py
+          echo 'c2965bf9abebc5d9a6f69eb428a9cc056a7b42f6df6c046ace6c9ef1ed4fbe2b  mobile/idol/index.html' | sha256sum -c -
+          grep -q '<meta name="idol-sim-version" content="2.5.3">' mobile/idol/index.html
+          grep -q 'idol-v253-ui-relation-audit' mobile/idol/index.html
+          python3 - <<'PY'
+          import re,pathlib
+          s=pathlib.Path('mobile/idol/index.html').read_text(encoding='utf-8')
+          ids=re.findall(r"\bid=[\"']([^\"']+)[\"']",s)
+          dup=sorted({x for x in ids if ids.count(x)>1})
+          if dup: raise SystemExit('duplicate ids: '+', '.join(dup[:20]))
+          pathlib.Path('/tmp/v253.js').write_text('\n'.join(re.findall(r'<script[^>]*>(.*?)</script>',s,re.S)),encoding='utf-8')
+          PY
+          node --check /tmp/v253.js
+      - name: Commit production v25.3
+        run: |
+          set -euo pipefail
+          rm -rf .idol-v253
+          rm -f .github/workflows/idol-v253-deploy.yml .github/workflows/idol-v253-final5.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Deploy idol simulator v25.3 UI and relationship audit'
+          git push origin HEAD:main
