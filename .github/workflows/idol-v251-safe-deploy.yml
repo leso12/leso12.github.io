@@ -1,0 +1,53 @@
+name: Idol v25.1 Safe Deploy
+
+on:
+  push:
+    branches:
+      - idol-v251-deploy
+    paths:
+      - '.github/workflows/idol-v251-safe-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: idol-v251-safe-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: idol-v251-deploy
+          fetch-depth: 0
+
+      - name: Rebuild validated v25.1
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .deploy/idol-v251/part*.txt | base64 -d | gzip -dc > /tmp/idol-v251.html
+          ACTUAL="$(sha256sum /tmp/idol-v251.html | awk '{print $1}')"
+          test "$ACTUAL" = "10f3480e85f965002dad82527b2867100b50882d4721b43fd2dcd8214b7421c0"
+          grep -q 'idol-sim-version" content="2.5.1"' /tmp/idol-v251.html
+          test "$(wc -c < /tmp/idol-v251.html)" = "362289"
+
+      - name: Publish validated page to main
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/idol-v251.html /tmp/validated.html
+          git fetch origin main
+          git checkout -B main origin/main
+          cp /tmp/validated.html mobile/idol/index.html
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mobile/idol/index.html
+          if git diff --cached --quiet; then
+            echo "v25.1 already deployed"
+            exit 0
+          fi
+          git commit -m "Deploy idol simulator v25.1 validated build"
+          git push origin main
