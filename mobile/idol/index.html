@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta name="idol-sim-version" content="2.5.1">
+  <meta name="idol-sim-version" content="2.5.2">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -1249,7 +1249,7 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1p
 .relation-pair-change { align-self:center; white-space:nowrap; font-size:.64rem; }
 
 .relation-tier-wrap { margin-top:7px; }
-.relation-tier-track { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; align-items:start; }
+.relation-tier-track { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:4px; align-items:start; }
 .relation-tier-node { position:relative; min-width:0; display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--text-sub); opacity:.48; }
 .relation-tier-node::before { content:''; position:absolute; top:13px; left:-50%; right:50%; height:2px; background:var(--border); z-index:0; }
 .relation-tier-node:first-child::before { display:none; }
@@ -1258,6 +1258,12 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1p
 .relation-tier-node.passed { opacity:.7; }
 .relation-tier-node.active { opacity:1; color:var(--pair-color,var(--accent)); }
 .relation-tier-node.active i { border-color:var(--pair-color,var(--accent)); box-shadow:0 0 0 3px color-mix(in srgb,var(--pair-color,var(--accent)) 10%,transparent); }
+.relation-tier-node.lover-stage { color:#c94e7c; }
+.relation-tier-node.lover-stage.active { color:#d93f7c; opacity:1; }
+.relation-tier-node.lover-stage.active i { border-color:#e26a9b; background:rgba(255,120,170,.12); box-shadow:0 0 0 3px rgba(226,106,155,.10); }
+.relation-tier-node.lover-stage.disabled { opacity:.25; filter:grayscale(.55); }
+.relation-tier-node.lover-stage.disabled i::after { content:'🔒'; position:absolute; right:-5px; bottom:-5px; font-size:.48rem; line-height:1; }
+
 .relation-tier-caption { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:6px; padding-top:6px; border-top:1px dashed var(--border); }
 .relation-tier-caption strong { font-size:.7rem; color:var(--text-main); }
 .relation-tier-caption small { font-size:.58rem; color:var(--text-sub); }
@@ -1710,7 +1716,19 @@ button[style*="display:flex"],button[style*="display: flex"] { justify-content:c
 .ev-item-disabled{cursor:not-allowed!important}
 @media(max-width:720px){.relation-romance-track{gap:4px;padding:7px}.romance-state-node{min-height:30px;padding:4px 6px}.romance-track-arrow{font-size:.6rem}.relation-more-wrap{flex-direction:column;gap:5px}}
 .graph-large-empty{min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:7px;padding:24px;color:var(--text-sub)}.graph-large-empty>span{font-size:2rem}.graph-large-empty>strong{font-size:.95rem;color:var(--text-main)}.graph-large-empty p{font-size:.72rem;line-height:1.6}
-</style></head>
+</style>
+<style id="idol-v252-relation-cleanup">
+/* v25.2: 관계 카드는 현재 상태 1회 + 통합 단계 바 중심으로 단순화 */
+.relation-pair-card .relation-romance-track,
+.ev-pair-summary .relation-romance-track,
+.pair-detail-modal .relation-romance-track{display:none!important}
+.relation-pair-card .relation-pair-change,
+.ev-pair-summary .ev-trend{display:none!important}
+.relation-pair-card .relation-tier-wrap{margin-top:10px}
+.relation-pair-card .relation-pair-head{min-height:28px}
+.relation-romance-pill{font-size:.68rem;padding:4px 9px;font-weight:850}
+</style>
+</head>
 <body>
 
 <!-- ── 헤더 ── -->
@@ -6191,23 +6209,30 @@ function relationRomanceTrackHtml(a,b,rel){
 function relationRomanceActionBlockReason(a,b,rel){
   const p=relationRomancePolicy(a,b,rel); return p.ok?'':p.reason;
 }
-function relationMeterHtml(rel, compact=false){
+function relationMeterHtml(rel, compact=false, a=null, b=null){
   const RM=window.RelationsModule;
   const tier=RM.getRelationDisplayTier(rel), tiers=RM.RELATION_DISPLAY_TIERS||[];
-  const active=Math.max(0,tiers.findIndex(t=>t.id===tier.id));
+  const baseActive=Math.max(0,tiers.findIndex(t=>t.id===tier.id));
+  const lover=RM.isLover(rel);
+  const policy=(a&&b)?relationRomancePolicy(a,b,rel):{ok:true,reason:''};
+  const loverDisabled=!lover && !policy.ok;
+  const nodes=tiers.map((t,i)=>({id:t.id,icon:t.icon,label:t.short,active:!lover&&i===baseActive,passed:lover||(!lover&&i<baseActive),disabled:false,lover:false}));
+  nodes.push({id:'lover',icon:'💗',label:'연인',active:lover,passed:false,disabled:loverDisabled,lover:true});
+  const currentLabel=lover?'연인':tier.label;
   return `<div class="relation-tier-wrap${compact?' compact':''}">
-    <div class="relation-tier-track" aria-label="친밀도 단계 ${escapeAttr(tier.label)}">${tiers.map((t,i)=>`<span class="relation-tier-node ${i===active?'active':i<active?'passed':''}" title="${escapeAttr(t.label)}"><i>${t.icon}</i>${compact?'':`<b>${escapeHtml(t.short)}</b>`}</span>`).join('')}</div>
-    ${compact?'':`<div class="relation-tier-caption"><strong>${tier.icon} 친밀도 · ${escapeHtml(tier.label)}</strong><small>정확한 수치는 상세에서 확인</small></div>`}
+    <div class="relation-tier-track" aria-label="관계 단계 ${escapeAttr(currentLabel)}">${nodes.map(n=>`<span class="relation-tier-node ${n.active?'active':n.passed?'passed':''}${n.lover?' lover-stage':''}${n.disabled?' disabled':''}" title="${escapeAttr(n.disabled?(policy.reason||'현재 연애 진행 불가'):n.label)}"><i>${n.icon}</i>${compact?'':`<b>${escapeHtml(n.label)}</b>`}</span>`).join('')}</div>
   </div>`;
 }
 function relationRecentDelta(rel, days=7){
   return window.RelationsModule.getRecentDelta ? window.RelationsModule.getRecentDelta(rel,APP.state.day,days) : 0;
 }
-function relationRomanceBadgeHtml(rel, showNone=true){
+function relationRomanceBadgeHtml(rel, showNone=false){
   const RM=window.RelationsModule;
   const romance=RM.getRelationRomanceStatus(rel,APP.state&&APP.state.settings);
-  if(!showNone && !romance.active)return '';
-  return `<span class="relation-romance-pill ${escapeAttr(romance.id)}">${romance.icon} ${romance.id==='none'?'연애 · 없음':`연애 · ${escapeHtml(romance.label)}`}</span>`;
+  if(!romance.active){
+    return showNone?'<span class="relation-romance-pill none">♡ 없음</span>':'';
+  }
+  return `<span class="relation-romance-pill ${escapeAttr(romance.id)}">${romance.icon} ${escapeHtml(romance.label)}</span>`;
 }
 function relationStatusBadgesHtml(rel){
   const RM=window.RelationsModule;
@@ -6216,14 +6241,11 @@ function relationStatusBadgesHtml(rel){
 }
 function relationPairCardHtml(a,b,rel,color){
   const RM=window.RelationsModule;
-  const tier=RM.getRelationDisplayTier(rel), trend=RM.getRelationTrend(rel,APP.state.day,7);
-  const delta=trend.delta, last=Number(rel.lastEventDay)||0;
+  const last=Number(rel.lastEventDay)||0;
   return `<div class="relation-pair-card" style="--pair-color:${escapeAttr(color)}">
-    <div class="relation-pair-head"><div class="relation-pair-names"><strong>${escapeHtml(a.name)}</strong><span>×</span><strong>${escapeHtml(b.name)}</strong></div>${relationRomanceBadgeHtml(rel,true)}</div>
+    <div class="relation-pair-head"><div class="relation-pair-names"><strong>${escapeHtml(a.name)}</strong><span>×</span><strong>${escapeHtml(b.name)}</strong></div>${relationRomanceBadgeHtml(rel,false)}</div>
     ${relationStatusBadgesHtml(rel)}
-    ${relationRomanceTrackHtml(a,b,rel)}
-    <div class="relation-mood-row"><div class="relation-mood-icon">${tier.icon}</div><div class="relation-mood-copy"><strong>${escapeHtml(tier.label)}</strong><span>${escapeHtml(trend.label)}</span></div><div class="relation-pair-change ${delta>0?'up':delta<0?'down':'flat'}">${trend.icon} 최근 7일 ${delta>0?'+':''}${delta}</div></div>
-    ${relationMeterHtml(rel)}
+    ${relationMeterHtml(rel,false,a,b)}
     <div class="relation-pair-footer"><span>${last?`마지막 사건 · Day ${last}`:'아직 관계 사건 없음'}</span><button class="btn-sm relation-detail-btn" onclick="openPairTimeline(${jsArg(a.id)},${jsArg(b.id)})">상세 타임라인 →</button></div>
   </div>`;
 }
@@ -6234,7 +6256,7 @@ window.focusPairInRelationEvent=function(idA,idB){
 window.openPairTimeline=function(idA,idB){
   const s=APP.state,RM=window.RelationsModule,GR=window.GraphModule;
   const a=s.members.find(m=>m.id===idA),b=s.members.find(m=>m.id===idB); if(!a||!b)return;
-  const rel=RM.ensureRelation(s,idA,idB), tier=RM.getRelationDisplayTier(rel), romance=RM.getRelationRomanceStatus(rel,s.settings), trend=RM.getRelationTrend(rel,s.day,7);
+  const rel=RM.ensureRelation(s,idA,idB), tier=RM.getRelationDisplayTier(rel), romance=RM.getRelationRomanceStatus(rel,s.settings);
   const color=GR.STAGE_COLORS[tier.id]||'#999';
   let hist=Array.isArray(rel.history)?rel.history.slice().reverse():[];
   let timeline='';
@@ -6246,11 +6268,9 @@ window.openPairTimeline=function(idA,idB){
   }
   showModal(`<div class="pair-detail-modal" style="--pair-color:${escapeAttr(color)}">
     <div class="pair-detail-title"><div><span>페어 상세</span><h3>${escapeHtml(a.name)} × ${escapeHtml(b.name)}</h3></div><div class="pair-exact-score"><span>정확한 호감도</span><b>${rel.affection>0?'+':''}${rel.affection}</b></div></div>
-    <div class="pair-detail-state-row"><span class="relation-intimacy-pill">${tier.icon} 친밀도 · ${escapeHtml(tier.label)}</span>${relationRomanceBadgeHtml(rel,true)}</div>
+    <div class="pair-detail-state-row">${relationRomanceBadgeHtml(rel,false)}</div>
     ${relationStatusBadgesHtml(rel)}
-    ${relationRomanceTrackHtml(a,b,rel)}
-    <div class="pair-detail-mood"><strong>${tier.icon} ${escapeHtml(tier.label)}</strong><span>${trend.icon} ${escapeHtml(trend.label)} · 최근 7일 ${signed(trend.delta)}</span></div>
-    ${relationMeterHtml(rel)}
+    ${relationMeterHtml(rel,false,a,b)}
     <div class="pair-detail-meta"><span>${rel.lastEventDay?`마지막 사건 Day ${rel.lastEventDay}`:'사건 기록 없음'}</span><span>내부 범위 -200 ~ +200</span></div>
     <div class="pair-timeline-title">관계 타임라인</div><div class="pair-timeline">${timeline}</div>
     <div class="modal-actions"><button class="btn" onclick="focusPairInRelationEvent(${jsArg(idA)},${jsArg(idB)})">이 페어로 이벤트 실행</button><button class="btn btn-ghost" onclick="closeModal()">닫기</button></div>
@@ -6409,13 +6429,12 @@ window.renderEvList = function() {
       : `<button class="ev-item ev-item-disabled" disabled title="${reason}">${label}</button>`;
   }).join('');
 
-  const romance=RM.getRelationRomanceStatus(rel,s.settings),trend=RM.getRelationTrend(rel,s.day,7);
+  const romance=RM.getRelationRomanceStatus(rel,s.settings);
   listArea.innerHTML = `
     <div class="ev-pair-summary" style="--pair-color:${color}">
-      <div class="ev-pair-summary-head"><strong>${escapeHtml(a.name)} → ${escapeHtml(b.name)}</strong><span class="relation-stage-pill">${tier.icon} ${escapeHtml(tier.short)}</span>${relationRomanceBadgeHtml(rel,true)}<span class="ev-trend ${trend.delta>0?'up':trend.delta<0?'down':'flat'}">${trend.icon} ${trend.delta>0?'+':''}${trend.delta}</span></div>
+      <div class="ev-pair-summary-head"><strong>${escapeHtml(a.name)} → ${escapeHtml(b.name)}</strong>${relationRomanceBadgeHtml(rel,false)}</div>
       ${relationStatusBadgesHtml(rel)}
-      ${relationRomanceTrackHtml(a,b,rel)}
-      ${relationMeterHtml(rel,true)}
+      ${relationMeterHtml(rel,true,a,b)}
       <button class="text-link-btn" onclick="openPairTimeline(${jsArg(idA)},${jsArg(idB)})">정확한 수치·타임라인 보기 →</button>
     </div>
     <div class="rel-ev-list" style="display:flex;padding:8px 0">
@@ -7410,5 +7429,6 @@ document.addEventListener('DOMContentLoaded', init);
 <!-- idol-v24.0 dashboard-2x2 + intimacy-romance-separation build -->
 <!-- idol-v25.0 romance-policy + relation-scale + android-back build -->
 <!-- idol-v25.1 full-QA hardening + atomic-import + storage-safety build -->
+<!-- idol-v25.2 relation-card cleanup build -->
 </body>
 </html>
