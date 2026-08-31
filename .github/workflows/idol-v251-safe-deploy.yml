@@ -28,11 +28,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat .deploy/idol-v251/part*.txt | base64 -d | gzip -dc > /tmp/idol-v251.html
+          cat .deploy/idol-v251/part*.txt | tr -cd 'A-Za-z0-9+/=' > /tmp/idol-v251.b64
+          base64 -d /tmp/idol-v251.b64 | gzip -dc > /tmp/idol-v251.html
           ACTUAL="$(sha256sum /tmp/idol-v251.html | awk '{print $1}')"
+          SIZE="$(wc -c < /tmp/idol-v251.html)"
+          echo "validated candidate sha256=$ACTUAL size=$SIZE"
           test "$ACTUAL" = "10f3480e85f965002dad82527b2867100b50882d4721b43fd2dcd8214b7421c0"
           grep -q 'idol-sim-version" content="2.5.1"' /tmp/idol-v251.html
-          test "$(wc -c < /tmp/idol-v251.html)" = "362289"
+          test "$SIZE" = "362289"
 
       - name: Publish validated page to main
         shell: bash
