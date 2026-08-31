@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta name="idol-sim-version" content="2.5.2">
+  <meta name="idol-sim-version" content="2.5.3">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -1728,6 +1728,21 @@ button[style*="display:flex"],button[style*="display: flex"] { justify-content:c
 .relation-pair-card .relation-pair-head{min-height:28px}
 .relation-romance-pill{font-size:.68rem;padding:4px 9px;font-weight:850}
 </style>
+
+<style id="idol-v253-ui-relation-audit">
+#graph-legend.legend-wrap{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:5px 6px;padding:4px 0;max-width:100%;}
+#graph-legend .legend-label{font-size:.68rem;font-weight:800;color:var(--text-sub);margin-right:2px;}
+#graph-legend .legend-item{min-height:24px;padding:3px 7px;border-radius:8px;font-size:.68rem;font-weight:700;white-space:nowrap;background:var(--bg);border:1px solid var(--border);color:var(--text-sub);}
+#graph-legend .legend-text{border-color:color-mix(in srgb,var(--legend-color) 42%,var(--border));box-shadow:inset 0 -2px 0 var(--legend-color);}
+#graph-legend .legend-divider{width:1px;height:18px;background:var(--border);margin:0 2px;}
+#graph-legend .legend-romance.lover{color:#d93f7c;border-color:rgba(217,63,124,.28);background:rgba(255,91,153,.08);}
+#graph-legend .legend-romance.ex{color:var(--danger);border-color:rgba(231,76,60,.24);background:rgba(231,76,60,.06);}
+#graph-legend .legend-dot{display:none!important;}
+#tab-settings .settings-row > label{flex:0 0 116px;min-width:116px;}
+#tab-settings .settings-control{width:225px!important;max-width:225px!important;min-width:225px!important;flex:0 0 225px;min-height:44px;height:44px;}
+#tab-settings #settings-group-name + .btn{min-height:44px;height:44px;}
+@media(max-width:600px){#tab-settings .settings-row:not(.settings-row-check){align-items:stretch;}#tab-settings .settings-row:not(.settings-row-check) > label{flex:0 0 100%;min-width:0;margin-bottom:1px;}#tab-settings .settings-control{width:100%!important;max-width:none!important;min-width:0!important;flex:1 1 100%;}#tab-settings #settings-group-name + .btn{width:100%;}#graph-legend.legend-wrap{justify-content:flex-start;}#graph-legend .legend-label{flex:0 0 100%;}}
+</style>
 </head>
 <body>
 
@@ -2025,19 +2040,19 @@ button[style*="display:flex"],button[style*="display: flex"] { justify-content:c
       <h3>그룹 정보</h3>
       <div class="settings-row">
         <label>그룹명</label>
-        <input id="settings-group-name" class="input" style="max-width:180px" placeholder="그룹명">
+        <input id="settings-group-name" class="input settings-control" placeholder="그룹명">
         <button class="btn" onclick="onSaveGroupName()">변경</button>
       </div>
       <div class="settings-row">
         <label>테마</label>
-        <select id="settings-theme" class="input" style="max-width:130px" onchange="onChangeTheme(this.value)">
+        <select id="settings-theme" class="input settings-control" onchange="onChangeTheme(this.value)">
           <option value="light">라이트</option>
           <option value="dark">다크</option>
         </select>
       </div>
       <div class="settings-row">
         <label>연애 모드</label>
-        <select id="settings-mode" class="input" style="max-width:160px" onchange="onChangeMode(this.value)">
+        <select id="settings-mode" class="input settings-control" onchange="onChangeMode(this.value)">
           <option value="monogamy">단일연애</option>
           <option value="open">개방관계</option>
         </select>
@@ -2048,7 +2063,7 @@ button[style*="display:flex"],button[style*="display: flex"] { justify-content:c
           <label class="check-label">
             <input type="checkbox" id="settings-allow-romance"
               onchange="onChangeAllowRomance(this.checked)" checked>
-            연애 자체 허용 (해제 시 고백·연인 전환 전부 차단)
+            연애 자체 허용 (해제 시 신규 고백·연애 진행 차단, 기존 연인 유지)
           </label>
           <label class="check-label" id="label-same-gender">
             <input type="checkbox" id="settings-same-gender"
@@ -2090,7 +2105,7 @@ button[style*="display:flex"],button[style*="display: flex"] { justify-content:c
         <div class="rule-item"><span class="rule-key">컴백 기간</span><span>→ 21일 / 음악방송·팬싸 가능</span></div>
         <div class="rule-item"><span class="rule-key">앨범 발매 비용</span><span>→ 500원</span></div>
         <div class="rule-item"><span class="rule-key">콘서트 예약 비용</span><span>→ 1,000원 / 수익 2,000~3,000원</span></div>
-        <div class="rule-item"><span class="rule-key">이별 후 회피 기간</span><span>→ 3일 / 이후 이별 후 이벤트</span></div>
+        <div class="rule-item"><span class="rule-key">이별 후 회피 기간</span><span>→ 3일 / 이후 우정·이별 후 이벤트로 회복 가능 · 호감도 100 이상 재결합</span></div>
       </div>
     </div>
   </section>
@@ -3334,6 +3349,20 @@ function migrateRelation(r) {
   // v18까지 일부 수동/상태 이벤트는 history만 남고 lastEventDay가 갱신되지 않았다.
   // 저장을 불러올 때 이력의 최신 Day를 기준으로 자동 복구한다.
   if (r.history.length) r.lastEventDay = Math.max(r.lastEventDay, ...r.history.map(h => h.day));
+
+  // v25.3 relation integrity: keep only one official current romance state.
+  const hasLoverTag = r.tags.includes('lover');
+  const hasExTag = r.tags.includes('exLover');
+  if (hasLoverTag && hasExTag) {
+    const official = [...r.history].reverse().find(h => ['breakup','auto_breakup','confession','auto_confession','reunion'].includes(h.type));
+    const ended = official && ['breakup','auto_breakup'].includes(official.type);
+    const joined = official && ['confession','auto_confession','reunion'].includes(official.type);
+    if (ended || (!joined && r.stage !== 'lover')) r.tags = r.tags.filter(t => t !== 'lover');
+    else r.tags = r.tags.filter(t => t !== 'exLover');
+  }
+  if (r.tags.includes('lover')) {
+    r.tags = r.tags.filter(t => !['exLover','flirting','crush','romanticInterest'].includes(t)); r.avoidDaysLeft=0; r.confessionPending=false;
+  } else if (r.tags.includes('exLover')) { r.tags=r.tags.filter(t=>t!=='lover'); r.confessionPending=false; }
   return r;
 }
 
@@ -4104,7 +4133,6 @@ function getRelationLabel(rel, settings) {
 
 function getAllowedTypes(rel, settings) {
   const s = settings || {};
-  const exAwkClear = s.exAwkwardClear || 80;
   const reunionR = getReunionThreshold(s);
 
   if (isAvoiding(rel)) return ['avoid'];
@@ -4112,9 +4140,9 @@ function getAllowedTypes(rel, settings) {
   if (isExLover(rel)) {
     if (rel.coldWarDaysLeft > 0 || hasTag(rel,'coldWar')) return ['fight','reconcile'];
     if (hasTag(rel,'jealous')) return ['jealousy','fight','reconcile'];
-    if (rel.affection <= exAwkClear) return ['after_breakup'];
-    if (rel.affection >= reunionR) return ['friendship','flirting','date','reunion'];
-    return ['after_breakup'];
+    // v25.3: after avoidance ends, friendship can rebuild an ex relationship.
+    if (rel.affection < reunionR) return ['after_breakup','friendship'];
+    return ['friendship','flirting','date','reunion'];
   }
 
   if (isLover(rel)) {
@@ -4726,9 +4754,9 @@ function renderGraph(container, state) {
 function renderLegend(container) {
   if (!container) return;
   const tiers=(window.RelationsModule && window.RelationsModule.RELATION_DISPLAY_TIERS)||[];
-  container.innerHTML = tiers.map(t=>
-    `<span class="legend-item"><span class="legend-dot" style="background:${STAGE_COLORS[t.id]||'#999'}"></span>${t.icon} ${t.label}</span>`
-  ).join('') + `<span class="legend-item">💗 연인</span><span class="legend-item">💔 전 연인</span>`;
+  container.innerHTML = `<span class="legend-label">친밀도</span>` + tiers.map(t=>
+    `<span class="legend-item legend-text" style="--legend-color:${STAGE_COLORS[t.id]||'#999'}">${t.label}</span>`
+  ).join('') + `<span class="legend-divider" aria-hidden="true"></span><span class="legend-item legend-romance lover">💗 연인</span><span class="legend-item legend-romance ex">💔 전 연인</span>`;
 }
 
 window.GraphModule = { renderGraph, renderLegend, STAGE_COLORS };
@@ -6460,9 +6488,7 @@ function getDisabledReason(type, rel, settings, state) {
   if (!isLover && !isEx && ['reconcile','reunion','after_breakup','avoid'].includes(type))
     return '해당 관계 상태가 아님';
   if (isEx && isAvoiding && type !== 'avoid') return '회피 기간 중';
-  if (isEx && !isAvoiding && rel.affection <= (settings.exAwkwardClear||80)
-      && !['after_breakup','avoid'].includes(type)) return '이별 후 단계 — 이별 후 이벤트만 가능';
-  if (isEx && rel.affection < exOkMin && ['date','flirting','friendship'].includes(type))
+  if (isEx && rel.affection < exOkMin && ['date','flirting'].includes(type))
     return `재접근 허용치(${exOkMin}) 미달`;
   if (isEx && rel.affection < exReunion && type === 'reunion') return `재결합 가능 호감도(${exReunion}) 미달`;
   if (!isLover && type === 'breakup') return '연인 상태가 아님';
@@ -6497,7 +6523,7 @@ window.quickRelEvent = function(idA, idB, type) {
 
   // manualFail 체크
   if (RM.isExLover(rel) && rel.affection < RM.getReunionThreshold(s.settings)
-      && ['friendship','flirting','date'].includes(type)) {
+      && ['flirting','date'].includes(type)) {
     const fail=EM.buildManualFail(type, a, b);
     if(fail){
       const mfq1=fail.first.endsWith('.')?fail.first:fail.first+'.';
@@ -6626,7 +6652,7 @@ window.execManualRelEvent = function(idA, idB) {
   APP.ui.relationA=idA; APP.ui.relationB=idB; saveRelationSelection();
   if (type === 'breakup') { closeModal(); doBreakupUI(idA,idB); return; }
   if (RM.isExLover(rel) && rel.affection<RM.getReunionThreshold(s.settings)
-      && ['friendship','flirting','date'].includes(type)) {
+      && ['flirting','date'].includes(type)) {
     const fail=EM.buildManualFail(type,a,b);
     if(fail){
       const mf1=fail.first.endsWith('.')?fail.first:fail.first+'.';
