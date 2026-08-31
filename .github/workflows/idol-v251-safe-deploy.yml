@@ -24,18 +24,66 @@ jobs:
           ref: idol-v251-deploy
           fetch-depth: 0
 
-      - name: Rebuild validated v25.1
+      - name: Rebuild and validate exact v25.1 payload
         shell: bash
         run: |
           set -euo pipefail
-          cat .deploy/idol-v251/part*.txt | tr -cd 'A-Za-z0-9+/=' > /tmp/idol-v251.b64
-          base64 -d /tmp/idol-v251.b64 | gzip -dc > /tmp/idol-v251.html
-          ACTUAL="$(sha256sum /tmp/idol-v251.html | awk '{print $1}')"
-          SIZE="$(wc -c < /tmp/idol-v251.html)"
-          echo "validated candidate sha256=$ACTUAL size=$SIZE"
-          test "$ACTUAL" = "10f3480e85f965002dad82527b2867100b50882d4721b43fd2dcd8214b7421c0"
-          grep -q 'idol-sim-version" content="2.5.1"' /tmp/idol-v251.html
-          test "$SIZE" = "362289"
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip, hashlib
+
+          root = Path('.deploy/idol-v251')
+          expected = {
+              'part01.txt':'726a912d348b6fb0cbf86281adb4779c28868291',
+              'part02.txt':'0bd48708c2b4fba0c0303c8856057780a4660732',
+              'part03.txt':'2fb56e813074251e0aa9fb98e1b37c8f9481198f',
+              'part04.txt':'49a92b74692b208a81f51ef0f085d41c5b5ee80b',
+              'part05.txt':'3638d454362a54226678a33555d83914b4a5c4e6',
+              'part06.txt':'f18a4b8a59fc2ba52721a8a825977c6257d9c372',
+              'part07.txt':'31a25ac6a32b758ca74d2ed08a340a2a7082c04e',
+              'part08.txt':'6441c2e7e82e707f3244677e7baabee046265ec1',
+          }
+          def blob_sha(data: bytes) -> str:
+              prefix = f'blob {len(data)}\0'.encode()
+              return hashlib.sha1(prefix + data).hexdigest()
+
+          chunks=[]
+          for name, target in expected.items():
+              data=(root/name).read_bytes()
+              actual=blob_sha(data)
+              if actual != target:
+                  if name != 'part02.txt' or len(data) != 16001:
+                      raise SystemExit(f'{name}: unexpected blob {actual}, size={len(data)}')
+                  fixed=None
+                  for i in range(len(data)):
+                      candidate=data[:i]+data[i+1:]
+                      if blob_sha(candidate)==target:
+                          print(f'part02 exact repair: removed one staged byte at offset {i}')
+                          fixed=candidate
+                          break
+                  if fixed is None:
+                      raise SystemExit('part02: no one-byte repair matches original blob SHA')
+                  data=fixed
+              if blob_sha(data) != target:
+                  raise SystemExit(f'{name}: final blob verification failed')
+              chunks.append(data)
+
+          b64=b''.join(chunks)
+          if len(b64) != 119032:
+              raise SystemExit(f'base64 length mismatch: {len(b64)}')
+          compressed=base64.b64decode(b64, validate=True)
+          html=gzip.decompress(compressed)
+          sha=hashlib.sha256(html).hexdigest()
+          size=len(html)
+          print(f'validated candidate sha256={sha} size={size}')
+          if sha != '10f3480e85f965002dad82527b2867100b50882d4721b43fd2dcd8214b7421c0':
+              raise SystemExit('HTML SHA256 mismatch')
+          if size != 362289:
+              raise SystemExit(f'HTML size mismatch: {size}')
+          if b'idol-sim-version" content="2.5.1"' not in html:
+              raise SystemExit('version marker missing')
+          Path('/tmp/idol-v251.html').write_bytes(html)
+          PY
 
       - name: Publish validated page to main
         shell: bash
