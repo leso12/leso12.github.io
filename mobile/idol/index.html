@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta name="idol-sim-version" content="2.3.0">
+  <meta name="idol-sim-version" content="2.5.1">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -1508,27 +1508,208 @@ button[style*="display:flex"],button[style*="display: flex"] { justify-content:c
   .settings-actions .btn { flex-basis:100%; }
 }
 </style>
+
 <style id="idol-v230-dashboard-design">
-.dashboard-v23-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,.9fr);grid-template-areas:"hero kpi" "schedule alert" "schedule change" "logs logs";gap:14px;align-items:start}
-.dashboard-v23-card{min-width:0;background:var(--bg2);border:1px solid color-mix(in srgb,var(--border) 78%,transparent);border-radius:16px;padding:18px;box-shadow:0 4px 20px rgba(73,50,125,.055)}
-.dashboard-hero{grid-area:hero;display:flex;align-items:center;justify-content:space-between;gap:16px;overflow:hidden;position:relative;background:linear-gradient(135deg,color-mix(in srgb,var(--accent-soft) 66%,var(--bg2)),var(--bg2) 72%)}
-.dashboard-hero::after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:-62px;top:-78px;background:color-mix(in srgb,var(--accent) 9%,transparent);pointer-events:none}
-.dashboard-hero-main{min-width:0;position:relative;z-index:1}.dashboard-eyebrow,.dashboard-section-kicker{display:block;font-size:.62rem;letter-spacing:.11em;font-weight:800;color:var(--text-sub);opacity:.8}
-.dashboard-hero-title-row{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:3px 0 8px}.dashboard-hero-title-row h2{margin:0;font-size:1.58rem;letter-spacing:-.04em;color:var(--text-main)}
-.dashboard-activity-pill{display:inline-flex;align-items:center;min-height:28px;padding:4px 9px;border-radius:999px;background:var(--bg2);border:1px solid var(--border);color:var(--accent);font-size:.72rem;font-weight:750}
-.dashboard-hero-meta{display:flex;flex-wrap:wrap;gap:7px}.dashboard-hero-meta span{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:8px;background:color-mix(in srgb,var(--bg2) 72%,transparent);color:var(--text-sub);font-size:.7rem}.dashboard-hero-meta b{color:var(--text-main);font-weight:750}
-.dashboard-hero-link,.dashboard-section-link{border:0;background:transparent;color:var(--accent);font-size:.7rem;font-weight:750;white-space:nowrap;text-align:center}.dashboard-hero-link{position:relative;z-index:1;padding:8px 9px;border-radius:9px;background:color-mix(in srgb,var(--bg2) 82%,transparent);border:1px solid color-mix(in srgb,var(--border) 75%,transparent)}.dashboard-hero-link:hover,.dashboard-section-link:hover{background:var(--accent-soft)}
-.dashboard-kpi-card{grid-area:kpi}.dashboard-schedule-card{grid-area:schedule}.dashboard-alert-card{grid-area:alert}.dashboard-change-card{grid-area:change}.dashboard-log-card{grid-area:logs}
-.dashboard-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}.dashboard-section-head.compact{margin-bottom:9px}.dashboard-section-head h3{margin:1px 0 0;font-size:.88rem;color:var(--text-main);letter-spacing:-.02em}.dashboard-section-link{padding:4px 0}.dashboard-count-badge{min-width:0;padding:3px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:.64rem;font-weight:800}.dashboard-count-badge:empty{display:none}
-.dashboard-kpi-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}.dashboard-kpi-item{min-width:0;padding:7px 8px 5px;text-align:center;position:relative}.dashboard-kpi-item+.dashboard-kpi-item::before{content:"";position:absolute;left:0;top:10%;bottom:10%;width:1px;background:color-mix(in srgb,var(--border) 72%,transparent)}.dashboard-kpi-icon{display:block;font-size:1rem;line-height:1.2;margin-bottom:3px}.dashboard-kpi-label{display:block;font-size:.62rem;color:var(--text-sub);margin-bottom:2px}.dashboard-kpi-item strong{display:block;font-family:'Gowun Dodum','Noto Sans KR',sans-serif;color:var(--accent);font-size:1.25rem;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dashboard-schedule-list{display:flex;flex-direction:column;gap:7px;min-height:92px}.dashboard-schedule-item{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:9px;align-items:center;padding:9px 10px;border-radius:11px;background:var(--bg);border:1px solid color-mix(in srgb,var(--border) 70%,transparent)}.dashboard-schedule-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:var(--accent-soft);font-size:1rem}.dashboard-schedule-main{min-width:0}.dashboard-schedule-main b{display:block;font-size:.78rem;color:var(--text-main);margin-bottom:2px}.dashboard-schedule-main span{display:block;font-size:.67rem;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dashboard-schedule-count{font-size:.66rem;font-weight:800;color:var(--accent);padding:4px 7px;border-radius:999px;background:var(--accent-soft);white-space:nowrap}
-.dashboard-empty-state{min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center;color:var(--text-sub);background:var(--bg);border:1px dashed var(--border);border-radius:12px}.dashboard-empty-state>span{font-size:1.25rem}.dashboard-empty-state b{font-size:.78rem;color:var(--text-main)}.dashboard-empty-state small{font-size:.66rem}.dashboard-empty-state .dashboard-empty-action{margin-top:5px;min-height:34px;padding:5px 12px;border-radius:9px;background:var(--accent);color:#fff;font-weight:700;font-size:.68rem}
-.dashboard-day-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}.dashboard-day-actions .btn{width:100%;min-height:42px}.dashboard-helper{margin-top:7px;color:var(--text-sub);font-size:.62rem;line-height:1.4;text-align:left}
-.dashboard-alerts{display:flex;flex-direction:column;gap:7px}.dashboard-alert-item{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:start;padding:8px 9px;border-radius:10px;border:0;background:var(--bg)}.dashboard-alert-item.danger{background:color-mix(in srgb,#ffeded 72%,var(--bg2))}.dashboard-alert-item.warn{background:color-mix(in srgb,#fff6de 72%,var(--bg2))}.dashboard-alert-item.info{background:color-mix(in srgb,var(--accent-soft) 45%,var(--bg2))}.dashboard-alert-icon{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:var(--bg2)}.dashboard-alert-text{min-width:0;color:var(--text-sub);font-size:.66rem;line-height:1.45;text-align:left}.dashboard-alert-text b{color:var(--text-main)}
-.dashboard-relation-changes{display:flex;flex-direction:column;gap:7px}.dashboard-change-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 9px;border-radius:10px;background:var(--bg)}.dashboard-change-main{min-width:0}.dashboard-change-main b{display:block;font-size:.72rem;color:var(--text-main);margin-bottom:2px}.dashboard-change-main span{display:block;font-size:.64rem;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dashboard-change-delta{font-size:.68rem;font-weight:850;padding:4px 7px;border-radius:999px;white-space:nowrap}.dashboard-change-delta.up{color:#218c50;background:#e8f8ef}.dashboard-change-delta.down{color:var(--danger);background:#fdeeee}.dashboard-change-delta.flat{color:var(--text-sub);background:var(--bg3)}[data-theme="dark"] .dashboard-change-delta.up{background:#143526}[data-theme="dark"] .dashboard-change-delta.down{background:#3c2020}
-.dashboard-log-feed{max-height:235px!important;background:var(--bg)!important;border:0!important;border-radius:11px!important;padding:10px!important;text-align:left!important}
-@media(max-width:760px){.dashboard-v23-layout{grid-template-columns:1fr;grid-template-areas:"hero" "kpi" "schedule" "alert" "change" "logs";gap:9px}.dashboard-v23-card{padding:13px;border-radius:14px;box-shadow:0 2px 12px rgba(73,50,125,.045)}.dashboard-hero{padding:14px}.dashboard-hero-title-row h2{font-size:1.35rem}.dashboard-hero-link{display:none}.dashboard-hero-meta span:nth-child(2),.dashboard-hero-meta span:nth-child(3){display:none}.dashboard-kpi-card{padding:10px 8px}.dashboard-kpi-card .dashboard-section-head{display:none}.dashboard-kpi-item{padding:5px 4px 4px}.dashboard-kpi-item strong{font-size:1.12rem}.dashboard-schedule-item{grid-template-columns:34px minmax(0,1fr) auto;padding:8px}.dashboard-schedule-icon{width:34px;height:34px}.dashboard-log-feed{max-height:200px!important}#tab-nav .tab-btn{min-height:50px!important;padding:5px 3px!important}#tab-nav .tab-btn::before{font-size:.98rem!important}}
-@media(max-width:380px){.dashboard-hero-title-row{align-items:flex-start;flex-direction:column;gap:5px}.dashboard-activity-pill{min-height:25px}.dashboard-day-actions{grid-template-columns:1fr}}
+/* v23 dashboard: 같은 데이터, 더 명확한 정보 계층 */
+.dashboard-v23-layout {
+  display:grid;
+  grid-template-columns:minmax(0,1.65fr) minmax(280px,.9fr);
+  grid-template-areas:
+    "hero kpi"
+    "schedule alert"
+    "schedule change"
+    "logs logs";
+  gap:14px;
+  align-items:start;
+}
+.dashboard-v23-card {
+  min-width:0;
+  background:var(--bg2);
+  border:1px solid color-mix(in srgb,var(--border) 78%,transparent);
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 4px 20px rgba(73,50,125,.055);
+}
+.dashboard-hero { grid-area:hero; display:flex; align-items:center; justify-content:space-between; gap:16px; overflow:hidden; position:relative; background:linear-gradient(135deg,color-mix(in srgb,var(--accent-soft) 66%,var(--bg2)),var(--bg2) 72%); }
+.dashboard-hero::after { content:""; position:absolute; width:150px; height:150px; border-radius:50%; right:-62px; top:-78px; background:color-mix(in srgb,var(--accent) 9%,transparent); pointer-events:none; }
+.dashboard-hero-main { min-width:0; position:relative; z-index:1; }
+.dashboard-eyebrow,.dashboard-section-kicker { display:block; font-size:.62rem; letter-spacing:.11em; font-weight:800; color:var(--text-sub); opacity:.8; }
+.dashboard-hero-title-row { display:flex; align-items:center; flex-wrap:wrap; gap:9px; margin:3px 0 8px; }
+.dashboard-hero-title-row h2 { margin:0; font-size:1.58rem; letter-spacing:-.04em; color:var(--text-main); }
+.dashboard-activity-pill { display:inline-flex; align-items:center; min-height:28px; padding:4px 9px; border-radius:999px; background:var(--bg2); border:1px solid var(--border); color:var(--accent); font-size:.72rem; font-weight:750; }
+.dashboard-hero-meta { display:flex; flex-wrap:wrap; gap:7px; }
+.dashboard-hero-meta span { display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border-radius:8px; background:color-mix(in srgb,var(--bg2) 72%,transparent); color:var(--text-sub); font-size:.7rem; }
+.dashboard-hero-meta b { color:var(--text-main); font-weight:750; }
+.dashboard-hero-link,.dashboard-section-link { border:0; background:transparent; color:var(--accent); font-size:.7rem; font-weight:750; white-space:nowrap; text-align:center; }
+.dashboard-hero-link { position:relative; z-index:1; padding:8px 9px; border-radius:9px; background:color-mix(in srgb,var(--bg2) 82%,transparent); border:1px solid color-mix(in srgb,var(--border) 75%,transparent); }
+.dashboard-hero-link:hover,.dashboard-section-link:hover { background:var(--accent-soft); }
+
+.dashboard-kpi-card { grid-area:kpi; }
+.dashboard-schedule-card { grid-area:schedule; }
+.dashboard-alert-card { grid-area:alert; }
+.dashboard-change-card { grid-area:change; }
+.dashboard-log-card { grid-area:logs; }
+.dashboard-section-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:12px; }
+.dashboard-section-head.compact { margin-bottom:9px; }
+.dashboard-section-head h3 { margin:1px 0 0; font-size:.88rem; color:var(--text-main); letter-spacing:-.02em; }
+.dashboard-section-link { padding:4px 0; }
+.dashboard-count-badge { min-width:0; padding:3px 7px; border-radius:999px; background:var(--accent-soft); color:var(--accent); font-size:.64rem; font-weight:800; }
+.dashboard-count-badge:empty { display:none; }
+
+.dashboard-kpi-strip { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0; }
+.dashboard-kpi-item { min-width:0; padding:7px 8px 5px; text-align:center; position:relative; }
+.dashboard-kpi-item + .dashboard-kpi-item::before { content:""; position:absolute; left:0; top:10%; bottom:10%; width:1px; background:color-mix(in srgb,var(--border) 72%,transparent); }
+.dashboard-kpi-icon { display:block; font-size:1rem; line-height:1.2; margin-bottom:3px; }
+.dashboard-kpi-label { display:block; font-size:.62rem; color:var(--text-sub); margin-bottom:2px; }
+.dashboard-kpi-item strong { display:block; font-family:'Gowun Dodum','Noto Sans KR',sans-serif; color:var(--accent); font-size:1.25rem; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.dashboard-schedule-list { display:flex; flex-direction:column; gap:7px; min-height:92px; }
+.dashboard-schedule-item { display:grid; grid-template-columns:36px minmax(0,1fr) auto; gap:9px; align-items:center; padding:9px 10px; border-radius:11px; background:var(--bg); border:1px solid color-mix(in srgb,var(--border) 70%,transparent); }
+.dashboard-schedule-icon { width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:10px; background:var(--accent-soft); font-size:1rem; }
+.dashboard-schedule-main { min-width:0; }
+.dashboard-schedule-main b { display:block; font-size:.78rem; color:var(--text-main); margin-bottom:2px; }
+.dashboard-schedule-main span { display:block; font-size:.67rem; color:var(--text-sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dashboard-schedule-count { font-size:.66rem; font-weight:800; color:var(--accent); padding:4px 7px; border-radius:999px; background:var(--accent-soft); white-space:nowrap; }
+.dashboard-empty-state { min-height:92px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; text-align:center; color:var(--text-sub); background:var(--bg); border:1px dashed var(--border); border-radius:12px; }
+.dashboard-empty-state > span { font-size:1.25rem; }
+.dashboard-empty-state b { font-size:.78rem; color:var(--text-main); }
+.dashboard-empty-state small { font-size:.66rem; }
+.dashboard-empty-state .dashboard-empty-action { margin-top:5px; min-height:34px; padding:5px 12px; border-radius:9px; background:var(--accent); color:#fff; font-weight:700; font-size:.68rem; }
+.dashboard-day-actions { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:10px; }
+.dashboard-day-actions .btn { width:100%; min-height:42px; }
+.dashboard-helper { margin-top:7px; color:var(--text-sub); font-size:.62rem; line-height:1.4; text-align:left; }
+
+.dashboard-alerts { display:flex; flex-direction:column; gap:7px; }
+.dashboard-alert-item { display:grid; grid-template-columns:30px minmax(0,1fr); gap:8px; align-items:start; padding:8px 9px; border-radius:10px; border:0; background:var(--bg); }
+.dashboard-alert-item.danger { background:color-mix(in srgb,#ffeded 72%,var(--bg2)); }
+.dashboard-alert-item.warn { background:color-mix(in srgb,#fff6de 72%,var(--bg2)); }
+.dashboard-alert-item.info { background:color-mix(in srgb,var(--accent-soft) 45%,var(--bg2)); }
+.dashboard-alert-icon { width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; background:var(--bg2); }
+.dashboard-alert-text { min-width:0; color:var(--text-sub); font-size:.66rem; line-height:1.45; text-align:left; }
+.dashboard-alert-text b { color:var(--text-main); }
+
+.dashboard-relation-changes { display:flex; flex-direction:column; gap:7px; }
+.dashboard-change-item { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:center; padding:8px 9px; border-radius:10px; background:var(--bg); }
+.dashboard-change-main { min-width:0; }
+.dashboard-change-main b { display:block; font-size:.72rem; color:var(--text-main); margin-bottom:2px; }
+.dashboard-change-main span { display:block; font-size:.64rem; color:var(--text-sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dashboard-change-delta { font-size:.68rem; font-weight:850; padding:4px 7px; border-radius:999px; white-space:nowrap; }
+.dashboard-change-delta.up { color:#218c50; background:#e8f8ef; }
+.dashboard-change-delta.down { color:var(--danger); background:#fdeeee; }
+.dashboard-change-delta.flat { color:var(--text-sub); background:var(--bg3); }
+[data-theme="dark"] .dashboard-change-delta.up { background:#143526; }
+[data-theme="dark"] .dashboard-change-delta.down { background:#3c2020; }
+
+.dashboard-log-feed { max-height:235px !important; background:var(--bg) !important; border:0 !important; border-radius:11px !important; padding:10px !important; text-align:left !important; }
+
+@media (max-width:760px) {
+  /* 모바일은 중요 정보부터 한 줄로 읽히는 세로 대시보드 */
+  .dashboard-v23-layout { grid-template-columns:1fr; grid-template-areas:"hero" "kpi" "schedule" "alert" "change" "logs"; gap:9px; }
+  .dashboard-v23-card { padding:13px; border-radius:14px; box-shadow:0 2px 12px rgba(73,50,125,.045); }
+  .dashboard-hero { padding:14px; }
+  .dashboard-hero-title-row h2 { font-size:1.35rem; }
+  .dashboard-hero-link { display:none; }
+  .dashboard-hero-meta span:nth-child(2),.dashboard-hero-meta span:nth-child(3) { display:none; } /* 날짜/돈은 상단 헤더와 중복 제거 */
+  .dashboard-kpi-card { padding:10px 8px; }
+  .dashboard-kpi-card .dashboard-section-head { display:none; }
+  .dashboard-kpi-item { padding:5px 4px 4px; }
+  .dashboard-kpi-item strong { font-size:1.12rem; }
+  .dashboard-schedule-item { grid-template-columns:34px minmax(0,1fr) auto; padding:8px; }
+  .dashboard-schedule-icon { width:34px; height:34px; }
+  .dashboard-log-feed { max-height:200px !important; }
+  #tab-nav .tab-btn { min-height:50px !important; padding:5px 3px !important; }
+  #tab-nav .tab-btn::before { font-size:.98rem !important; }
+}
+
+@media (max-width:380px) {
+  .dashboard-hero-title-row { align-items:flex-start; flex-direction:column; gap:5px; }
+  .dashboard-activity-pill { min-height:25px; }
+  .dashboard-day-actions { grid-template-columns:1fr; }
+}
+</style>
+
+<style id="idol-v240-dashboard-relation-layout">
+/* v24 dashboard: summary + 2x2 content grid. Cards stay in normal document flow. */
+.dashboard-v24-summary{
+  display:grid;
+  grid-template-columns:minmax(0,1.7fr) minmax(290px,.9fr);
+  gap:16px;
+  align-items:stretch;
+  margin-bottom:16px;
+}
+.dashboard-v24-summary>.dashboard-v23-card{height:100%;margin:0;position:relative;transform:none;grid-area:auto!important;}
+.dashboard-v24-main{
+  display:grid;
+  grid-template-columns:minmax(0,2fr) minmax(300px,1fr);
+  grid-template-areas:"schedule alert" "logs change";
+  gap:16px;
+  align-items:stretch;
+}
+.dashboard-v24-main>.dashboard-v23-card{
+  width:100%;min-width:0;height:100%;margin:0;transform:none;
+  display:flex;flex-direction:column;
+}
+.dashboard-v24-main .dashboard-schedule-card{grid-area:schedule;min-height:310px;}
+.dashboard-v24-main .dashboard-alert-card{grid-area:alert;min-height:310px;}
+.dashboard-v24-main .dashboard-log-card{grid-area:logs;height:360px;min-height:360px;max-height:360px;}
+.dashboard-v24-main .dashboard-change-card{grid-area:change;height:360px;min-height:360px;max-height:360px;}
+.dashboard-v24-main .dashboard-section-head{flex:0 0 auto;}
+.dashboard-v24-main .dashboard-schedule-list{flex:1 1 auto;min-height:120px;}
+.dashboard-v24-main .dashboard-alerts{flex:1 1 auto;max-height:220px;overflow:auto;padding-right:2px;overscroll-behavior:contain;}
+.dashboard-v24-main .dashboard-log-feed{flex:1 1 auto;max-height:none!important;overflow:auto!important;min-height:0;}
+.dashboard-v24-main .dashboard-relation-changes{flex:1 1 auto;max-height:245px;overflow:auto;padding-right:2px;overscroll-behavior:contain;}
+.dashboard-v24-main .dashboard-empty-state{padding:28px 20px;min-height:128px;}
+.dashboard-v24-main .dashboard-empty-state .dashboard-empty-action{margin-top:12px;min-height:38px;}
+.dashboard-v24-main .dashboard-day-actions{margin-top:16px;}
+.dashboard-v24-main .dashboard-day-actions .btn-day{background:linear-gradient(135deg,var(--accent),var(--accent2))!important;}
+.dashboard-v24-main .dashboard-day-actions .btn-day2{background:linear-gradient(135deg,#5d4ab0,#b04a80)!important;}
+.dashboard-v24-main .dashboard-helper{margin-top:10px;}
+.dashboard-alert-item,.dashboard-change-item{min-height:50px;}
+
+/* v24 relation UI: intimacy and romance are distinct dimensions. */
+.relation-pair-head{gap:8px;}
+.relation-romance-pill,.relation-intimacy-pill{
+  display:inline-flex;align-items:center;justify-content:center;gap:3px;
+  min-height:25px;padding:3px 8px;border-radius:999px;border:1px solid var(--border);
+  background:var(--bg3);color:var(--text-sub);font-size:.64rem;font-weight:800;white-space:nowrap;
+}
+.relation-romance-pill.lover{background:rgba(255,91,153,.10);border-color:rgba(255,91,153,.28);color:#d93f7c;}
+.relation-romance-pill.exLover{background:rgba(231,76,60,.08);border-color:rgba(231,76,60,.24);color:var(--danger);}
+.relation-romance-pill.flirting{background:rgba(203,116,255,.11);border-color:rgba(166,92,214,.26);color:#8f4fc0;}
+.relation-romance-pill.crush{background:rgba(255,136,175,.10);border-color:rgba(255,136,175,.25);color:#c94e7c;}
+.relation-romance-pill.none{opacity:.72;background:var(--bg);}
+.relation-tier-caption strong{display:flex;align-items:center;gap:4px;}
+.pair-detail-state-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 4px;}
+.ev-pair-summary-head{flex-wrap:wrap;}
+.ev-pair-summary-head .ev-trend{margin-left:auto;}
+
+@media(max-width:760px){
+  .dashboard-v24-summary,.dashboard-v24-main{grid-template-columns:1fr;gap:10px;}
+  .dashboard-v24-summary{margin-bottom:10px;}
+  .dashboard-v24-main{grid-template-areas:"schedule" "alert" "logs" "change";}
+  .dashboard-v24-main .dashboard-schedule-card,
+  .dashboard-v24-main .dashboard-alert-card,
+  .dashboard-v24-main .dashboard-log-card,
+  .dashboard-v24-main .dashboard-change-card{min-height:0;height:auto;max-height:none;}
+  .dashboard-v24-main .dashboard-alerts,.dashboard-v24-main .dashboard-relation-changes{max-height:none;overflow:visible;}
+  .dashboard-v24-main .dashboard-log-feed{max-height:230px!important;}
+  .dashboard-v24-main .dashboard-empty-state{padding:22px 14px;}
+  .relation-pair-head{align-items:flex-start;}
+  .relation-romance-pill{font-size:.67rem;}
+}
+@media(max-width:420px){
+  .relation-pair-head{flex-wrap:wrap;}
+  .relation-romance-pill{max-width:100%;}
+}
+</style>
+<style id="idol-v250-polish">
+/* v25: 친밀도 아이콘/연애 정책/대규모 관계표 */
+.relation-romance-track{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin:8px 0 9px;padding:8px 9px;border:1px solid var(--border);border-radius:11px;background:color-mix(in srgb,var(--bg) 72%,var(--bg2));font-size:.66rem;color:var(--text-sub)}
+.romance-track-title{font-weight:800;color:var(--text-sub);margin-right:3px}.romance-state-node{display:inline-flex;align-items:center;justify-content:center;min-height:27px;padding:4px 7px;border-radius:999px;background:var(--bg2);border:1px solid var(--border);white-space:nowrap}.romance-state-node.active{color:#c83e79;background:rgba(255,120,170,.12);border-color:rgba(220,76,137,.35);font-weight:800}.romance-state-node.passed{color:#a45a82;background:rgba(255,120,170,.06)}.romance-state-node.disabled{opacity:.34;filter:grayscale(.35)}.romance-track-arrow{opacity:.45}.romance-policy-note{width:100%;padding-top:3px;color:var(--text-sub);font-weight:650}.relation-romance-track.ex{background:rgba(231,76,60,.035)}.romance-reapproach-note{padding:3px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:750}
+.relation-more-wrap{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px}.relation-more-wrap>span{font-size:.68rem;color:var(--text-sub)}
+.ev-item-disabled{cursor:not-allowed!important}
+@media(max-width:720px){.relation-romance-track{gap:4px;padding:7px}.romance-state-node{min-height:30px;padding:4px 6px}.romance-track-arrow{font-size:.6rem}.relation-more-wrap{flex-direction:column;gap:5px}}
+.graph-large-empty{min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:7px;padding:24px;color:var(--text-sub)}.graph-large-empty>span{font-size:2rem}.graph-large-empty>strong{font-size:.95rem;color:var(--text-main)}.graph-large-empty p{font-size:.72rem;line-height:1.6}
 </style></head>
 <body>
 
@@ -1573,73 +1754,75 @@ button[style*="display:flex"],button[style*="display: flex"] { justify-content:c
 <main id="main-content">
 
   <!-- 대시보드 -->
-<section id="tab-dashboard" class="tab-panel active dashboard-v23">
-  <div class="dashboard-v23-layout">
-    <section class="dashboard-v23-card dashboard-hero" aria-label="그룹 현황">
-      <div class="dashboard-hero-main">
-        <div class="dashboard-eyebrow">CURRENT GROUP</div>
-        <div class="dashboard-hero-title-row">
-          <h2 id="dash-group">—</h2>
-          <span class="dashboard-activity-pill" id="dash-album">활동 없음</span>
+  <section id="tab-dashboard" class="tab-panel active dashboard-v24">
+    <div class="dashboard-v24-summary">
+      <section class="dashboard-v23-card dashboard-hero" aria-label="그룹 현황">
+        <div class="dashboard-hero-main">
+          <div class="dashboard-eyebrow">CURRENT GROUP</div>
+          <div class="dashboard-hero-title-row">
+            <h2 id="dash-group">—</h2>
+            <span class="dashboard-activity-pill" id="dash-album">활동 없음</span>
+          </div>
+          <div class="dashboard-hero-meta">
+            <span>👥 <b id="dash-members">0명</b></span>
+            <span>📅 <b id="dash-day">Day 1</b></span>
+            <span>💰 <b id="dash-money">5,000원</b></span>
+          </div>
         </div>
-        <div class="dashboard-hero-meta">
-          <span>👥 <b id="dash-members">0명</b></span>
-          <span>📅 <b id="dash-day">Day 1</b></span>
-          <span>💰 <b id="dash-money">5,000원</b></span>
+        <button class="dashboard-hero-link" onclick="switchTab('members')">멤버 보기 →</button>
+      </section>
+
+      <section class="dashboard-v23-card dashboard-kpi-card" aria-label="그룹 지표">
+        <div class="dashboard-section-head compact"><div><span class="dashboard-section-kicker">GROUP SCORE</span><h3>그룹 지표</h3></div></div>
+        <div class="dashboard-kpi-strip">
+          <div class="dashboard-kpi-item"><span class="dashboard-kpi-icon">⭐</span><span class="dashboard-kpi-label">인기도</span><strong id="dash-pop">0</strong></div>
+          <div class="dashboard-kpi-item"><span class="dashboard-kpi-icon">💜</span><span class="dashboard-kpi-label">팬덤</span><strong id="dash-fandom">0</strong></div>
+          <div class="dashboard-kpi-item"><span class="dashboard-kpi-icon">🏆</span><span class="dashboard-kpi-label">평판</span><strong id="dash-rep">0</strong></div>
         </div>
-      </div>
-      <button class="dashboard-hero-link" onclick="switchTab('members')">멤버 보기 →</button>
-    </section>
+      </section>
+    </div>
 
-    <section class="dashboard-v23-card dashboard-kpi-card" aria-label="그룹 지표">
-      <div class="dashboard-section-head compact"><div><span class="dashboard-section-kicker">GROUP SCORE</span><h3>그룹 지표</h3></div></div>
-      <div class="dashboard-kpi-strip">
-        <div class="dashboard-kpi-item"><span class="dashboard-kpi-icon">⭐</span><span class="dashboard-kpi-label">인기도</span><strong id="dash-pop">0</strong></div>
-        <div class="dashboard-kpi-item"><span class="dashboard-kpi-icon">💜</span><span class="dashboard-kpi-label">팬덤</span><strong id="dash-fandom">0</strong></div>
-        <div class="dashboard-kpi-item"><span class="dashboard-kpi-icon">🏆</span><span class="dashboard-kpi-label">평판</span><strong id="dash-rep">0</strong></div>
-      </div>
-    </section>
+    <div class="dashboard-v24-main">
+      <section class="dashboard-v23-card dashboard-schedule-card dashboard-v24-equal-top">
+        <div class="dashboard-section-head">
+          <div><span class="dashboard-section-kicker">TODAY</span><h3>오늘 스케줄</h3></div>
+          <button class="dashboard-section-link" onclick="switchTab('schedule')">스케줄 관리 →</button>
+        </div>
+        <div id="dash-schedule" class="dashboard-schedule-list"><div class="dashboard-empty-state"><span>🗓️</span><b>아직 일정이 없어요</b><small>멤버별 오늘 일정을 배정해보세요.</small><button class="dashboard-empty-action" onclick="switchTab('schedule')">스케줄 배정하기</button></div></div>
+        <div class="dashboard-day-actions">
+          <button class="btn btn-day" onclick="onNextDay()">▶ 다음날</button>
+          <button class="btn btn-day btn-day2" onclick="onNext7Days()">⏩ 7일 진행</button>
+        </div>
+        <div class="dashboard-helper">스케줄 미배정 시 전원 자동 휴식 · 컨디션 불량 시 강제 휴식</div>
+      </section>
 
-    <section class="dashboard-v23-card dashboard-schedule-card">
-      <div class="dashboard-section-head">
-        <div><span class="dashboard-section-kicker">TODAY</span><h3>오늘 스케줄</h3></div>
-        <button class="dashboard-section-link" onclick="switchTab('schedule')">스케줄 관리 →</button>
-      </div>
-      <div id="dash-schedule" class="dashboard-schedule-list"><div class="dashboard-empty-state"><span>🗓️</span><b>아직 일정이 없어요</b><small>멤버별 오늘 일정을 배정해보세요.</small></div></div>
-      <div class="dashboard-day-actions">
-        <button class="btn btn-day" onclick="onNextDay()">▶ 다음날</button>
-        <button class="btn btn-day btn-day2" onclick="onNext7Days()">⏩ 7일 진행</button>
-      </div>
-      <div class="dashboard-helper">스케줄 미배정 시 전원 자동 휴식 · 컨디션 불량 시 강제 휴식</div>
-    </section>
+      <section class="dashboard-v23-card dashboard-alert-card dashboard-v24-equal-top" id="dash-alert-card">
+        <div class="dashboard-section-head">
+          <div><span class="dashboard-section-kicker">CHECK</span><h3>오늘 체크</h3></div>
+          <span class="dashboard-count-badge" id="dash-alert-count"></span>
+        </div>
+        <div id="dash-alerts" class="dashboard-alerts"><div class="empty-hint compact">특이사항이 없습니다.</div></div>
+      </section>
 
-    <section class="dashboard-v23-card dashboard-alert-card" id="dash-alert-card">
-      <div class="dashboard-section-head">
-        <div><span class="dashboard-section-kicker">CHECK</span><h3>오늘 체크</h3></div>
-        <span class="dashboard-count-badge" id="dash-alert-count"></span>
-      </div>
-      <div id="dash-alerts" class="dashboard-alerts"><div class="empty-hint compact">특이사항이 없습니다.</div></div>
-    </section>
+      <section class="dashboard-v23-card dashboard-log-card dashboard-v24-equal-bottom">
+        <div class="dashboard-section-head">
+          <div><span class="dashboard-section-kicker">RECENT</span><h3>최근 로그</h3></div>
+          <button class="dashboard-section-link" onclick="switchTab('log')">전체 로그 →</button>
+        </div>
+        <div class="log-mini log-feed dashboard-log-feed" id="log-mini-dash"></div>
+      </section>
 
-    <section class="dashboard-v23-card dashboard-change-card">
-      <div class="dashboard-section-head">
-        <div><span class="dashboard-section-kicker">RELATION</span><h3>최근 관계 변화</h3></div>
-        <button class="dashboard-section-link" onclick="switchTab('relations')">관계 보기 →</button>
-      </div>
-      <div id="dash-relation-changes" class="dashboard-relation-changes"><div class="empty-hint compact">최근 관계 변화가 없습니다.</div></div>
-    </section>
+      <section class="dashboard-v23-card dashboard-change-card dashboard-v24-equal-bottom">
+        <div class="dashboard-section-head">
+          <div><span class="dashboard-section-kicker">RELATION</span><h3>최근 관계 변화</h3></div>
+          <button class="dashboard-section-link" onclick="switchTab('relations')">관계 보기 →</button>
+        </div>
+        <div id="dash-relation-changes" class="dashboard-relation-changes"><div class="empty-hint compact">최근 관계 변화가 없습니다.</div></div>
+      </section>
+    </div>
+  </section>
 
-    <section class="dashboard-v23-card dashboard-log-card">
-      <div class="dashboard-section-head">
-        <div><span class="dashboard-section-kicker">RECENT</span><h3>최근 로그</h3></div>
-        <button class="dashboard-section-link" onclick="switchTab('log')">전체 로그 →</button>
-      </div>
-      <div class="log-mini log-feed dashboard-log-feed" id="log-mini-dash"></div>
-    </section>
-  </div>
-</section>
-
-<!-- 멤버 -->
+  <!-- 멤버 -->
   <section id="tab-members" class="tab-panel">
     <div class="section-header member-section-header">
       <div>
@@ -2915,7 +3098,7 @@ window.EVENTS_DATA = {
 <script>// ── state.js ── 상태 모델, 기본값, 마이그레이션, 자동백업 ────────────────
 'use strict';
 
-const CURRENT_VERSION = '2.1.0';
+const CURRENT_VERSION = '2.2.0';
 const STORAGE_KEY = 'idol_sim_state_v2';
 const BACKUP_KEY = 'idol_sim_state_backups_v1';
 const MAX_BACKUPS = 3;
@@ -3091,6 +3274,7 @@ function migrateMember(m) {
   if (!m.weightBand) m.weightBand = 'normal';
   if (!m.id) m.id = 'mb_legacy_' + hashString32([m.name,m.position,m.gender,m.height,m.weight].join('|')).toString(36);
   if (!m.name) m.name = '이름없음';
+  m.josaPronunciation = typeof m.josaPronunciation === 'string' ? m.josaPronunciation.trim() : '';
   if (!m.position) m.position = '보컬';
   if (m.position === '멀티') {
     const ranked=[['vocal','보컬'],['dance','댄서'],['rap','래퍼']].sort((a,b)=>(Number(m.stats[b[0]])||0)-(Number(m.stats[a[0]])||0));
@@ -3110,6 +3294,11 @@ function migrateRelation(r) {
   r.coldWarDaysLeft = Math.max(0, safeNumber(r.coldWarDaysLeft, 0));
   r.avoidDaysLeft = Math.max(0, safeNumber(r.avoidDaysLeft, 0));
   r.confessionPending = !!r.confessionPending;
+  // v24까지의 '고백 대기'는 사용자 표시에서 제거한다. 구세이브는 썸 이력으로 자연스럽게 승계.
+  if (r.confessionPending && !r.tags.includes('lover') && !r.tags.includes('exLover')) {
+    if (!r.tags.includes('flirting')) r.tags.push('flirting');
+    r.confessionPending = false;
+  }
   r.lastEventDay = Math.max(0, safeNumber(r.lastEventDay, 0));
   r.snapNotified = !!r.snapNotified;
   r.history = Array.isArray(r.history) ? r.history.slice(-80).map(h => ({
@@ -3302,13 +3491,38 @@ function migrateState(raw) {
   return s;
 }
 
-function saveState(state) {
+function isStorageQuotaError(e) {
+  return !!e && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || e.code === 22 || e.code === 1014);
+}
+
+function pruneOneBackupForSpace() {
   try {
-    state.version = CURRENT_VERSION;
-    state.logOrder = 'chronological';
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const list = JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]');
+    if (!Array.isArray(list) || !list.length) return false;
+    list.pop();
+    if (list.length) localStorage.setItem(BACKUP_KEY, JSON.stringify(list));
+    else localStorage.removeItem(BACKUP_KEY);
     return true;
   } catch(e) {
+    try { localStorage.removeItem(BACKUP_KEY); return true; } catch(_) { return false; }
+  }
+}
+
+function saveState(state) {
+  state.version = CURRENT_VERSION;
+  state.logOrder = 'chronological';
+  const payload = JSON.stringify(state);
+  try {
+    localStorage.setItem(STORAGE_KEY, payload);
+    return true;
+  } catch(e) {
+    // 장기 플레이에서 자동백업이 quota를 먼저 차지한 경우, 현재 세이브를 최우선으로 보존한다.
+    if (isStorageQuotaError(e)) {
+      for (let i=0; i<MAX_BACKUPS; i++) {
+        if (!pruneOneBackupForSpace()) break;
+        try { localStorage.setItem(STORAGE_KEY, payload); return true; } catch(err) { e=err; }
+      }
+    }
     console.warn('save failed', e);
     return false;
   }
@@ -3335,14 +3549,25 @@ function loadStateFromJSON(json) {
 function createBackup(state, reason) {
   try {
     const list = JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]');
-    const next = [{
+    const entry = {
       createdAt: new Date().toISOString(),
       reason: reason || '자동백업',
       version: state && state.version || CURRENT_VERSION,
       state: deepClone(state)
-    }].concat(Array.isArray(list) ? list : []).slice(0, MAX_BACKUPS);
-    localStorage.setItem(BACKUP_KEY, JSON.stringify(next));
-    return true;
+    };
+    // 큰 장기 세이브는 3개 복제만으로 브라우저 quota를 넘길 수 있다. 크기에 따라 보관 개수를 안전하게 낮춘다.
+    const stateChars = JSON.stringify(entry.state).length;
+    const targetMax = stateChars > 1600000 ? 1 : stateChars > 850000 ? 2 : MAX_BACKUPS;
+    let next = [entry].concat(Array.isArray(list) ? list : []).slice(0, targetMax);
+    while (next.length) {
+      try { localStorage.setItem(BACKUP_KEY, JSON.stringify(next)); return true; }
+      catch(e) {
+        if (!isStorageQuotaError(e)) throw e;
+        if (next.length === 1) break;
+        next.pop();
+      }
+    }
+    return false;
   } catch(e) {
     console.warn('backup failed', e);
     return false;
@@ -3489,6 +3714,11 @@ const ENGLISH_JOSA_NAME_OVERRIDES = {
 function endingInfo(value) {
   let text=String(value ?? '').trim();
   if (!text) return {hasBatchim:false, rieul:false};
+  // 영문/외래 이름은 멤버의 선택적 '조사용 발음'을 우선한다.
+  try {
+    const member=(window.APP && APP.state && Array.isArray(APP.state.members)) ? APP.state.members.find(m=>m && m.name===text && String(m.josaPronunciation||'').trim()) : null;
+    if(member && String(member.josaPronunciation).trim()!==text) text=String(member.josaPronunciation).trim();
+  } catch(e) {}
   text=text.replace(/[\s\-_'"“”‘’.,!?…:;()\[\]{}<>♡♥★☆✨💗💕💞❤️‍🩹💔]+$/gu,'');
   if (!text) return {hasBatchim:false, rieul:false};
   const ch=text[text.length-1];
@@ -3553,6 +3783,7 @@ function createMember(data, state) {
   return {
     id: genMemberId(state),
     name: data.name.trim(),
+    josaPronunciation: String(data.josaPronunciation||'').trim(),
     gender: data.gender,
     mbti: data.mbti,
     height: Math.max(MIN_HEIGHT, Number(data.height)),
@@ -3772,13 +4003,13 @@ function getStageLabel(stage) { return STAGE_LABELS[stage] || stage; }
 // v20 표시 계층: 내부 호감도 수치는 그대로 유지하되, 기본 UI에서는 '관계의 느낌'을 먼저 보여준다.
 // 연애/질투/냉전 같은 상태는 친밀도 단계와 별도 배지로 표현한다.
 const RELATION_DISPLAY_TIERS = [
-  { id:'very_bad', min:-200, max:-151, icon:'💢', label:'적대', short:'적대' },
-  { id:'uncomfortable', min:-150, max:-61, icon:'🧊', label:'반감', short:'반감' },
+  { id:'very_bad', min:-200, max:-151, icon:'😡', label:'적대', short:'적대' },
+  { id:'uncomfortable', min:-150, max:-61, icon:'😒', label:'반감', short:'반감' },
   { id:'awkward', min:-60, max:-1, icon:'😶', label:'어색', short:'어색' },
-  { id:'neutral', min:0, max:59, icon:'🌱', label:'지인', short:'지인' },
-  { id:'friendly', min:60, max:119, icon:'🙂', label:'친구', short:'친구' },
-  { id:'close', min:120, max:149, icon:'😊', label:'친한 친구', short:'친한 친구' },
-  { id:'special', min:150, max:200, icon:'🤝', label:'절친', short:'절친' }
+  { id:'neutral', min:0, max:59, icon:'🙂', label:'지인', short:'지인' },
+  { id:'friendly', min:60, max:119, icon:'😊', label:'친구', short:'친구' },
+  { id:'close', min:120, max:149, icon:'😄', label:'친한 친구', short:'친한 친구' },
+  { id:'special', min:150, max:200, icon:'🤗', label:'절친', short:'절친' }
 ];
 
 function getRelationDisplayTier(rel) {
@@ -3786,24 +4017,35 @@ function getRelationDisplayTier(rel) {
   return RELATION_DISPLAY_TIERS.find(t => a >= t.min && a <= t.max) || RELATION_DISPLAY_TIERS[3];
 }
 
-// v21.3: UI 대표 관계는 공식 관계 상태를 우선한다.
+// UI에서는 친밀도와 연애 관계 상태를 분리해서 보여준다.
+// 공식 연애 상태가 되어도 내부 친밀도(-200~200)는 그대로 유지/표시한다.
+function getRelationRomanceStatus(rel, settings) {
+  if (!rel) return {id:'none',icon:'♡',label:'없음',active:false};
+  if (isExLover(rel)) {
+    if (hasTag(rel,'flirting')) return {id:'exLover',icon:'💔',label:'전 연인 · 다시 썸',active:true,reapproach:true};
+    if (hasTag(rel,'crush') || hasTag(rel,'romanticInterest')) return {id:'exLover',icon:'💔',label:'전 연인 · 다시 호감',active:true,reapproach:true};
+    return {id:'exLover',icon:'💔',label:'전 연인',active:true};
+  }
+  if (isLover(rel)) return {id:'lover',icon:'💗',label:'연인',active:true};
+  if (hasTag(rel,'flirting')) return {id:'flirting',icon:'✨',label:'썸',active:true};
+  if (hasTag(rel,'crush') || hasTag(rel,'romanticInterest')) return {id:'crush',icon:'💘',label:'호감',active:true};
+  return {id:'none',icon:'♡',label:'없음',active:false};
+}
+
+// 구버전 호환용 대표 표시 함수. 신규 관계 UI는 getRelationDisplayTier + getRelationRomanceStatus를 함께 사용한다.
 function getRelationPrimaryDisplay(rel, settings) {
-  if (isLover(rel)) return { id:'lover', icon:'💗', label:'연인', short:'연인', official:true };
-  if (isExLover(rel)) return { id:'exLover', icon:'💔', label:'전 연인', short:'전 연인', official:true };
+  const romance=getRelationRomanceStatus(rel,settings);
+  if (romance.id==='lover' || romance.id==='exLover') return {...romance,short:romance.label,official:true};
   return { ...getRelationDisplayTier(rel), official:false };
 }
 
+// 연인/썸/전 연인은 별도 romance pill에서 표시하고 여기에는 갈등성 부가 상태만 둔다.
 function getRelationStatusBadges(rel, settings) {
   if (!rel) return [];
   const out=[];
-  if (isLover(rel)) out.push({id:'lover',icon:'💗',label:'연인'});
-  if (isExLover(rel)) out.push({id:'exLover',icon:'💔',label:'전 연인'});
   if (isAvoiding(rel)) out.push({id:'avoid',icon:'🚫',label:'회피 중'});
   if (rel.coldWarDaysLeft > 0 || hasTag(rel,'coldWar')) out.push({id:'coldWar',icon:'🧊',label:'냉전 중'});
   if (hasTag(rel,'jealous')) out.push({id:'jealous',icon:'😣',label:'질투 중'});
-  const isSome = hasTag(rel,'flirting') || (!isLover(rel) && !isExLover(rel) && Number(rel.affection)>=getSnapThreshold(settings));
-  if (isSome) out.push({id:'flirting',icon:'✨',label:'썸'});
-  if (rel.confessionPending) out.push({id:'confession',icon:'💌',label:'고백 대기'});
   return out;
 }
 
@@ -3828,15 +4070,17 @@ function isAwkward(rel, settings) {
 }
 
 function getRelationLabel(rel, settings) {
-  const ex = isExLover(rel);
-  if (!ex && isLover(rel)) return '연인';
-  if (ex && rel.avoidDaysLeft > 0) return '전 연인 · 회피';
-  if (ex && (rel.coldWarDaysLeft > 0 || hasTag(rel,'coldWar'))) return '전 연인 · 냉전';
-  if (ex && hasTag(rel,'jealous')) return '전 연인 · 질투';
-  if (ex && hasTag(rel,'flirting')) return '전 연인 · 썸';
-  if (ex && rel.affection >= getReunionThreshold(settings)) return '전 연인';
-  if (ex) return '전 연인';
-  if (rel.stage === 'closeFriend' && rel.affection >= getSnapThreshold(settings)) return '썸';
+  const romance=getRelationRomanceStatus(rel,settings);
+  if (romance.id==='lover') return '연인';
+  if (romance.id==='exLover') {
+    if (rel.avoidDaysLeft > 0) return '전 연인 · 회피';
+    if (rel.coldWarDaysLeft > 0 || hasTag(rel,'coldWar')) return '전 연인 · 냉전';
+    if (hasTag(rel,'jealous')) return '전 연인 · 질투';
+    if (hasTag(rel,'flirting')) return '전 연인 · 썸';
+    return '전 연인';
+  }
+  if (romance.id==='flirting') return '썸';
+  if (romance.id==='crush') return '호감';
   return getRelationDisplayTier(rel).label;
 }
 
@@ -3880,6 +4124,8 @@ function doBreakup(rel, settings) {
   removeTag(rel, 'coldWar');
   removeTag(rel, 'jealous');
   removeTag(rel, 'flirting');
+  removeTag(rel, 'crush');
+  removeTag(rel, 'romanticInterest');
   rel.confessionPending = false;
   updateStage(rel, settings);
 }
@@ -3890,6 +4136,8 @@ function doBecomeLover(rel, settings) {
   removeTag(rel, 'coldWar');
   removeTag(rel, 'jealous');
   removeTag(rel, 'flirting');
+  removeTag(rel, 'crush');
+  removeTag(rel, 'romanticInterest');
   addTag(rel, 'lover');
   rel.avoidDaysLeft = 0;
   rel.coldWarDaysLeft = 0;
@@ -3933,7 +4181,7 @@ window.RelationsModule = {
   getConfessThreshold, getReunionThreshold, getSnapThreshold,
   clampAffection, changeAffection, updateStage,
   getStageLabel, getRelationLabel,
-  getRelationDisplayTier, getRelationPrimaryDisplay, getRelationStatusBadges, getRelationTrend, RELATION_DISPLAY_TIERS,
+  getRelationDisplayTier, getRelationPrimaryDisplay, getRelationRomanceStatus, getRelationStatusBadges, getRelationTrend, RELATION_DISPLAY_TIERS,
   hasTag, addTag, removeTag,
   isLover, isExLover, isAvoiding, isAwkward,
   getAllowedTypes,
@@ -4153,12 +4401,20 @@ function applyAffectionChange(type, rel, state, a, b, c) {
   const rint = (min, max) => Math.floor(min + eventRandom(state) * (max - min + 1));
 
   switch(type) {
-    case 'friendship':  RM.changeAffection(rel, rint(3,6), settings);  break;
+    case 'friendship':
+      RM.changeAffection(rel, rint(3,6), settings);
+      // '호감'은 단순 수치 표시가 아니라 실제 우정 사건 뒤 결정론적 RNG로 생기는 상태다.
+      if (!RM.isLover(rel) && !RM.isExLover(rel) && !RM.hasTag(rel,'flirting') && rel.affection>=90
+          && romanceEligibility(state,a,b,rel).ok && eventRandom(state)<0.35) RM.addTag(rel,'crush');
+      break;
     case 'flirting':
       RM.changeAffection(rel, rint(4,8), settings);
-      if (RM.isExLover(rel)) RM.addTag(rel, 'flirting');
+      if (!RM.isLover(rel)) { RM.removeTag(rel,'crush'); RM.removeTag(rel,'romanticInterest'); RM.addTag(rel, 'flirting'); }
       break;
-    case 'date':        RM.changeAffection(rel, rint(5,10), settings); break;
+    case 'date':
+      RM.changeAffection(rel, rint(5,10), settings);
+      if (!RM.isLover(rel)) { RM.removeTag(rel,'crush'); RM.removeTag(rel,'romanticInterest'); RM.addTag(rel, 'flirting'); }
+      break;
     case 'fight':
       RM.changeAffection(rel, -rint(10,15), settings);
       RM.addTag(rel, 'coldWar');
@@ -4196,6 +4452,8 @@ function romanceEligibility(state, from, to, rel) {
   const RM = window.RelationsModule;
   const settings = state.settings;
   if (settings.allowRomance === false) return {ok:false,type:'romance_disabled'};
+  const knownGender = g => g === '남' || g === '여';
+  if (!knownGender(from && from.gender) || !knownGender(to && to.gender)) return {ok:false,type:'gender_unknown'};
   const sameGender = from.gender === to.gender;
   if (sameGender && !settings.allowSameGender) return {ok:false,type:'gender_block',reason:'same'};
   if (!sameGender && !settings.allowOppositeGender) return {ok:false,type:'gender_block',reason:'opposite'};
@@ -4256,9 +4514,8 @@ function doConfess(state, fromId, toId) {
     if (RM.recordHistory) RM.recordHistory(rel,{day:state.day,type:'confession',delta:(Number(rel.affection)||0)-before,before,after:rel.affection,text:`${from.name}${eventJosa(from.name,'와과')} ${to.name}${eventJosa(to.name,'이가')} 연인이 됨`});
     return { type:'success', from, to, rel };
   }
-  rel.confessionPending = true;
-  if (RM.recordHistory) RM.recordHistory(rel,{day:state.day,type:'confession_try',delta:0,before:rel.affection,after:rel.affection,text:`${from.name}의 고백이 보류됨`});
-  return { type:'pending', from, to, rel };
+  // 고백 가능 수치 미달에서는 상태를 억지로 '썸'으로 만들지 않는다.
+  return { type:'threshold_block', threshold:L, from, to, rel };
 }
 
 // 하루 자동 고백: 기준 이상인 비연인/비전연인 페어만, 기본 30%.
@@ -4308,13 +4565,10 @@ window.EventsModule = {
 'use strict';
 
 const STAGE_COLORS = {
-  hatred:       '#e74c3c',
-  uncomfortable:'#e67e22',
-  indifference: '#95a5a6',
-  friend:       '#3498db',
-  closeFriend:  '#9b59b6',
-  lover:        '#e91e8c',
-  exLover:      '#ff6b9d'
+  very_bad:'#e74c3c', uncomfortable:'#e67e22', awkward:'#b08b7a', neutral:'#95a5a6',
+  friendly:'#4a90e2', close:'#7d6ccf', special:'#9b59b6',
+  // legacy aliases
+  hatred:'#e74c3c', indifference:'#95a5a6', friend:'#4a90e2', closeFriend:'#9b59b6', lover:'#e91e8c', exLover:'#ff6b9d'
 };
 
 function renderGraph(container, state) {
@@ -4323,6 +4577,12 @@ function renderGraph(container, state) {
   const members = state.members;
   if (members.length === 0) {
     container.innerHTML = '<div style="text-align:center;padding:40px;opacity:.5">멤버가 없습니다</div>';
+    return;
+  }
+  const focusId=(document.getElementById('relation-filter-member')?.value||'').trim();
+  const focusMember=focusId?members.find(m=>m.id===focusId):null;
+  if(members.length>12 && !focusMember){
+    container.innerHTML=`<div class="graph-large-empty"><span>👥</span><strong>${members.length}명 대규모 관계도</strong><p>전체 연결선을 한꺼번에 표시하면 너무 복잡해집니다.<br>아래 <b>멤버 필터</b>에서 한 명을 선택하면 그 멤버 중심 관계도를 표시합니다.</p></div>`;
     return;
   }
 
@@ -4336,23 +4596,29 @@ function renderGraph(container, state) {
   svg.setAttribute('height', H);
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
 
-  const n = members.length;
-  const positions = members.map((m, i) => {
-    const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+  const graphMembers=focusMember?[focusMember,...members.filter(m=>m.id!==focusMember.id)]:members;
+  const n = graphMembers.length;
+  const positions = graphMembers.map((m, i) => {
+    if(focusMember && i===0) return {x:cx,y:cy,m};
+    const ringCount=focusMember?n-1:n;
+    const ringIndex=focusMember?i-1:i;
+    const angle = (ringIndex / Math.max(1,ringCount)) * 2 * Math.PI - Math.PI / 2;
     return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle), m };
   });
 
   // 선 그리기
   for (let i = 0; i < positions.length; i++) {
     for (let j = i + 1; j < positions.length; j++) {
+      if(focusMember && positions[i].m.id!==focusMember.id && positions[j].m.id!==focusMember.id) continue;
       const rel = RM.getRelation(state.relations, positions[i].m.id, positions[j].m.id);
       if (!rel) continue;
       const aff = rel.affection;
       if (aff === 0) continue;
 
-      const label = RM.getRelationLabel(rel, state.settings);
-      const stage = RM.hasTag(rel,'exLover') ? 'exLover' : rel.stage;
-      const color = STAGE_COLORS[stage] || '#ccc';
+      const tier = RM.getRelationDisplayTier(rel);
+      const romance = RM.getRelationRomanceStatus(rel,state.settings);
+      const label = `${tier.label}${romance.active?' · '+romance.label:''}`;
+      const color = STAGE_COLORS[tier.id] || '#ccc';
       const width = Math.max(0.5, Math.abs(aff) / 40);
 
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -4368,6 +4634,14 @@ function renderGraph(container, state) {
       title.textContent = `${positions[i].m.name} ↔ ${positions[j].m.name}: ${aff} (${label})`;
       line.appendChild(title);
       svg.appendChild(line);
+      if (RM.isLover(rel) || RM.isExLover(rel)) {
+        const mark=document.createElementNS('http://www.w3.org/2000/svg','text');
+        mark.setAttribute('x',(positions[i].x+positions[j].x)/2); mark.setAttribute('y',(positions[i].y+positions[j].y)/2-3);
+        mark.setAttribute('text-anchor','middle'); mark.setAttribute('font-size','13');
+        mark.textContent=RM.isLover(rel)?'💗':'💔';
+        const bgTitle=document.createElementNS('http://www.w3.org/2000/svg','title'); bgTitle.textContent=RM.isLover(rel)?'연인':'전 연인'; mark.appendChild(bgTitle);
+        svg.appendChild(mark);
+      }
     }
   }
 
@@ -4433,18 +4707,10 @@ function renderGraph(container, state) {
 // 범례 렌더링
 function renderLegend(container) {
   if (!container) return;
-  const items = [
-    ['적대', STAGE_COLORS.hatred],
-    ['반감', STAGE_COLORS.uncomfortable],
-    ['지인', STAGE_COLORS.indifference],
-    ['친구', STAGE_COLORS.friend],
-    ['절친', STAGE_COLORS.closeFriend],
-    ['연인', STAGE_COLORS.lover],
-    ['전 연인', STAGE_COLORS.exLover],
-  ];
-  container.innerHTML = items.map(([label, color]) =>
-    `<span class="legend-item"><span class="legend-dot" style="background:${color}"></span>${label}</span>`
-  ).join('');
+  const tiers=(window.RelationsModule && window.RelationsModule.RELATION_DISPLAY_TIERS)||[];
+  container.innerHTML = tiers.map(t=>
+    `<span class="legend-item"><span class="legend-dot" style="background:${STAGE_COLORS[t.id]||'#999'}"></span>${t.icon} ${t.label}</span>`
+  ).join('') + `<span class="legend-item">💗 연인</span><span class="legend-item">💔 전 연인</span>`;
 }
 
 window.GraphModule = { renderGraph, renderLegend, STAGE_COLORS };
@@ -4510,7 +4776,9 @@ const APP = {
     pendingMemberImport: null,
     scheduleSelected: new Set(),
     scheduleUndo: [],
-    scheduleActivity: ''
+    scheduleActivity: '',
+    relationVisibleLimit: 20,
+    relationFilterSig: ''
   }
 };
 window.APP = APP;
@@ -4552,6 +4820,17 @@ function saveRelationSelection() {
   safeSessionSet('idol_rel_a', APP.ui.relationA || '');
   safeSessionSet('idol_rel_b', APP.ui.relationB || '');
 }
+function resetTransientUiAfterStateReplace() {
+  APP.ui.relationA=''; APP.ui.relationB=''; APP.ui.scheduleActivity=''; APP.ui.pendingMemberImport=null;
+  APP.ui.scheduleUndo=[]; APP.ui.scheduleSelected=new Set(); APP.ui.relationVisibleLimit=window.innerWidth<=720?10:20; APP.ui.relationFilterSig='';
+  saveRelationSelection(); safeSessionSet('idol_schedule_activity','');
+  const vals={
+    'member-search':'','member-filter-gender':'','member-filter-pos':'','member-sort':'registered',
+    'relation-filter-member':'','relation-filter-type':'all','relation-sort':'affection-desc',
+    'log-search':'','log-category':'all','log-day':''
+  };
+  Object.entries(vals).forEach(([id,v])=>{const el=getEl(id);if(el)el.value=v;});
+}
 
 // ═══════════════════════════════════════════════════════
 // 초기화
@@ -4592,6 +4871,12 @@ async function init() {
 
   // UI 렌더링
   renderAll();
+  APP.ui.activeTab='dashboard';
+  // Android/모바일 뒤로가기 가드: 모달 → 대시보드 → 실제 페이지 이탈 순서.
+  if(!history.state || !history.state.idolRoot){
+    history.replaceState({idolRoot:true},document.title,location.href);
+    history.pushState({idolGuard:true},document.title,location.href);
+  }
 
   // 탭 이벤트
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -4617,6 +4902,7 @@ function syncHeader() {
 // 탭
 // ═══════════════════════════════════════════════════════
 function switchTab(tabId) {
+  APP.ui.activeTab=tabId;
   document.querySelectorAll('.tab-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.tab === tabId));
   document.querySelectorAll('.tab-panel').forEach(p =>
@@ -4651,27 +4937,75 @@ function renderAll() {
 // ═══════════════════════════════════════════════════════
 function dashboardScheduleIcon(act){
   const c=String(act?.category||'');
-  if(c==='practice')return '🎯';if(c==='album')return '💿';if(c==='comeback')return '🎤';if(c==='group')return '👥';if(c==='individual')return '✨';if(c==='recovery')return '🌿';if(c==='concert')return '🎪';return '🗓️';
+  if(c==='practice') return '🎯';
+  if(c==='album') return '💿';
+  if(c==='comeback') return '🎤';
+  if(c==='group') return '👥';
+  if(c==='individual') return '✨';
+  if(c==='recovery') return '🌿';
+  if(c==='concert') return '🎪';
+  return '🗓️';
 }
 function renderDashboardSchedule(){
-  const s=APP.state,el=getEl('dash-schedule');if(!el)return;
-  if(!Array.isArray(s.schedule)||!s.schedule.length){el.innerHTML='<div class="dashboard-empty-state"><span>🗓️</span><b>아직 일정이 없어요</b><small>멤버별 오늘 일정을 배정해보세요.</small><button class="dashboard-empty-action" onclick="switchTab(\'schedule\')">스케줄 배정하기</button></div>';return;}
-  const memberMap=new Map((s.members||[]).map(m=>[m.id,m])),groups=new Map();
-  s.schedule.forEach(e=>{const act=APP.scheduleData.find(a=>a.id===e.activityId)||{id:e.activityId,label:e.activityId,category:''};if(!groups.has(act.id))groups.set(act.id,{act,names:[]});const m=memberMap.get(e.memberId);if(m)groups.get(act.id).names.push(m.name);});
+  const s=APP.state, el=getEl('dash-schedule'); if(!el)return;
+  if(!Array.isArray(s.schedule)||!s.schedule.length){
+    el.innerHTML='<div class="dashboard-empty-state"><span>🗓️</span><b>아직 일정이 없어요</b><small>멤버별 오늘 일정을 배정해보세요.</small><button class="dashboard-empty-action" onclick="switchTab(\'schedule\')">스케줄 배정하기</button></div>';
+    return;
+  }
+  const memberMap=new Map((s.members||[]).map(m=>[m.id,m]));
+  const groups=new Map();
+  s.schedule.forEach(e=>{
+    const act=APP.scheduleData.find(a=>a.id===e.activityId)||{id:e.activityId,label:e.activityId,category:''};
+    if(!groups.has(act.id))groups.set(act.id,{act,names:[]});
+    const m=memberMap.get(e.memberId); if(m)groups.get(act.id).names.push(m.name);
+  });
   el.innerHTML=[...groups.values()].map(g=>`<div class="dashboard-schedule-item"><span class="dashboard-schedule-icon">${dashboardScheduleIcon(g.act)}</span><div class="dashboard-schedule-main"><b>${escapeHtml(g.act.label||g.act.id)}</b><span>${escapeHtml(g.names.join(' · ')||'배정 멤버 확인')}</span></div><span class="dashboard-schedule-count">${g.names.length||0}명</span></div>`).join('');
 }
 function getDashboardRelationChanges(){
-  const s=APP.state,out=[],memberMap=new Map((s.members||[]).map(m=>[m.id,m]));
-  (s.relations||[]).forEach(rel=>{const hist=(Array.isArray(rel.history)?rel.history:[]).filter(h=>Number(h.day)>=Math.max(0,Number(s.day||0)-6));if(!hist.length)return;hist.sort((a,b)=>(Number(b.day)||0)-(Number(a.day)||0)||Math.abs(Number(b.delta)||0)-Math.abs(Number(a.delta)||0));const h=hist[0],ids=String(rel.id||'').split(':'),a=memberMap.get(ids[0]),b=memberMap.get(ids[1]);if(!a||!b)return;out.push({day:Number(h.day)||0,delta:Number(h.delta)||0,a:a.name,b:b.name,text:String(h.text||'관계 이벤트')});});
+  const s=APP.state, out=[], memberMap=new Map((s.members||[]).map(m=>[m.id,m]));
+  (s.relations||[]).forEach(rel=>{
+    const hist=(Array.isArray(rel.history)?rel.history:[]).filter(h=>Number(h.day)>=Math.max(0,Number(s.day||0)-6));
+    if(!hist.length)return;
+    hist.sort((a,b)=>(Number(b.day)||0)-(Number(a.day)||0)||Math.abs(Number(b.delta)||0)-Math.abs(Number(a.delta)||0));
+    const h=hist[0], ids=String(rel.id||'').split(':'), a=memberMap.get(ids[0]), b=memberMap.get(ids[1]);
+    if(!a||!b)return;
+    out.push({day:Number(h.day)||0,delta:Number(h.delta)||0,a:a.name,b:b.name,text:String(h.text||'관계 이벤트')});
+  });
   return out.sort((x,y)=>y.day-x.day||Math.abs(y.delta)-Math.abs(x.delta)).slice(0,4);
 }
 function renderDashboardRelationChanges(){
-  const el=getEl('dash-relation-changes');if(!el)return;const items=getDashboardRelationChanges();if(!items.length){el.innerHTML='<div class="empty-hint compact">최근 7일 관계 변화가 없습니다.</div>';return;}el.innerHTML=items.map(x=>`<div class="dashboard-change-item"><div class="dashboard-change-main"><b>${escapeHtml(x.a)} × ${escapeHtml(x.b)} · Day ${x.day}</b><span>${escapeHtml(x.text)}</span></div><span class="dashboard-change-delta ${x.delta>0?'up':x.delta<0?'down':'flat'}">${x.delta>0?'↑ +':x.delta<0?'↓ ':''}${x.delta}</span></div>`).join('');
+  const el=getEl('dash-relation-changes'); if(!el)return;
+  const items=getDashboardRelationChanges();
+  if(!items.length){el.innerHTML='<div class="empty-hint compact">최근 7일 관계 변화가 없습니다.</div>';return;}
+  el.innerHTML=items.map(x=>`<div class="dashboard-change-item"><div class="dashboard-change-main"><b>${escapeHtml(x.a)} × ${escapeHtml(x.b)} · Day ${x.day}</b><span>${escapeHtml(x.text)}</span></div><span class="dashboard-change-delta ${x.delta>0?'up':x.delta<0?'down':'flat'}">${x.delta>0?'↑ +':x.delta<0?'↓ ':''}${x.delta}</span></div>`).join('');
 }
-function renderDashboard(){
-  const s=APP.state,gn=s.groupName==='미설정'?'미설정':s.groupName;setEl('dash-group',gn);setEl('dash-day','Day '+s.day);setEl('dash-money',formatMoney(s.money));setEl('dash-pop',s.kpi.popularity);setEl('dash-fandom',s.kpi.fandom.toLocaleString());setEl('dash-rep',s.kpi.reputation);setEl('dash-members',s.members.length+'명');
-  const albumEl=getEl('dash-album');if(albumEl){if(s.concert&&s.concert.isPlanned)albumEl.textContent=`🎪 콘서트 D-${s.concert.daysLeft}`;else if(s.album.isReleased&&s.album.comebackDaysLeft>0)albumEl.textContent=`🎤 컴백 중 D-${s.album.comebackDaysLeft}`;else if(s.album.isPreparing)albumEl.textContent='💿 앨범 준비 중';else albumEl.textContent='🌿 활동 없음';}
-  renderDashboardSchedule();renderDashboardAlerts();renderDashboardRelationChanges();renderLogMini('log-mini-dash');
+function renderDashboard() {
+  const s = APP.state;
+  const gn = s.groupName === '미설정' ? '미설정' : s.groupName;
+  setEl('dash-group',  gn);
+  setEl('dash-day',    'Day ' + s.day);
+  setEl('dash-money',  formatMoney(s.money));
+  setEl('dash-pop',    s.kpi.popularity);
+  setEl('dash-fandom', s.kpi.fandom.toLocaleString());
+  setEl('dash-rep',    s.kpi.reputation);
+  setEl('dash-members',s.members.length + '명');
+
+  const albumEl = getEl('dash-album');
+  if (albumEl) {
+    if (s.concert && s.concert.isPlanned)
+      albumEl.textContent = `🎪 콘서트 D-${s.concert.daysLeft}`;
+    else if (s.album.isReleased && s.album.comebackDaysLeft > 0)
+      albumEl.textContent = `🎤 컴백 중 D-${s.album.comebackDaysLeft}`;
+    else if (s.album.isPreparing)
+      albumEl.textContent = '💿 앨범 준비 중';
+    else
+      albumEl.textContent = '🌿 활동 없음';
+  }
+
+  renderDashboardSchedule();
+  renderDashboardAlerts();
+  renderDashboardRelationChanges();
+  renderLogMini('log-mini-dash');
 }
 
 function getDashboardAlerts() {
@@ -5040,7 +5374,18 @@ window.confirmScheduleAssignment=function(){
   if(!act){showToast('먼저 상단에서 스케줄을 선택해주세요');return;}
   const ids=act.isGroupOnly?APP.state.members.map(m=>m.id):[...(APP.ui.scheduleSelected||[])];
   if(!ids.length){showToast('배정할 멤버를 선택해주세요');return;}
-  if(assignActivityToIds(ids,act.id))showToast(`${act.label} · ${act.isGroupOnly?'전원':ids.length+'명'} 배정 완료 (선택 유지)`);
+  const run=()=>{if(assignActivityToIds(ids,act.id))showToast(`${act.label} · ${act.isGroupOnly?'전원':ids.length+'명'} 배정 완료 (선택 유지)`);};
+  if(act.isGroupOnly){
+    const existing=(APP.state.schedule||[]).filter(e=>e && e.activityId && e.activityId!==act.id);
+    if(existing.length){
+      const names=[...new Set(existing.map(e=>APP.state.members.find(m=>m.id===e.memberId)?.name).filter(Boolean))];
+      showConfirm(`기존 ${existing.length}명의 일정이 [${act.label}] 단체 일정으로 교체됩니다.
+${names.slice(0,5).join(' · ')}${names.length>5?' 외 '+(names.length-5)+'명':''}
+계속하시겠습니까?`,run);
+      return;
+    }
+  }
+  run();
 };
 window.bulkAssignSelected=function(activityId){ APP.ui.scheduleActivity=activityId;saveScheduleActivitySelection();window.confirmScheduleAssignment(); };
 window.clearMemberSchedule=function(memberId){
@@ -5267,10 +5612,21 @@ function executeDay(s) {
   (s.schedule||[]).forEach(e=>{ if(e && e.memberId && e.activityId) scheduleMap.set(e.memberId,e); });
   s.schedule = Array.from(scheduleMap.values());
 
+  // 외부/구버전 세이브가 부분 단체일정 또는 삭제된 activityId를 들고 와도 실행 직전 안전하게 보정한다.
   if (!concertToday) {
+    const groupEntry=s.schedule.find(e=>APP.scheduleData.find(a=>a.id===e.activityId)?.isGroupOnly);
+    if(groupEntry && (s.schedule.length!==s.members.length || s.schedule.some(e=>e.activityId!==groupEntry.activityId))){
+      const ga=APP.scheduleData.find(a=>a.id===groupEntry.activityId);
+      s.schedule=s.members.map(m=>({memberId:m.id,activityId:groupEntry.activityId,isManual:false}));
+      notices.push(`${ga?.label||groupEntry.activityId}: 손상된 단체 일정 연결을 전원 일정으로 자동 보정했습니다`);
+    }
     s.schedule.forEach(e => {
       const act = APP.scheduleData.find(a => a.id === e.activityId);
-      if (act && !isScheduleActAvailable(act,s)) {
+      if (!act) {
+        const member=s.members.find(m=>m.id===e.memberId);
+        notices.push(`${member?member.name+' · ':''}${e.activityId}: 존재하지 않는 일정이라 휴식으로 변경했습니다`);
+        e.activityId=s.settings.autoRestId||'rest'; e.isManual=false;
+      } else if (!isScheduleActAvailable(act,s)) {
         const member = s.members.find(m => m.id === e.memberId);
         const reason=scheduleUnavailableReason(act,s)||'현재 조건에서 실행할 수 없음';
         e.activityId = s.settings.autoRestId || 'rest'; e.isManual = false;
@@ -5815,33 +6171,57 @@ const REL_HISTORY_LABELS = {
   avoid:'회피', awkward:'이별 후', after_breakup:'이별 후', reunion:'재결합', breakup:'이별',
   confession:'고백 성공', confession_try:'고백 시도', auto_confession:'자동 고백', reunion_try:'재결합 시도', auto_breakup:'자동 이별', cold_war_decay:'냉전 지속'
 };
+function relationRomancePolicy(a,b,rel){
+  const EM=window.EventsModule;
+  if(!a||!b||!EM||!EM.romanceEligibility) return {ok:true,reason:''};
+  // 이미 맺어진 연인은 설정 변경으로 자동 해제하지 않는다. '신규 연애 진행'만 잠근다.
+  if(rel && window.RelationsModule.isLover(rel)) return {ok:true,existing:true,reason:''};
+  const e=EM.romanceEligibility(APP.state,a,b,rel);
+  if(e.ok) return {ok:true,reason:''};
+  const reason=e.type==='romance_disabled'?'연애 기능이 꺼져 있습니다':e.type==='gender_unknown'?'멤버 성별 정보가 없어 연애 설정을 판정할 수 없습니다':e.type==='gender_block'?(e.reason==='same'?'동성 연애가 비활성화되어 있습니다':'이성 연애가 비활성화되어 있습니다'):e.type==='monogamy_block'?'단일연애 설정으로 새 연애를 시작할 수 없습니다':'현재 연애 진행 불가';
+  return {ok:false,reason};
+}
+function relationRomanceTrackHtml(a,b,rel){
+  const RM=window.RelationsModule, st=RM.getRelationRomanceStatus(rel,APP.state.settings), policy=relationRomancePolicy(a,b,rel);
+  const order=['crush','flirting','lover']; const labels={crush:['💘','호감'],flirting:['✨','썸'],lover:['💗','연인']};
+  const idx=order.indexOf(st.id); const blocked=!policy.ok && !RM.isLover(rel) && !RM.isExLover(rel);
+  if(RM.isExLover(rel)) return `<div class="relation-romance-track ex"><span class="romance-track-title">연애 상태</span><span class="romance-state-node active">💔 ${escapeHtml(st.label)}</span>${st.reapproach?'<span class="romance-reapproach-note">재접근 중</span>':''}</div>`;
+  return `<div class="relation-romance-track${blocked?' blocked':''}" title="${blocked?escapeAttr(policy.reason):''}"><span class="romance-track-title">연애</span>${order.map((id,i)=>`<span class="romance-state-node ${id===st.id?'active':idx>i?'passed':''}${blocked?' disabled':''}">${labels[id][0]} ${labels[id][1]}</span>`).join('<span class="romance-track-arrow">→</span>')}${blocked?`<span class="romance-policy-note">🔒 ${escapeHtml(policy.reason)}</span>`:''}</div>`;
+}
+function relationRomanceActionBlockReason(a,b,rel){
+  const p=relationRomancePolicy(a,b,rel); return p.ok?'':p.reason;
+}
 function relationMeterHtml(rel, compact=false){
   const RM=window.RelationsModule;
-  const primary=RM.getRelationPrimaryDisplay(rel,APP.state&&APP.state.settings);
-  if(primary.official) return '';
   const tier=RM.getRelationDisplayTier(rel), tiers=RM.RELATION_DISPLAY_TIERS||[];
   const active=Math.max(0,tiers.findIndex(t=>t.id===tier.id));
   return `<div class="relation-tier-wrap${compact?' compact':''}">
-    <div class="relation-tier-track" aria-label="관계 단계 ${escapeAttr(tier.label)}">${tiers.map((t,i)=>`<span class="relation-tier-node ${i===active?'active':i<active?'passed':''}" title="${escapeAttr(t.label)}"><i>${t.icon}</i>${compact?'':`<b>${escapeHtml(t.short)}</b>`}</span>`).join('')}</div>
-    ${compact?'':`<div class="relation-tier-caption"><strong>${tier.icon} ${escapeHtml(tier.label)}</strong><small>정확한 수치는 상세에서 확인</small></div>`}
+    <div class="relation-tier-track" aria-label="친밀도 단계 ${escapeAttr(tier.label)}">${tiers.map((t,i)=>`<span class="relation-tier-node ${i===active?'active':i<active?'passed':''}" title="${escapeAttr(t.label)}"><i>${t.icon}</i>${compact?'':`<b>${escapeHtml(t.short)}</b>`}</span>`).join('')}</div>
+    ${compact?'':`<div class="relation-tier-caption"><strong>${tier.icon} 친밀도 · ${escapeHtml(tier.label)}</strong><small>정확한 수치는 상세에서 확인</small></div>`}
   </div>`;
 }
 function relationRecentDelta(rel, days=7){
   return window.RelationsModule.getRecentDelta ? window.RelationsModule.getRecentDelta(rel,APP.state.day,days) : 0;
 }
+function relationRomanceBadgeHtml(rel, showNone=true){
+  const RM=window.RelationsModule;
+  const romance=RM.getRelationRomanceStatus(rel,APP.state&&APP.state.settings);
+  if(!showNone && !romance.active)return '';
+  return `<span class="relation-romance-pill ${escapeAttr(romance.id)}">${romance.icon} ${romance.id==='none'?'연애 · 없음':`연애 · ${escapeHtml(romance.label)}`}</span>`;
+}
 function relationStatusBadgesHtml(rel){
   const RM=window.RelationsModule;
-  const primary=RM.getRelationPrimaryDisplay(rel,APP.state&&APP.state.settings);
-  const badges=(RM.getRelationStatusBadges(rel,APP.state&&APP.state.settings)||[]).filter(b=>b.id!==primary.id);
+  const badges=RM.getRelationStatusBadges(rel,APP.state&&APP.state.settings)||[];
   return badges.length?`<div class="relation-status-badges">${badges.map(b=>`<span class="relation-status-badge ${escapeAttr(b.id)}">${b.icon} ${escapeHtml(b.label)}</span>`).join('')}</div>`:'';
 }
 function relationPairCardHtml(a,b,rel,color){
   const RM=window.RelationsModule;
-  const tier=RM.getRelationPrimaryDisplay(rel,APP.state&&APP.state.settings), trend=RM.getRelationTrend(rel,APP.state.day,7);
+  const tier=RM.getRelationDisplayTier(rel), trend=RM.getRelationTrend(rel,APP.state.day,7);
   const delta=trend.delta, last=Number(rel.lastEventDay)||0;
   return `<div class="relation-pair-card" style="--pair-color:${escapeAttr(color)}">
-    <div class="relation-pair-head"><div class="relation-pair-names"><strong>${escapeHtml(a.name)}</strong><span>×</span><strong>${escapeHtml(b.name)}</strong></div></div>
+    <div class="relation-pair-head"><div class="relation-pair-names"><strong>${escapeHtml(a.name)}</strong><span>×</span><strong>${escapeHtml(b.name)}</strong></div>${relationRomanceBadgeHtml(rel,true)}</div>
     ${relationStatusBadgesHtml(rel)}
+    ${relationRomanceTrackHtml(a,b,rel)}
     <div class="relation-mood-row"><div class="relation-mood-icon">${tier.icon}</div><div class="relation-mood-copy"><strong>${escapeHtml(tier.label)}</strong><span>${escapeHtml(trend.label)}</span></div><div class="relation-pair-change ${delta>0?'up':delta<0?'down':'flat'}">${trend.icon} 최근 7일 ${delta>0?'+':''}${delta}</div></div>
     ${relationMeterHtml(rel)}
     <div class="relation-pair-footer"><span>${last?`마지막 사건 · Day ${last}`:'아직 관계 사건 없음'}</span><button class="btn-sm relation-detail-btn" onclick="openPairTimeline(${jsArg(a.id)},${jsArg(b.id)})">상세 타임라인 →</button></div>
@@ -5854,8 +6234,8 @@ window.focusPairInRelationEvent=function(idA,idB){
 window.openPairTimeline=function(idA,idB){
   const s=APP.state,RM=window.RelationsModule,GR=window.GraphModule;
   const a=s.members.find(m=>m.id===idA),b=s.members.find(m=>m.id===idB); if(!a||!b)return;
-  const rel=RM.ensureRelation(s,idA,idB), tier=RM.getRelationPrimaryDisplay(rel,s.settings), trend=RM.getRelationTrend(rel,s.day,7);
-  const color=GR.STAGE_COLORS[RM.hasTag(rel,'exLover')?'exLover':rel.stage]||'#999';
+  const rel=RM.ensureRelation(s,idA,idB), tier=RM.getRelationDisplayTier(rel), romance=RM.getRelationRomanceStatus(rel,s.settings), trend=RM.getRelationTrend(rel,s.day,7);
+  const color=GR.STAGE_COLORS[tier.id]||'#999';
   let hist=Array.isArray(rel.history)?rel.history.slice().reverse():[];
   let timeline='';
   if(hist.length){
@@ -5866,7 +6246,9 @@ window.openPairTimeline=function(idA,idB){
   }
   showModal(`<div class="pair-detail-modal" style="--pair-color:${escapeAttr(color)}">
     <div class="pair-detail-title"><div><span>페어 상세</span><h3>${escapeHtml(a.name)} × ${escapeHtml(b.name)}</h3></div><div class="pair-exact-score"><span>정확한 호감도</span><b>${rel.affection>0?'+':''}${rel.affection}</b></div></div>
+    <div class="pair-detail-state-row"><span class="relation-intimacy-pill">${tier.icon} 친밀도 · ${escapeHtml(tier.label)}</span>${relationRomanceBadgeHtml(rel,true)}</div>
     ${relationStatusBadgesHtml(rel)}
+    ${relationRomanceTrackHtml(a,b,rel)}
     <div class="pair-detail-mood"><strong>${tier.icon} ${escapeHtml(tier.label)}</strong><span>${trend.icon} ${escapeHtml(trend.label)} · 최근 7일 ${signed(trend.delta)}</span></div>
     ${relationMeterHtml(rel)}
     <div class="pair-detail-meta"><span>${rel.lastEventDay?`마지막 사건 Day ${rel.lastEventDay}`:'사건 기록 없음'}</span><span>내부 범위 -200 ~ +200</span></div>
@@ -5917,11 +6299,17 @@ function renderRelationsTab() {
       }
       const sort=fs?.value||'affection-desc';
       rows.sort((x,y)=>sort==='affection-asc'?x.rel.affection-y.rel.affection:sort==='recent'?(y.rel.lastEventDay||0)-(x.rel.lastEventDay||0):y.rel.affection-x.rel.affection);
-      const count=getEl('relation-filter-count');if(count)count.textContent=`${rows.length}쌍 표시`;
-      table.innerHTML=rows.length?`<div class="relation-pair-grid">${rows.map(({a,b,rel})=>{
-        const color=GR.STAGE_COLORS[RM.hasTag(rel,'exLover')?'exLover':rel.stage]||'#999';
+      const sig=`${fm?.value||''}|${ft?.value||'all'}|${fs?.value||'affection-desc'}`;
+      const pageSize=window.innerWidth<=720?10:20;
+      if(APP.ui.relationFilterSig!==sig){APP.ui.relationFilterSig=sig;APP.ui.relationVisibleLimit=pageSize;}
+      const filteredMode=!!(fm?.value)||((ft?.value||'all')!=='all');
+      const limit=filteredMode?rows.length:Math.max(pageSize,Number(APP.ui.relationVisibleLimit)||pageSize);
+      const visibleRows=rows.slice(0,limit);
+      const count=getEl('relation-filter-count');if(count)count.textContent=`${visibleRows.length}/${rows.length}쌍 표시`;
+      table.innerHTML=rows.length?`<div class="relation-pair-grid">${visibleRows.map(({a,b,rel})=>{
+        const tier=RM.getRelationDisplayTier(rel); const color=GR.STAGE_COLORS[tier.id]||'#999';
         return relationPairCardHtml(a,b,rel,color);
-      }).join('')}</div>`:'<div class="empty-hint">현재 필터에 맞는 관계가 없습니다</div>';
+      }).join('')}</div>${visibleRows.length<rows.length?`<div class="relation-more-wrap"><button class="btn btn-ghost" onclick="showMoreRelationPairs()">관계 더 보기 · ${Math.min(20,rows.length-visibleRows.length)}쌍</button><span>${rows.length-visibleRows.length}쌍 남음</span></div>`:''}`:'<div class="empty-hint">현재 필터에 맞는 관계가 없습니다</div>';
     }
   }
 
@@ -5941,6 +6329,8 @@ function renderRelationsTab() {
   }
   renderRelLogMini('log-mini-relation');
 }
+
+window.showMoreRelationPairs=function(){const n=window.innerWidth<=720?10:20;APP.ui.relationVisibleLimit=Math.max(n,Number(APP.ui.relationVisibleLimit)||n)+n;renderRelationsTab();};
 
 // A/B 드롭다운 선택 시 이벤트 목록 즉시 렌더
 const ALL_EV_TYPES_GLOBAL = [
@@ -5992,16 +6382,23 @@ window.renderEvList = function() {
   const rel = RM.ensureRelation(s, idA, idB);
   const EM = window.EventsModule;
   let allowed = ALL_EV_TYPES_GLOBAL.filter(t => EM.isManualEventTypeAllowed(s,a,b,rel,t));
-  const color = GR.STAGE_COLORS[RM.hasTag(rel,'exLover')?'exLover':rel.stage] || '#999';
+  const tier=RM.getRelationDisplayTier(rel);
+  const color = GR.STAGE_COLORS[tier.id] || '#999';
 
   const reunionBlocked = RM.isExLover(rel) && (RM.isAvoiding(rel) || rel.coldWarDaysLeft > 0 || RM.hasTag(rel,'coldWar') || RM.hasTag(rel,'jealous'));
+  const romanceElig=EM.romanceEligibility(s,a,b,rel);
+  const romanceReason=relationRomanceActionBlockReason(a,b,rel);
+  const confessReady=rel.affection>=RM.getConfessThreshold(s.settings);
+  const reunionReady=rel.affection>=RM.getReunionThreshold(s.settings);
   const loverBtn = RM.isLover(rel)
     ? `<button class="ev-item ev-item-danger" onclick="doBreakupUI(${jsArg(idA)},${jsArg(idB)})">💔 이별</button>`
     : RM.isExLover(rel)
-      ? (reunionBlocked
-        ? `<button class="ev-item ev-item-disabled" disabled title="회피·냉전·질투 상태가 끝난 뒤 시도할 수 있습니다">❤️‍🩹 재결합 시도</button>`
+      ? ((!romanceElig.ok || reunionBlocked || !reunionReady)
+        ? `<button class="ev-item ev-item-disabled" disabled title="${escapeAttr(!romanceElig.ok?romanceReason:reunionBlocked?'회피·냉전·질투 상태가 끝난 뒤 시도할 수 있습니다':`재결합 가능 호감도 ${RM.getReunionThreshold(s.settings)} 이상 필요`)}">❤️‍🩹 재결합 시도</button>`
         : `<button class="ev-item ev-item-love" onclick="doConfessUI(${jsArg(idA)},${jsArg(idB)})">❤️‍🩹 재결합 시도</button>`)
-      : `<button class="ev-item ev-item-love" onclick="doConfessUI(${jsArg(idA)},${jsArg(idB)})">💌 고백 (${escapeHtml(a.name)} → ${escapeHtml(b.name)})</button>`;
+      : ((!romanceElig.ok || !confessReady)
+        ? `<button class="ev-item ev-item-disabled" disabled title="${escapeAttr(!romanceElig.ok?romanceReason:`고백 가능 호감도 ${RM.getConfessThreshold(s.settings)} 이상 필요`)}">💌 고백 (${escapeHtml(a.name)} → ${escapeHtml(b.name)})</button>`
+        : `<button class="ev-item ev-item-love" onclick="doConfessUI(${jsArg(idA)},${jsArg(idB)})">💌 고백 (${escapeHtml(a.name)} → ${escapeHtml(b.name)})</button>`);
 
   const evItems = ALL_EV_TYPES_GLOBAL.map(t => {
     const isAllowed = allowed.includes(t);
@@ -6012,11 +6409,12 @@ window.renderEvList = function() {
       : `<button class="ev-item ev-item-disabled" disabled title="${reason}">${label}</button>`;
   }).join('');
 
-  const tier=RM.getRelationPrimaryDisplay(rel,s.settings),trend=RM.getRelationTrend(rel,s.day,7);
+  const romance=RM.getRelationRomanceStatus(rel,s.settings),trend=RM.getRelationTrend(rel,s.day,7);
   listArea.innerHTML = `
     <div class="ev-pair-summary" style="--pair-color:${color}">
-      <div class="ev-pair-summary-head"><strong>${escapeHtml(a.name)} → ${escapeHtml(b.name)}</strong><span class="relation-stage-pill">${tier.icon} ${escapeHtml(tier.short)}</span><span class="ev-trend ${trend.delta>0?'up':trend.delta<0?'down':'flat'}">${trend.icon} ${trend.delta>0?'+':''}${trend.delta}</span></div>
+      <div class="ev-pair-summary-head"><strong>${escapeHtml(a.name)} → ${escapeHtml(b.name)}</strong><span class="relation-stage-pill">${tier.icon} ${escapeHtml(tier.short)}</span>${relationRomanceBadgeHtml(rel,true)}<span class="ev-trend ${trend.delta>0?'up':trend.delta<0?'down':'flat'}">${trend.icon} ${trend.delta>0?'+':''}${trend.delta}</span></div>
       ${relationStatusBadgesHtml(rel)}
+      ${relationRomanceTrackHtml(a,b,rel)}
       ${relationMeterHtml(rel,true)}
       <button class="text-link-btn" onclick="openPairTimeline(${jsArg(idA)},${jsArg(idB)})">정확한 수치·타임라인 보기 →</button>
     </div>
@@ -6052,8 +6450,10 @@ function getDisabledReason(type, rel, settings, state) {
   if (['flirting','date','reunion'].includes(type) && state) {
     const ids=String(rel.id).split(':');
     const a=state.members.find(m=>m.id===ids[0]), b=state.members.find(m=>m.id===ids[1]);
-    if (a && b && !window.EventsModule.isRomanceEventAllowed(state,a,b,rel,type))
-      return '현재 연애 허용 설정 또는 연애 형태에서 사용할 수 없습니다';
+    if (a && b && !window.EventsModule.isRomanceEventAllowed(state,a,b,rel,type)) {
+      const policy=relationRomancePolicy(a,b,rel);
+      return policy.reason || '현재 연애 허용 설정 또는 연애 형태에서 사용할 수 없습니다';
+    }
   }
   if (type === 'jealousy' && (!state || state.members.length < 3)) return '질투 이벤트에는 세 번째 멤버가 필요합니다';
   if (type === 'jealousy' && !RM.isLover(rel) && !RM.hasTag(rel,'jealous')) return '연인 관계 또는 질투 상태에서만 가능합니다';
@@ -6146,6 +6546,8 @@ window.doConfessUI = function(idA, idB) {
   if(!result)return;
   if(result.type==='already_lover'){showPopup('이미 연인입니다');return;}
   if(result.type==='romance_disabled'){showPopup('현재 연애가 허용되지 않는 설정입니다.\n설정 탭에서 변경할 수 있습니다');return;}
+  if(result.type==='gender_unknown'){showPopup('두 멤버의 성별 정보를 먼저 지정해주세요.\n멤버 수정에서 성별을 설정하면 연애 가능 여부를 판정할 수 있습니다.');return;}
+  if(result.type==='threshold_block'){showPopup(`고백하려면 호감도 ${result.threshold} 이상이 필요합니다.`);return;}
   if(result.type==='reunion_blocked'){showPopup('지금은 회피·냉전·질투 상태라 재결합을 시도할 수 없습니다');return;}
   if(result.type==='reunion_pending'){
     const line=`[Day ${s.day}] ❤️‍🩹 ${result.from.name}${josa(result.from.name,'와과')} ${result.to.name}${josa(result.to.name,'은는')} 다시 가까워지려 했지만 아직 마음의 거리가 남아 있었습니다`;
@@ -6351,6 +6753,7 @@ window.confirmAlbumProject = function(isEdit) {
   if(!isEdit) {
     s.album.progress={lyrics:0,arrangement:0,vocal:0,choreography:0};
     s.album.isPreparing=true; s.album.isReleased=false; s.album.comebackDaysLeft=0;
+    s.album.productionBonus=0; s.album.quality=0; s.album.releasedDay=null;
   }
   Object.assign(s.album,{title,genre,concept,lyricistId,arrangerId});
   s.album.releaseInfo={genre,concept,lyricist:lyricistId,arranger:arrangerId};
@@ -6397,6 +6800,7 @@ window.confirmReleaseAlbum = function() {
 
 window.onPlanConcert = function() {
   const s=APP.state;
+  if(!s.members.length){showPopup('먼저 멤버를 추가해주세요');return;}
   if(s.concert&&s.concert.isPlanned){showPopup('이미 콘서트가 예정되어 있습니다');return;}
   if(s.money<1000){showPopup(`콘서트 예약 비용이 부족합니다\n필요: 1,000원 / 보유: ${formatMoney(s.money)}`);return;}
   showModal(`
@@ -6455,14 +6859,15 @@ window.onSaveGroupName=function(){
   renderDashboard(); renderMembersTab(); showToast('그룹명을 변경했습니다');
 };
 window.onChangeTheme=function(v){APP.state.theme=v;applyTheme(v);window.StateModule.saveState(APP.state);showToast('테마를 변경했습니다');};
-window.onChangeMode=function(v){APP.state.settings.relationshipMode=v;window.StateModule.saveState(APP.state);showToast(v==='monogamy'?'단일연애로 변경 · 기존 관계는 유지하고 신규 연애만 제한합니다':'개방관계로 변경했습니다');};
+window.onChangeMode=function(v){APP.state.settings.relationshipMode=v;window.StateModule.saveState(APP.state);renderRelationsTab();showToast(v==='monogamy'?'단일연애로 변경 · 기존 관계는 유지하고 신규 연애만 제한합니다':'개방관계로 변경했습니다');};
 window.onChangeAllowRomance=function(v){
   APP.state.settings.allowRomance=v;
   window.StateModule.saveState(APP.state);
   renderSettingsTab(); // dim 처리 즉시 반영
+  renderRelationsTab();
 };
-window.onChangeSameGender=function(v){APP.state.settings.allowSameGender=v;window.StateModule.saveState(APP.state);};
-window.onChangeOppGender =function(v){APP.state.settings.allowOppositeGender=v;window.StateModule.saveState(APP.state);};
+window.onChangeSameGender=function(v){APP.state.settings.allowSameGender=v;window.StateModule.saveState(APP.state);renderRelationsTab();showToast(v?'동성 연애를 허용했습니다':'동성 신규 연애를 비활성화했습니다 · 기존 연인은 유지됩니다');};
+window.onChangeOppGender =function(v){APP.state.settings.allowOppositeGender=v;window.StateModule.saveState(APP.state);renderRelationsTab();showToast(v?'이성 연애를 허용했습니다':'이성 신규 연애를 비활성화했습니다 · 기존 연인은 유지됩니다');};
 window.onToggleTheme=function(){
   const s=APP.state;
   s.theme=s.theme==='dark'?'light':'dark';
@@ -6511,7 +6916,7 @@ function renderLogTab(){
   renderLogCards(el,lines);const count=getEl('log-filter-count');if(count)count.textContent=`${lines.length}건 표시`;
 }
 window.resetLogFilters=function(){if(getEl('log-search'))getEl('log-search').value='';if(getEl('log-category'))getEl('log-category').value='all';if(getEl('log-day'))getEl('log-day').value='';renderLogTab();};
-function renderLogMini(id){const el=getEl(id);if(!el)return;const N=Math.min(Number(APP.state.settings.logPreviewN)||30,id==='log-mini-dash'?8:12);renderLogCards(el,APP.state.log.slice(-N).reverse());}
+function renderLogMini(id){const el=getEl(id);if(!el)return;const N=Math.min(Number(APP.state.settings.logPreviewN)||30,id==='log-mini-dash'?7:12);renderLogCards(el,APP.state.log.slice(-N).reverse());}
 function renderRelLogMini(id){const el=getEl(id);if(!el)return;const N=Math.min(Number(APP.state.settings.logPreviewN)||30,12),relLog=APP.state.relLog||[];renderLogCards(el,relLog.slice(-N).reverse(),'관계 이벤트 없음');}
 function renderAllLogViews(){renderLogTab();renderLogMini('log-mini-dash');renderLogMini('log-mini-schedule');renderRelLogMini('log-mini-relation');}
 function pushLog(line){APP.state.log.push(line);renderLogTab();renderLogMini('log-mini-dash');renderLogMini('log-mini-schedule');}
@@ -6525,7 +6930,7 @@ window.openEditMember = id => { const m=APP.state.members.find(m=>m.id===id); if
 
 function getMemberFormData() {
   return {
-    name:getEl('mf-name')?.value||'', gender:getEl('mf-gender')?.value||'',
+    name:getEl('mf-name')?.value||'', josaPronunciation:getEl('mf-josa-pronunciation')?.value||'', gender:getEl('mf-gender')?.value||'',
     mbti:getEl('mf-mbti')?.value||'', height:getEl('mf-height')?.value||'',
     weight:getEl('mf-weight')?.value||'', position:getEl('mf-pos')?.value||'',
     isLeader:getEl('mf-leader')?.value==='1', resetWeightBase:!!getEl('mf-reset-weight-base')?.checked,
@@ -6584,6 +6989,7 @@ function showMemberForm(member, preset) {
           </select>
         </div>
       </div>
+      <div class="form-group"><label>조사용 발음 <span class="field-hint">(선택)</span></label><input id="mf-josa-pronunciation" class="input" value="${escapeAttr(m.josaPronunciation||'')}" placeholder="예: John → 존" autocomplete="off"><span class="field-hint">영문·외래 이름 뒤의 은/는·이/가 등을 발음 기준으로 맞출 때만 입력합니다.</span></div>
       <div class="form-row">
         <div class="form-group"><label>키(cm) *</label><input id="mf-height" class="input" type="number" min="${MIN_HEIGHT}" value="${m.height??''}" placeholder="${MIN_HEIGHT} 이상"><span class="field-hint">최소 ${MIN_HEIGHT}cm</span></div>
         <div class="form-group"><label>몸무게(kg) *</label><input id="mf-weight" class="input" type="number" min="${MIN_WEIGHT}" step="0.01" value="${m.weight??''}" placeholder="${MIN_WEIGHT} 이상"><span class="field-hint">최소 ${MIN_WEIGHT}kg</span></div>
@@ -6634,7 +7040,7 @@ window.fillMemberFormRandom = function(){
 };
 
 window.resetMemberFormInputs = function(){
-  ['name','height','weight'].forEach(k=>{const el=getEl('mf-'+k);if(el)el.value='';});
+  ['name','height','weight','josa-pronunciation'].forEach(k=>{const el=getEl('mf-'+k);if(el)el.value='';});
   ['gender','mbti','pos'].forEach(k=>{const el=getEl('mf-'+k);if(el)el.value='';});
   if(getEl('mf-leader')) getEl('mf-leader').value=APP.state.members.length===0?'1':'0';
   ['vocal','dance','rap','looks','charm','songwriting','arrangement'].forEach(k=>{const el=getEl('mf-'+k);if(el)el.value='0';});
@@ -6684,7 +7090,7 @@ function applyMemberSave(s,data,editId){
   if(editId){
     const m=s.members.find(m=>m.id===editId);
     if(m){
-      m.name=data.name.trim(); m.gender=data.gender; m.mbti=data.mbti;
+      m.name=data.name.trim(); m.josaPronunciation=String(data.josaPronunciation||'').trim(); m.gender=data.gender; m.mbti=data.mbti;
       m.height=Math.max(MM.MIN_HEIGHT,Number(data.height));
       m.weight=Math.max(MM.MIN_WEIGHT,Math.round(parseFloat(data.weight)*100)/100);
       if(data.resetWeightBase){m.weightBase=m.weight;m.weightBand='normal';}
@@ -6777,10 +7183,9 @@ window.onImportFile=async function(input){
     const json=await window.StorageModule.readFile(file);
     const ns=window.StateModule.loadStateFromJSON(json);
     if(!ns){showPopup('파일을 읽을 수 없습니다');return;}
-    window.StateModule.createBackup(APP.state,'전체 불러오기 전');
-    APP.state=ns;APP.ui.relationA='';APP.ui.relationB='';APP.ui.scheduleUndo=[];APP.ui.scheduleSelected?.clear();saveRelationSelection();
-    if(!window.StateModule.saveState(APP.state)){showPopup('파일은 읽었지만 브라우저 저장에 실패했습니다.');return;}
-    renderAll();
+    if(!window.StateModule.createBackup(APP.state,'전체 불러오기 전')){showPopup('안전 자동백업을 만들 수 없어 불러오기를 중단했습니다.\n전체 내보내기로 백업한 뒤 다시 시도해주세요.');return;}
+    if(!window.StateModule.saveState(ns)){showPopup('불러온 파일을 브라우저에 안전하게 저장할 수 없어 기존 상태를 유지합니다.\n저장 공간을 확보하거나 전체 내보내기를 확인해주세요.');return;}
+    APP.state=ns;resetTransientUiAfterStateReplace();renderAll();
     const repaired=(APP.state.migrations||[]).filter(x=>String(x).startsWith('v16-')).length;
     showToast(repaired?`불러왔습니다 · 자동 보정 ${repaired}건`:'불러왔습니다');
   }catch(e){showPopup('파일 형식 오류');}
@@ -6797,7 +7202,7 @@ window.onImportMembersFile=async function(input){
     const remain=Math.max(0,25-APP.state.members.length);
     showModal(`<h3>멤버 불러오기</h3>
       <p class="note">파일 ${members.length}명 · 현재 ${APP.state.members.length}명 · 빈 자리 ${remain}명</p>
-      <div class="summary-list" style="margin-top:8px">불러오기 과정에서 키/몸무게 최소값, 리더 1명, 메인 포지션 중복, 중복 ID를 자동 점검합니다.</div>
+      <div class="summary-list" style="margin-top:8px">불러오기 과정에서 키/몸무게 최소값, 리더 1명, 메인 포지션 중복, 중복 ID를 자동 점검합니다.<br><b>기존 멤버 교체</b>를 선택하면 잘못된 ID 재연결을 막기 위해 기존 관계·오늘/이전 일정·앨범 담당자 연결을 초기화합니다.</div>
       <div class="modal-actions">
         <button class="btn" onclick="confirmMemberImport('replace')">기존 멤버 교체</button>
         <button class="btn btn-ghost" onclick="confirmMemberImport('add')" ${remain<=0?'disabled':''}>기존 멤버에 추가</button>
@@ -6810,18 +7215,24 @@ window.onImportMembersFile=async function(input){
 window.confirmMemberImport=function(mode){
   const incoming=Array.isArray(APP.ui.pendingMemberImport)?APP.ui.pendingMemberImport:[];
   if(!incoming.length){showPopup('불러올 멤버가 없습니다');return;}
-  window.StateModule.createBackup(APP.state,'멤버 불러오기 전');
-  let members, skipped=0;
+  if(!window.StateModule.createBackup(APP.state,'멤버 불러오기 전')){showPopup('안전 자동백업을 만들 수 없어 멤버 불러오기를 중단했습니다.\n전체 내보내기로 백업한 뒤 다시 시도해주세요.');return;}
+  let members, skipped=0, base={...APP.state};
   if(mode==='add'){
     const remain=Math.max(0,25-APP.state.members.length);
     const add=incoming.slice(0,remain);skipped=Math.max(0,incoming.length-add.length);
     members=APP.state.members.concat(add);
-  }else members=incoming.slice(0,25);
-  APP.state=window.StateModule.migrateState({...APP.state,members});
-  APP.ui.pendingMemberImport=null;APP.ui.scheduleUndo=[];APP.ui.scheduleSelected?.clear();
-  const ok=window.StateModule.saveState(APP.state);
+  }else{
+    members=incoming.slice(0,25);
+    // 멤버 파일에는 관계/일정 데이터가 없으므로 ID가 우연히 같아도 옛 참조를 새 사람에게 물려주지 않는다.
+    base={...base,schedule:[],lastSchedule:[],manualSchedule:{},relations:[],relLog:[]};
+    base.album={...APP.state.album,lyricistId:'',arrangerId:'',releaseInfo:{...(APP.state.album?.releaseInfo||{}),lyricist:'',arranger:''}};
+    base.log=(Array.isArray(APP.state.log)?APP.state.log.slice():[]).concat(`[Day ${APP.state.day}] 👥 멤버 명단 교체 · 기존 관계/일정/앨범 담당자 연결 초기화`);
+  }
+  const nextState=window.StateModule.migrateState({...base,members});
+  if(!window.StateModule.saveState(nextState)){showPopup('멤버 데이터를 브라우저에 안전하게 저장할 수 없어 기존 명단을 유지합니다.');return;}
+  APP.state=nextState;APP.ui.pendingMemberImport=null;
+  if(mode==='replace')resetTransientUiAfterStateReplace();else{APP.ui.scheduleUndo=[];APP.ui.scheduleSelected?.clear();}
   renderAll();closeModal();
-  if(!ok){showPopup('멤버 데이터는 적용됐지만 브라우저 저장에 실패했습니다. 전체 내보내기를 해주세요.');return;}
   showToast(skipped?`멤버 불러오기 완료 · 정원 초과 ${skipped}명 제외`:'멤버를 불러왔습니다');
 };
 
@@ -6841,18 +7252,18 @@ window.restoreBackupUI=function(index){
   const restored=window.StateModule.restoreBackup(index);
   if(!restored){showPopup('백업을 읽을 수 없습니다');return;}
   showConfirm('이 백업으로 현재 상태를 복원할까요?\n현재 상태도 복원 직전에 한 번 더 백업됩니다.',()=>{
-    window.StateModule.createBackup(APP.state,'백업 복원 전');
-    APP.state=restored;APP.ui.relationA='';APP.ui.relationB='';APP.ui.scheduleUndo=[];APP.ui.scheduleSelected?.clear();saveRelationSelection();
-    window.StateModule.saveState(APP.state);renderAll();closeModal();showToast('백업을 복원했습니다');
+    if(!window.StateModule.createBackup(APP.state,'백업 복원 전')){showPopup('현재 상태의 안전백업을 만들 수 없어 복원을 중단했습니다.');return;}
+    if(!window.StateModule.saveState(restored)){showPopup('복원 데이터를 브라우저에 저장할 수 없어 현재 상태를 유지합니다.');return;}
+    APP.state=restored;resetTransientUiAfterStateReplace();renderAll();closeModal();showToast('백업을 복원했습니다');
   });
 };
 
 window.onReset=function(){
   showConfirm('정말 초기화하시겠습니까? 모든 게임 데이터가 초기화됩니다.\n현재 상태는 자동백업으로 남깁니다.',()=>{
-    window.StateModule.createBackup(APP.state,'전체 초기화 전');
-    APP.state=window.StateModule.createDefaultState();APP.ui.relationA='';APP.ui.relationB='';APP.ui.scheduleUndo=[];APP.ui.scheduleSelected?.clear();saveRelationSelection();
-    const ok=window.StateModule.saveState(APP.state);renderAll();
-    ok?showToast('초기화되었습니다'):showPopup('초기화 후 브라우저 저장에 실패했습니다');
+    if(!window.StateModule.createBackup(APP.state,'전체 초기화 전')){showPopup('안전 자동백업을 만들 수 없어 초기화를 중단했습니다.\n전체 내보내기로 백업한 뒤 다시 시도해주세요.');return;}
+    const nextState=window.StateModule.createDefaultState();
+    if(!window.StateModule.saveState(nextState)){showPopup('초기화 상태를 브라우저에 저장할 수 없어 현재 게임을 유지합니다.');return;}
+    APP.state=nextState;resetTransientUiAfterStateReplace();renderAll();showToast('초기화되었습니다');
   });
 };
 
@@ -6963,6 +7374,22 @@ window.closeModal=function(){
     _allowClose=true;
   }
 };
+window.addEventListener('popstate',()=>{
+  const ov=getEl('modal-overlay');
+  if(ov?.classList.contains('active')){
+    closeModal();
+    history.pushState({idolGuard:true},document.title,location.href);
+    return;
+  }
+  if((APP.ui.activeTab||'dashboard')!=='dashboard'){
+    switchTab('dashboard');
+    history.pushState({idolGuard:true},document.title,location.href);
+    return;
+  }
+  // 대시보드에서 한 번 더 뒤로가면 앱을 실제로 벗어난다.
+  setTimeout(()=>history.back(),0);
+});
+
 document.addEventListener('keydown',e=>{
   const ov=getEl('modal-overlay');
   if(e.key==='Escape'&&_allowClose&&ov?.classList.contains('active')){closeModal();return;}
@@ -6980,6 +7407,8 @@ document.addEventListener('DOMContentLoaded', init);
 </script>
 
 <!-- idol-mobile-v22.2 header-quick-tools build -->
-<!-- idol-sim-v23 dashboard-redesign build -->
+<!-- idol-v24.0 dashboard-2x2 + intimacy-romance-separation build -->
+<!-- idol-v25.0 romance-policy + relation-scale + android-back build -->
+<!-- idol-v25.1 full-QA hardening + atomic-import + storage-safety build -->
 </body>
 </html>
