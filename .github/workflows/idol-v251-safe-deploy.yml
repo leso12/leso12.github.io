@@ -76,7 +76,7 @@ jobs:
           sha=hashlib.sha256(html).hexdigest()
           size=len(html)
           print(f'validated candidate sha256={sha} size={size}')
-          if sha != '10f3480e85f965002dad82527b2867100b50882d4721b43fd2dcd8214b7421c0':
+          if sha != '75c659d88e8748c9311c1f4ea7f33c09233661dbb158777ab27e4f3a0c83b2cb':
               raise SystemExit('HTML SHA256 mismatch')
           if size != 362289:
               raise SystemExit(f'HTML size mismatch: {size}')
