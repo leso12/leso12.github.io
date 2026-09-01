@@ -1,6 +1,6 @@
 (async()=>{
   try{
-    document.title='개발 서재 · Mobile Hub v2.7.5';
+    document.title='개발 서재 · Mobile Hub v2.7.6';
     // Security bridge: legacy/mobile code may still build ?key= URLs.
     // Strip the key before the network request and send it in X-Devlib-Key instead,
     // so long-lived editor keys are no longer written into Edge Function request logs.
@@ -35,7 +35,7 @@
     const s=document.createElement('script');
     s.textContent=code+'\n//# sourceURL=devlib-app-v2.7.1.js';
     document.body.appendChild(s);
-    for(const [src,ver] of [['./v273-fixes-addon.js','2.7.3'],['./v274-integrity-addon.js','2.7.4'],['./v275-hierarchy-guide-addon.js','2.7.5']]){
+    for(const [src,ver] of [['./v273-fixes-addon.js','2.7.3'],['./v274-integrity-addon.js','2.7.4'],['./v275-hierarchy-guide-addon.js','2.7.6']]){
       const addon=document.createElement('script');
       addon.src=`${src}?v=${ver}`;
       addon.async=false;
