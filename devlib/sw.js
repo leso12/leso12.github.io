@@ -1,4 +1,4 @@
-const CACHE='devlib-mobile-v275-latestguide';
+const CACHE='devlib-mobile-v276-identity-guide';
 const ASSETS=['./','./index.html','./app.js','./app.payload.txt','./v273-fixes-addon.js','./v274-integrity-addon.js','./v275-hierarchy-guide-addon.js','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
