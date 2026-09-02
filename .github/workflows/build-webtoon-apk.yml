@@ -33,31 +33,42 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Build debug APK and capture log
-        id: build
-        continue-on-error: true
+      - name: Apply compile compatibility patch
+        run: |
+          sed -i 's/^    void setImmersive(boolean on)/    public void setImmersive(boolean on)/' webtoon_android/app/src/main/java/com/leso12/webtoonviewer/MainActivity.java
+          grep -n "public void setImmersive" webtoon_android/app/src/main/java/com/leso12/webtoonviewer/MainActivity.java
+
+      - name: Build debug APK
         working-directory: webtoon_android
         run: |
+          rm -rf app/build build-output
           mkdir -p build-output
           set -o pipefail
           gradle :app:assembleDebug --no-daemon --stacktrace 2>&1 | tee build-output/build.log
 
       - name: Export installable APK
-        if: always()
         run: |
           mkdir -p webtoon_android/build-output
           APK="webtoon_android/app/build/outputs/apk/debug/app-debug.apk"
-          if [ -f "$APK" ]; then
-            cp "$APK" webtoon_android/build-output/WebtoonViewer_Android_v1.1_ADFREE.apk
-            sha256sum webtoon_android/build-output/WebtoonViewer_Android_v1.1_ADFREE.apk > webtoon_android/build-output/WebtoonViewer_Android_v1.1_ADFREE.apk.sha256
-          fi
+          test -f "$APK"
+          cp "$APK" webtoon_android/build-output/WebtoonViewer_Android_v1.1_ADFREE.apk
+          sha256sum webtoon_android/build-output/WebtoonViewer_Android_v1.1_ADFREE.apk > webtoon_android/build-output/WebtoonViewer_Android_v1.1_ADFREE.apk.sha256
+
+      - name: Verify APK is a ZIP/APK container
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('webtoon_android/build-output/WebtoonViewer_Android_v1.1_ADFREE.apk')
+          b=p.read_bytes()[:4]
+          assert b == b'PK\x03\x04', (p, b)
+          print('Verified APK magic:', b, 'size:', p.stat().st_size)
+          PY
 
       - name: Commit build result
-        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add webtoon_android/build-output
           git diff --cached --quiet && exit 0
-          git commit -m "webtoon android: publish v1.1 ad-free APK [skip ci]"
+          git commit -m "webtoon android: publish verified v1.1 ad-free APK [skip ci]"
           git push origin HEAD:${GITHUB_REF_NAME}
