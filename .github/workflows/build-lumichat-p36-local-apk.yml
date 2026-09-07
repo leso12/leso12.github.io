@@ -33,7 +33,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/lumichat-p36
-          base64 -d .deploy/lumichat_p36_android_20260908/source.b64 > /tmp/LumiChat_P36_android_source.zip
+          cat .deploy/lumichat_p36_android_20260908/part* | base64 -d > /tmp/LumiChat_P36_android_source.zip
           echo 'd64f6e1a3c447ce0f8668ec9ca6e3ec2054166b2173627990ab9e8ed16292ca9  /tmp/LumiChat_P36_android_source.zip' | sha256sum -c -
           unzip -q /tmp/LumiChat_P36_android_source.zip -d /tmp/lumichat-p36
           test -f /tmp/lumichat-p36/app/build.gradle
