@@ -1,0 +1,69 @@
+name: Deploy LumiChat Mobile v0.17.0 P35 Clean
+
+on:
+  push:
+    paths:
+      - '.deploy/lumichat_p35_clean_20260907/trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify and reconstruct clean P35 payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '6e6d796403b404b4324305e01700bec7b92fc7f2fa0a1046d2e60684b1f4dbe9  .deploy/lumichat_p35_clean_20260907/part00' | sha256sum -c -
+          echo '7247aede85eff09f1144ae793b30174dd67afdb96f7d8a5dffcff0813be78658  .deploy/lumichat_p35_clean_20260907/part01' | sha256sum -c -
+          echo 'b7a92b8a4d1615f8342c8e7369f799bfa93daca865b29debe08cdb1319650c8e  .deploy/lumichat_p35_clean_20260907/part02' | sha256sum -c -
+          echo 'dccd06eec5500e8490377fab2d08b96a75fbf202a9f0cf0b04db61e638c7b4a6  .deploy/lumichat_p35_clean_20260907/part03' | sha256sum -c -
+          echo '96b5eb0461c17ccf89d438246e505691ad844f908290f2d3d76e54e33b98e28b  .deploy/lumichat_p35_clean_20260907/part04' | sha256sum -c -
+          echo 'e4c027403a927b17dad45ad2843968f80edc4d3b8d97f7af59ab196b8480c082  .deploy/lumichat_p35_clean_20260907/part05' | sha256sum -c -
+          echo 'c89cd552c2d652bcc74024d2484ce6e7eb3551710670cfa8483008856932d57a  .deploy/lumichat_p35_clean_20260907/part06' | sha256sum -c -
+          echo '5fc4a0cd5f9478cdbf7a959e1baba6437de355ed5cd99b419d8824abdb3855e7  .deploy/lumichat_p35_clean_20260907/part07' | sha256sum -c -
+          echo '2b472ab2de06789e4b8d73863e6d378982c5825654e751aca4f97cfb5168ec0a  .deploy/lumichat_p35_clean_20260907/part08' | sha256sum -c -
+          echo 'cc64c99bf52add703646b0c876dc6b86c9a0d9b2afd5c76ae678c23c2dd39999  .deploy/lumichat_p35_clean_20260907/part09' | sha256sum -c -
+          echo '1643d8372499380ea0c9bf74b854f9a1bebabc43757b36818e6a3fde0d675821  .deploy/lumichat_p35_clean_20260907/part10' | sha256sum -c -
+          echo '4a0fc328424b685728b1c19a1888aed43cb9d06c246933843a7a96e486688492  .deploy/lumichat_p35_clean_20260907/part11' | sha256sum -c -
+          echo '11d495f33b12d5a062071e11807f73dcfd173ee5b58d7b28ee8c1ecaf42b8b6f  .deploy/lumichat_p35_clean_20260907/part12' | sha256sum -c -
+          echo '25ae96802e7db595014a084284e5deedf4c84bb70db3b2fe3d165f1afc1840f6  .deploy/lumichat_p35_clean_20260907/part13' | sha256sum -c -
+          echo '2a797a09cb1d96a7cd2cf055d3b152434b90f5bbf586244f27cd06e6ff0b1d43  .deploy/lumichat_p35_clean_20260907/part14' | sha256sum -c -
+          echo 'f6d73b85e8c8cd2e546745e2178ea4450337f12c78788b25e3159722b4c651f5  .deploy/lumichat_p35_clean_20260907/part15' | sha256sum -c -
+          cat .deploy/lumichat_p35_clean_20260907/part{00..15} > /tmp/p35.b64
+          echo 'a4b8e50780f2872d62efea3da5405468923b11ab6793afde39cc671d043d578c  /tmp/p35.b64' | sha256sum -c -
+          base64 -d /tmp/p35.b64 > /tmp/mobile-pwa.tar.xz
+          echo '02d793b28ffd799d5cd9579dc07f603020d107ae06210d533d4b237713c02798  /tmp/mobile-pwa.tar.xz' | sha256sum -c -
+          xz -t /tmp/mobile-pwa.tar.xz
+          mkdir -p /tmp/p35
+          tar -xJf /tmp/mobile-pwa.tar.xz -C /tmp/p35
+          test -f /tmp/p35/mobile-pwa/index.html
+          grep -Fq 'LumiChat v0.17.0 P35 Style Scope UI Cleanup Mobile' /tmp/p35/mobile-pwa/index.html
+          grep -Fq '01700p35' /tmp/p35/mobile-pwa/index.html
+          grep -Fq "APP_VERSION='0.17.0'" /tmp/p35/mobile-pwa/core.js
+          grep -Fq 'p35-style-scope-ui.css' /tmp/p35/mobile-pwa/index.html
+
+      - name: Replace public mobile PWA
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf mobile/lumichat
+          mkdir -p mobile/lumichat
+          cp -a /tmp/p35/mobile-pwa/. mobile/lumichat/
+          rm -rf .deploy/lumichat_p35_clean_20260907
+
+      - name: Commit deployed mobile v0.17.0 P35
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A mobile/lumichat .deploy/lumichat_p35_clean_20260907
+          git diff --cached --quiet && exit 0
+          git commit -m 'Deploy LumiChat mobile v0.17.0 P35'
+          git push
