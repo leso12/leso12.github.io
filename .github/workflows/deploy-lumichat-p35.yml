@@ -24,22 +24,50 @@ jobs:
           test -d "$PART_DIR"
           test -n "$(find "$PART_DIR" -maxdepth 1 -type f -name 'part*' -print -quit)"
 
-          cat "$PART_DIR"/part* | tr -d '\r\n ' | base64 -d > /tmp/lumichat-p35.payload
-          rm -rf /tmp/lumichat-p35-decoded /tmp/lumichat-p35-unpack
-          mkdir -p /tmp/lumichat-p35-decoded /tmp/lumichat-p35-unpack
+          cat "$PART_DIR"/part* | tr -d '\r\n ' | base64 -d > /tmp/lumichat-p35-stage0
+          rm -rf /tmp/lumichat-p35-unpack
+          mkdir -p /tmp/lumichat-p35-unpack
 
-          if xz -t /tmp/lumichat-p35.payload >/dev/null 2>&1; then
-            xz -dc /tmp/lumichat-p35.payload > /tmp/lumichat-p35-decoded/payload
-          else
-            cp /tmp/lumichat-p35.payload /tmp/lumichat-p35-decoded/payload
-          fi
+          CURRENT=/tmp/lumichat-p35-stage0
+          for DEPTH in 1 2 3 4 5 6; do
+            NEXT="/tmp/lumichat-p35-stage${DEPTH}"
+            if xz -t "$CURRENT" >/dev/null 2>&1; then
+              echo "decode layer ${DEPTH}: xz"
+              xz -dc "$CURRENT" > "$NEXT"
+              CURRENT="$NEXT"
+              continue
+            fi
+            if gzip -t "$CURRENT" >/dev/null 2>&1; then
+              echo "decode layer ${DEPTH}: gzip"
+              gzip -dc "$CURRENT" > "$NEXT"
+              CURRENT="$NEXT"
+              continue
+            fi
+            if bzip2 -t "$CURRENT" >/dev/null 2>&1; then
+              echo "decode layer ${DEPTH}: bzip2"
+              bzip2 -dc "$CURRENT" > "$NEXT"
+              CURRENT="$NEXT"
+              continue
+            fi
+            if LC_ALL=C grep -Eq '^[A-Za-z0-9+/=[:space:]]+$' "$CURRENT" && base64 -d "$CURRENT" > "$NEXT" 2>/dev/null && [ -s "$NEXT" ]; then
+              echo "decode layer ${DEPTH}: base64"
+              CURRENT="$NEXT"
+              continue
+            fi
+            break
+          done
 
-          if tar -tf /tmp/lumichat-p35-decoded/payload >/dev/null 2>&1; then
-            tar -xf /tmp/lumichat-p35-decoded/payload -C /tmp/lumichat-p35-unpack
-          elif unzip -tq /tmp/lumichat-p35-decoded/payload >/dev/null 2>&1; then
-            unzip -q /tmp/lumichat-p35-decoded/payload -d /tmp/lumichat-p35-unpack
+          echo "final payload: $(file -b "$CURRENT")"
+          if tar -tf "$CURRENT" >/dev/null 2>&1; then
+            tar -xf "$CURRENT" -C /tmp/lumichat-p35-unpack
+          elif unzip -tq "$CURRENT" >/dev/null 2>&1; then
+            unzip -q "$CURRENT" -d /tmp/lumichat-p35-unpack
+          elif command -v cpio >/dev/null 2>&1 && cpio -it < "$CURRENT" >/dev/null 2>&1; then
+            (cd /tmp/lumichat-p35-unpack && cpio -idmu < "$CURRENT")
           else
-            echo 'P35 payload is neither a tar archive nor a ZIP after decode.' >&2
+            echo 'Unable to identify the final P35 archive payload.' >&2
+            echo 'First 64 bytes:' >&2
+            xxd -l 64 "$CURRENT" >&2 || true
             exit 1
           fi
 
