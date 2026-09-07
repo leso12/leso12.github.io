@@ -1,0 +1,83 @@
+name: Deploy LumiChat Mobile P35
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.deploy/lumichat_p35_xz/**'
+      - '.deploy/lumichat-p35-trigger.txt'
+      - '.github/workflows/deploy-lumichat-p35.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rebuild and validate LumiChat P35 mobile bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          PART_DIR='.deploy/lumichat_p35_xz'
+          test -d "$PART_DIR"
+          test -n "$(find "$PART_DIR" -maxdepth 1 -type f -name 'part*' -print -quit)"
+
+          cat "$PART_DIR"/part* | tr -d '\r\n ' | base64 -d > /tmp/lumichat-p35.payload
+          rm -rf /tmp/lumichat-p35-decoded /tmp/lumichat-p35-unpack
+          mkdir -p /tmp/lumichat-p35-decoded /tmp/lumichat-p35-unpack
+
+          # The staged payload is XZ-compressed. Be defensive and support either
+          # a tar stream or a nested ZIP after decompression.
+          if xz -t /tmp/lumichat-p35.payload >/dev/null 2>&1; then
+            xz -dc /tmp/lumichat-p35.payload > /tmp/lumichat-p35-decoded/payload
+          else
+            cp /tmp/lumichat-p35.payload /tmp/lumichat-p35-decoded/payload
+          fi
+
+          if tar -tf /tmp/lumichat-p35-decoded/payload >/dev/null 2>&1; then
+            tar -xf /tmp/lumichat-p35-decoded/payload -C /tmp/lumichat-p35-unpack
+          elif unzip -tq /tmp/lumichat-p35-decoded/payload >/dev/null 2>&1; then
+            unzip -q /tmp/lumichat-p35-decoded/payload -d /tmp/lumichat-p35-unpack
+          else
+            echo 'P35 payload is neither a tar archive nor a ZIP after decode.' >&2
+            exit 1
+          fi
+
+          INDEX="$(find /tmp/lumichat-p35-unpack -type f -path '*/mobile-pwa/index.html' -print -quit)"
+          if [ -z "$INDEX" ]; then
+            INDEX="$(find /tmp/lumichat-p35-unpack -type f -name index.html -exec grep -l '0.17.0' {} \; | head -n 1)"
+          fi
+          test -n "$INDEX"
+          SRC="$(dirname "$INDEX")"
+
+          grep -q '0.17.0' "$SRC/index.html"
+          test -f "$SRC/app.js"
+          test -f "$SRC/core.js"
+          test -f "$SRC/styles.css"
+          test -f "$SRC/p35-style-scope-ui.css"
+          test -f "$SRC/sw.js"
+
+          rm -rf mobile/lumichat
+          mkdir -p mobile/lumichat
+          cp -a "$SRC"/. mobile/lumichat/
+
+          # Make stale service-worker caches less likely to mask this deployment.
+          grep -q '0.17.0' mobile/lumichat/index.html
+          grep -q 'p35-style-scope-ui.css' mobile/lumichat/index.html
+
+          rm -rf "$PART_DIR" .deploy/lumichat-p35-trigger.txt
+
+      - name: Commit deployed mobile site
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A mobile/lumichat .deploy
+          git diff --cached --quiet && exit 0
+          git commit -m 'Deploy LumiChat mobile v0.17.0 P35'
+          git push
