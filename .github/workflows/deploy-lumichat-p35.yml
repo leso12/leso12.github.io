@@ -4,9 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.deploy/lumichat_p35_xz/**'
       - '.deploy/lumichat-p35-trigger.txt'
-      - '.github/workflows/deploy-lumichat-p35.yml'
 
 permissions:
   contents: write
@@ -30,8 +28,6 @@ jobs:
           rm -rf /tmp/lumichat-p35-decoded /tmp/lumichat-p35-unpack
           mkdir -p /tmp/lumichat-p35-decoded /tmp/lumichat-p35-unpack
 
-          # The staged payload is XZ-compressed. Be defensive and support either
-          # a tar stream or a nested ZIP after decompression.
           if xz -t /tmp/lumichat-p35.payload >/dev/null 2>&1; then
             xz -dc /tmp/lumichat-p35.payload > /tmp/lumichat-p35-decoded/payload
           else
@@ -65,7 +61,6 @@ jobs:
           mkdir -p mobile/lumichat
           cp -a "$SRC"/. mobile/lumichat/
 
-          # Make stale service-worker caches less likely to mask this deployment.
           grep -q '0.17.0' mobile/lumichat/index.html
           grep -q 'p35-style-scope-ui.css' mobile/lumichat/index.html
 
