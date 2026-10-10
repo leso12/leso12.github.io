@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="생년월일로 사주 명식을 계산하고, 두 명리학자의 해석을 A4 한 장으로 받아보세요.">
-<title>두 명의 명리학자가 바라본 나</title>
+<title>나의 사주 | 사주 명식 보기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
 <script src="./vendor/lunar.js"></script>
@@ -189,6 +189,32 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
   .sheet-viewport{height:auto!important;overflow:visible}
   .sheet{transform:none!important;box-shadow:none;margin:0;height:297mm;min-height:0;overflow:hidden;page-break-after:avoid;break-inside:avoid}
 }
+
+@media screen{
+body{background:#f8f6f1;padding-block:30px 50px}.wrap{max-width:780px;gap:16px}
+.panel{background:#fffdf8;border:1px solid #e5dfd4;border-radius:18px;padding:24px 26px;gap:17px;box-shadow:0 6px 30px rgba(68,42,23,.055)}
+.panel-head .mini-mark{font-size:11px;letter-spacing:.16em;color:var(--burgundy);font-weight:600}
+.panel h2{font:600 21px/1.4 var(--sans);letter-spacing:-.04em}
+.panel h2 small{display:block;margin:6px 0 0;font-size:12.5px;letter-spacing:0;line-height:1.5}
+.panel .grid{gap:16px}.field label,.field .lab{font-size:12px}
+.field input[type=date],.field input[type=time],.field input[type=number],.field select,.field textarea{min-height:42px;border:1px solid #ded6c9;background:#fff;border-radius:9px;padding:9px 12px;font:14px var(--sans);width:100%}
+.field textarea{min-height:66px}.place-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.place-note{margin:6px 0 0}
+.actions button{min-height:42px;border-radius:9px}.btn-preview{background:#803247;color:#fff;border-color:#803247}
+.btn-preview:hover{background:#692637}#go{background:#fff;color:#803247;border-color:#d6b0bb}
+.advanced{border-top:1px solid #eee5d8;padding-top:12px}.advanced summary{cursor:pointer;font-size:12px;color:#71675f;font-weight:600}
+.advanced .inline{margin-top:12px}.note{line-height:1.7}
+.sheet.chart-only{min-height:0;gap:6mm}.sheet.chart-only .experts,.sheet.chart-only .sum{display:none}.sheet.chart-only .foot{margin-top:3mm}
+.overflow-warn{border-radius:9px}
+}
+@media screen and (max-width:700px){
+body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h2{font-size:19px}
+.panel .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:15px 11px}
+.place-grid{grid-template-columns:1fr}.field.region-field{grid-column:1/-1}
+.actions{display:grid;grid-template-columns:1fr 1fr}.actions button{padding:10px 8px}
+.actions #stop,.actions #print,.actions .status{grid-column:1/-1}.sheet.chart-only{padding:22px 19px}
+}
+@media screen and (max-width:390px){.panel .grid,.actions{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -196,11 +222,11 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
 <div class="wrap">
   <form class="panel" id="form" autocomplete="off">
-    <h2>입력 정보 <small>명식은 즉시 계산되고, 해석은 Claude AI가 씁니다</small></h2>
+    <div class="panel-head"><span class="mini-mark">MY SAJU</span><h2>내 사주 보기 <small>태어난 날과 지역을 입력하면 명식을 확인할 수 있어요.</small></h2></div>
     <div class="grid">
       <div class="field">
         <label for="date">생년월일</label>
-        <input type="date" id="date" value="1998-03-14" min="1900-01-01" max="2099-12-31" required>
+        <input type="date" id="date" value="" min="1900-01-01" max="2099-12-31" required>
       </div>
       <div class="field">
         <span class="lab">양력 / 음력</span>
@@ -212,7 +238,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
       </div>
       <div class="field">
         <label for="time">태어난 시간</label>
-        <input type="time" id="time" value="07:30">
+        <input type="time" id="time" value="12:00">
         <div class="inline"><label><input type="checkbox" id="notime">시간 모름 (시주 제외)</label></div>
       </div>
       <div class="field">
@@ -222,42 +248,33 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
           <label><input type="radio" name="sex" id="sex-m" value="1">남성</label>
         </div>
       </div>
-      <div class="field">
-        <label for="region">출생 지역</label>
-        <select id="region">
-          <option value="126.98">서울</option>
-          <option value="126.70">인천</option>
-          <option value="127.01">경기 수원</option>
-          <option value="127.73">강원 춘천</option>
-          <option value="128.90">강원 강릉</option>
-          <option value="127.49">충북 청주</option>
-          <option value="127.38">대전</option>
-          <option value="127.15">충남 천안</option>
-          <option value="127.15">전북 전주</option>
-          <option value="126.85">광주</option>
-          <option value="126.39">전남 목포</option>
-          <option value="128.60">대구</option>
-          <option value="129.36">경북 포항</option>
-          <option value="129.08">부산</option>
-          <option value="129.31">울산</option>
-          <option value="128.68">경남 창원</option>
-          <option value="126.53">제주</option>
-          <option value="none">해외 / 보정 안 함</option>
-        </select>
-        <div class="inline"><label><input type="checkbox" id="tst" checked>경도 기준 시각 보정</label></div>
+      <div class="field region-field">
+        <span class="lab">태어난 지역</span>
+        <div class="place-grid">
+          <div class="field"><label for="region-sido">시·도</label><select id="region-sido" aria-label="출생 시·도"><option value="">시·도 선택</option></select></div>
+          <div class="field"><label for="region">시·군·구</label><select id="region" aria-label="출생 시·군·구"><option value="">먼저 시·도를 선택하세요</option></select></div>
+        </div>
+        <div class="field" id="manual-box" hidden><label for="manual-longitude">경도 직접 입력 (동경 124~132°)</label>
+          <input type="number" id="manual-longitude" min="124" max="132" step="0.00001" placeholder="예: 127.02758"></div>
+        <p class="note place-note">선택 지역의 대표 중심 경도를 사용해요. 출생 장소가 목록에 없으면 ‘경도 직접 입력’을 선택하세요.</p>
       </div>
+      <details class="advanced wide"><summary>시간 보정 설정 · 계산 기준</summary>
+        <div class="inline"><label><input type="checkbox" id="tst" checked>경도에 따른 시간 보정 적용</label></div>
+        <p class="note">지역 중심점 기준의 평균태양시 보정입니다. 균시차를 반영한 진태양시는 아니며, 오래된 출생 기록과 절기·시주 경계의 명식은 교차 검증이 필요해요.</p>
+      </details>
       <div class="field wide">
         <label for="worry">현재 고민</label>
-        <textarea id="worry" maxlength="300">지금 회사에 남아 경력을 쌓을지, 1~2년 안에 이직할지 고민입니다.</textarea>
+        <textarea id="worry" maxlength="300" placeholder="궁금한 고민이 있으면 적어 주세요 (선택)"></textarea>
       </div>
     </div>
     <div class="actions">
-      <button type="submit" class="btn-main" id="go">두 전문가 해석 받기</button>
+      <button type="button" class="btn-preview" id="preview">명식 먼저 보기</button>
+      <button type="submit" class="btn-sub" id="go">AI 해석 받기</button>
       <button type="button" class="btn-sub" id="stop" hidden>중단</button>
       <button type="button" class="btn-sub" id="print" hidden>A4로 인쇄 · PDF 저장</button>
       <span class="status" id="status" role="status"></span>
     </div>
-    <p class="note">명식은 입력을 바꾸는 즉시 아래 시트에 반영됩니다. 해석은 Claude AI가 작성하며 응답 시간은 모델과 네트워크 상황에 따라 달라집니다. 해석 요청 시 출생 정보와 고민 내용이 Anthropic API로 전송됩니다. 이 사이트는 입력값이나 결과를 별도로 저장하지 않습니다.</p>
+    <p class="note" id="region-hint">명식은 바로 확인할 수 있어요. AI 해석은 서버 연결 후 제공됩니다. AI 해석 요청 시 출생 정보와 고민이 Anthropic으로 전송되며, 입력과 결과는 사이트 자체 DB에 저장하지 않습니다.</p>
   </form>
 
   <div class="overflow-warn" id="ovf" hidden>
@@ -265,12 +282,12 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
     <button type="button" class="btn-sub" id="shorter">더 짧게 다시 받기</button>
   </div>
 
-  <div class="sheet-viewport" id="vp">
+  <div class="sheet-viewport" id="vp" hidden>
     <article class="sheet" id="sheet">
       <header class="hd">
         <div class="ttl">
           <div class="eyebrow">四柱命理 · 二人評</div>
-          <h1>두 명의 <em>명리학자</em>가 바라본 나</h1>
+          <h1>나의 사주, <em>두 가지 시선</em></h1>
           <div class="meta" id="meta"></div>
         </div>
         <div class="seal" aria-hidden="true"><span>命</span><span>理</span><span>二</span><span>評</span></div>
@@ -313,6 +330,37 @@ const wxOf=c=>{let i=GAN.indexOf(c);if(i>=0)return GAN_WX[i];i=ZHI.indexOf(c);re
 const gzKo=gz=>gz.split("").map(ko).join("");
 const ssKo=s=>SS_KO[s]||s;
 
+
+/* 지역 자료: 전국 시·도/시·군·구 중심 경도. 없는 지역은 직접 입력 */
+let REGION_DATA={};
+function syncManual(){const direct=$("region").value==="manual";$("manual-box").hidden=!direct;$("manual-longitude").required=direct;}
+function syncDistrict(){
+ const sel=$("region"),sido=$("region-sido").value;sel.replaceChildren();
+ if(sido==="overseas"){sel.add(new Option("해외 출생 · 보정 없음","none"));sel.disabled=true;}
+ else{
+   sel.disabled=false;sel.add(new Option(sido?"시·군·구 선택":"먼저 시·도를 선택하세요",""));
+   for(const r of REGION_DATA[sido]||[])sel.add(new Option(r.name,String(r.longitude)));
+   sel.add(new Option("목록에 없음 · 경도 직접 입력","manual"));
+ }
+ syncManual();
+}
+async function initRegions(){
+ try{
+   const res=await fetch("./regions.json",{cache:"force-cache"});
+   if(!res.ok)throw Error("지역 응답 오류");
+   const raw=await res.json();
+   if(!raw.regions||Object.keys(raw.regions).length<15)throw Error("지역 데이터 부족");
+   REGION_DATA=raw.regions;
+ }catch(e){
+   REGION_DATA={};
+   $("region-hint").textContent="지역 정보를 불러오지 못했습니다. 시·도 선택 후 경도를 직접 입력해 주세요.";
+ }
+ const sido=$("region-sido");sido.replaceChildren(new Option("시·도 선택",""));
+ const priority=["서울특별시","경기도","인천광역시","부산광역시","대구광역시","대전광역시","광주광역시","울산광역시","세종특별자치시","강원특별자치도","충청북도","충청남도","전북특별자치도","전라남도","경상북도","경상남도","제주특별자치도"];
+ for(const p of priority)sido.add(new Option(p,p));
+ sido.add(new Option("해외 출생 (국내 시각 보정 미적용)","overseas"));syncDistrict();
+}
+
 /* 천간합, 지지 육합·충·삼합(반합) */
 const GAN_HE=[["甲","己","토"],["乙","庚","금"],["丙","辛","수"],["丁","壬","목"],["戊","癸","화"]];
 const ZHI_HE=[["子","丑"],["寅","亥"],["卯","戌"],["辰","酉"],["巳","申"],["午","未"]];
@@ -351,7 +399,15 @@ function compute(){
   const noTime=$("notime").checked;
   const [hh,mm]=($("time").value||"12:00").split(":").map(Number);
   const sex=Number(document.querySelector('input[name=sex]:checked').value);
-  const regionSel=$("region"), lon=regionSel.value, regionName=regionSel.options[regionSel.selectedIndex].text;
+  const regionSel=$("region"), sido=$("region-sido").value;
+  let lon=regionSel.value;
+  if(!sido||!lon)return {error:"출생 지역을 선택해 주세요."};
+  const direct=lon==="manual";
+  if(direct){
+    lon=$("manual-longitude").value.trim();
+    if(!lon||!Number.isFinite(Number(lon))||Number(lon)<124||Number(lon)>132)return {error:"출생지 경도를 124~132 범위로 입력해 주세요."};
+  }
+  const regionName=sido==="overseas"?"해외 출생":sido+" "+(direct?"경도 직접 입력":regionSel.selectedOptions[0]?.text||"");
 
   if(!Number.isInteger(Y)||!Number.isInteger(M)||!Number.isInteger(D)||Y<1900||Y>2099||M<1||M>12||D<1||D>31){
     return {error:"올바른 생년월일을 입력해 주세요."};
@@ -423,7 +479,17 @@ function ssOf(dayGan,g){
 }
 
 /* ---------- 명식 렌더 ---------- */
-let C=null;
+let C=null, hasPreview=false;
+function chartOnly(){
+ $("sheet").classList.add("chart-only");
+ $("experts").replaceChildren();$("sum").replaceChildren();
+ $("footL").textContent="명식 미리보기 · AI 해석 전";fit();
+}
+function previewChart(){
+ renderChart();
+ if(!C){$("vp").hidden=true;return false;}
+ hasPreview=true;$("vp").hidden=false;chartOnly();return true;
+}
 function renderChart(){
   const r=compute();
   if(r.error){C=null;$("status").textContent=r.error;$("status").className="status err";return;}
@@ -507,6 +573,7 @@ const SAMPLE={
 const MM=96/25.4, A4H=297*MM, A4W=210*MM;
 function fit(){
   const sh=$("sheet"), vp=$("vp");
+  if(vp.hidden)return;
   sh.style.transform="none";
   if(window.matchMedia("screen and (max-width:700px)").matches){
     // 스마트폰은 종이 비율의 미니어처 대신 읽기 쉬운 반응형 본문을 표시.
@@ -545,14 +612,15 @@ function resetOnChange(){
   const wasAnswered=!!lastReading;
   lastReading=null;lastSignature="";
   $("print").hidden=true;
-  renderChart();
-  renderReading(SAMPLE,true);
+  if(hasPreview){
+    renderChart();if(C){$("vp").hidden=false;chartOnly();}
+    else $("vp").hidden=true;
+  }
   if(C && wasAnswered){$("status").className="status";$("status").textContent="입력 내용이 바뀌어 이전 해석을 지웠습니다. 새 해석을 받아 주세요.";}
 }
 async function ask(tight){
   // 해석 요청 시점의 명식 스냅샷을 고정한다.
-  renderChart();
-  if(!C)return;
+  if(!previewChart())return;
   if(ctl)ctl.abort();
   const id=++requestId;
   const chart=payload(C), requestedSignature=JSON.stringify(chart);
@@ -568,6 +636,7 @@ async function ask(tight){
     if(!res.ok||!data.reading)throw new Error(data.error||"해석을 받지 못했습니다. 다시 시도하세요.");
     if(id!==requestId||!C||requestedSignature!==signature(C))return;
     lastReading=data.reading;lastSignature=requestedSignature;
+    $("sheet").classList.remove("chart-only");
     renderChart();renderReading(lastReading,false);
     $("status").textContent="해석이 완료됐습니다.";
     $("print").hidden=false;
@@ -585,11 +654,19 @@ async function ask(tight){
 }
 
 /* ---------- 연결 ---------- */
-["date","time","notime","leap","region","tst","worry","cal-solar","cal-lunar","sex-f","sex-m"].forEach(id=>$(id).addEventListener("input",()=>{
+["date","time","notime","leap","manual-longitude","tst","worry","cal-solar","cal-lunar","sex-f","sex-m"].forEach(id=>$(id).addEventListener("input",()=>{
   $("time").disabled=$("notime").checked;
   $("leap").disabled=!$("cal-lunar").checked;
   resetOnChange();
 }));
+$("region-sido").addEventListener("change",()=>{syncDistrict();resetOnChange();});
+$("region").addEventListener("change",()=>{syncManual();resetOnChange();});
+$("preview").addEventListener("click",()=>{
+ if(previewChart()){
+   $("status").className="status";$("status").textContent="명식을 계산했어요. 아래에서 확인해 주세요.";
+   $("vp").scrollIntoView({behavior:"smooth",block:"start"});
+ }
+});
 $("form").addEventListener("submit",ev=>{ev.preventDefault();ask(false);});
 $("shorter").addEventListener("click",()=>ask(true));
 $("stop").addEventListener("click",()=>{if(ctl)ctl.abort();});
@@ -598,7 +675,7 @@ $("print").addEventListener("click",()=>{
 });
 
 $("leap").disabled=true;
-renderChart(); renderReading(SAMPLE,true);
+initRegions();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
 
 })();
