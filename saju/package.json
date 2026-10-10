@@ -1,0 +1,15 @@
+{
+  "name": "saju-two-experts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "두 명의 명리학자가 바라본 나 — 사주 명식 계산 + Claude 해석 + A4 인쇄",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test tests/*.test.js"
+  }
+}
