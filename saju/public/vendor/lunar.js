@@ -997,7 +997,8 @@
         getPositionYinGuiDesc:function(){
           return this.getDayPositionYinGuiDesc();
         },
-        getPositionFu:function(){          return this.getDayPositionFu();
+        getPositionFu:function(){
+          return this.getDayPositionFu();
         },
         getPositionFuDesc:function(){
           return this.getDayPositionFuDesc();
@@ -1996,7 +1997,8 @@
           year:y,
           month:m,
           day:d,
-          start:start        },
+          start:start
+        },
         getYear:function(){
           return this._p.year;
         },
@@ -2995,7 +2997,8 @@
       s = s.replace(/C/g, o2 + o2);
       s = s.replace(/D/g, o2 + o);
       s = s.replace(/E/g, o2);
-      s = s.replace(/F/g, o);      return s;
+      s = s.replace(/F/g, o);
+      return s;
     };
     return {
       PI_2: 2*Math.PI,
@@ -3994,7 +3997,8 @@
       POSITION_ZHI: ['{bg.kan}', '{ps.center}', '{bg.zhen}', '{bg.zhen}', '{ps.center}', '{bg.li}', '{bg.li}', '{ps.center}', '{bg.dui}', '{bg.dui}', '{ps.center}', '{bg.kan}'],
       POSITION_TAI_DAY:[
         '{ts.zhan}{ts.men}{ts.dui} {ps.wai}{ps.dongNan}',
-        '{ts.dui}{ts.mo}{ts.ce} {ps.wai}{ps.dongNan}',        '{ts.chu}{ts.zao}{ts.lu} {ps.wai}{ps.zhengNan}',
+        '{ts.dui}{ts.mo}{ts.ce} {ps.wai}{ps.dongNan}',
+        '{ts.chu}{ts.zao}{ts.lu} {ps.wai}{ps.zhengNan}',
         '{ts.cangKu}{ts.men} {ps.wai}{ps.zhengNan}',
         '{ts.fang}{ts.chuang}{ts.xi} {ps.wai}{ps.zhengNan}',
         '{ts.zhan}{ts.men}{ts.chuang} {ps.wai}{ps.zhengNan}',
@@ -4993,7 +4997,8 @@
         '{sn.tianGang}',
         '{sn.siShen}',
         '{sn.yueXing}',
-        '{sn.yueHai}',        '{sn.youHuo}',
+        '{sn.yueHai}',
+        '{sn.youHuo}',
         '{sn.chongRi}',
         '{sn.shiDe}',
         '{sn.minRi}',
@@ -5992,7 +5997,8 @@
   })();
   var LunarTime = (function(){
     var _fromYmdHms=function(lunarYear,lunarMonth,lunarDay,hour,minute,second){
-      var lunar=Lunar.fromYmdHms(lunarYear,lunarMonth,lunarDay,hour,minute,second);      var zhiIndex=LunarUtil.getTimeZhiIndex([(hour<10?'0':'')+hour,(minute<10?'0':'')+minute].join(':'));
+      var lunar=Lunar.fromYmdHms(lunarYear,lunarMonth,lunarDay,hour,minute,second);
+      var zhiIndex=LunarUtil.getTimeZhiIndex([(hour<10?'0':'')+hour,(minute<10?'0':'')+minute].join(':'));
       var ganIndex = (lunar.getDayGanIndexExact() % 5 * 2 + zhiIndex) % 10;
       return {
         _p:{
@@ -6991,7 +6997,8 @@
         'dw.she': '蛇',
         'dw.huLi': '狐',
         'dw.yan': '燕',
-        'dw.bao': '豹',        'dw.yuan': '猿',
+        'dw.bao': '豹',
+        'dw.yuan': '猿',
         'dw.yin': '蚓',
         'dw.lu': '鹿',
         'dw.wu': '乌',
@@ -7990,7 +7997,8 @@
         'yj.chengFu': 'Formation of clothes',
         'yj.chuFu': 'Mourning clothes removal',
         'yj.kaiShengFen': 'Open grave',
-        'yj.heShouMu': 'Make coffin',        'yj.ruLian': 'Body placing',
+        'yj.heShouMu': 'Make coffin',
+        'yj.ruLian': 'Body placing',
         'yj.yiJiu': 'Move coffin',
         'yj.puDu': 'Save soul',
         'yj.ruZhai': 'Enter house',
