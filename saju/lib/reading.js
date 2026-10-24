@@ -167,11 +167,16 @@ export async function getReading(chart,tight,signal) {
 // 메모리 제한은 단일 Node 프로세스에서만 유효합니다. 공개 서비스는 공유 저장소/게이트웨이 필수.
 const hits=new Map();
 const LIMIT=safeNumber(process.env.RATE_LIMIT_PER_HOUR||10,1,200,10);
+const GLOBAL_LIMIT=safeNumber(process.env.GLOBAL_RATE_LIMIT_PER_HOUR||30,1,500,30);
+let globalHits=[];
 export function rateLimited(ip){
   const now=Date.now(),hour=3600000;
+  globalHits=globalHits.filter(t=>now-t<hour);
+  if(globalHits.length>=GLOBAL_LIMIT)return true;
   const list=(hits.get(ip)||[]).filter(t=>now-t<hour);
   if(list.length>=LIMIT){hits.set(ip,list);return true;}
   list.push(now);hits.set(ip,list);
+  globalHits.push(now);
   if(hits.size>5000)hits.clear();
   return false;
 }
@@ -182,7 +187,7 @@ export async function handle(body,ip){
     // 소요 비용을 발생시키기 전에 데이터 형태 검증
     sanitize(body.chart);
     if(!process.env.ANTHROPIC_API_KEY)throw err("서버에 API 키가 설정되지 않았습니다. 배포 환경 변수를 확인해 주세요.",503);
-    if(rateLimited(ip||"unknown"))throw err(`한 시간에 ${LIMIT}번까지 해석을 받을 수 있습니다.`,429);
+    if(rateLimited(ip||"unknown"))throw err("요청이 많아 잠시 제한되었습니다. 잠시 후 다시 시도해 주세요.",429);
     const reading=await getReading(body.chart,body.tight);
     return {status:200,json:{reading}};
   }catch(e){
