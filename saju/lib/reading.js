@@ -176,7 +176,11 @@ export async function getReading(chart,tight,mode="standard",signal) {
   const data=await res.json();
   const responseText=(data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
   if(data.stop_reason==="max_tokens")throw err("풀이가 출력 길이를 초과했습니다. 간결한 해석으로 다시 시도해 주세요.",502);
-  try{return parseReading(responseText);}catch(e){
+  try{
+    const reading=parseReading(responseText);
+    reading.stats={model,inputTokens:Math.max(0,Number(data.usage?.input_tokens)||0),outputTokens:Math.max(0,Number(data.usage?.output_tokens)||0)};
+    return reading;
+  }catch(e){
     console.error("[Claude] invalid output:",e.message);
     throw err("해석 결과를 읽을 수 없습니다. 다시 시도해 주세요.",502);
   }
@@ -192,16 +196,23 @@ const cacheKey=(c,tight,mode)=>createHash("sha256").update(JSON.stringify([c,!!t
 export function clearReadingsForTests(){readings.clear();pending.clear();}
 const hits=new Map();
 const LIMIT=safeNumber(process.env.RATE_LIMIT_PER_HOUR||10,1,200,10);
+const DAY_LIMIT=safeNumber(process.env.GLOBAL_RATE_LIMIT_PER_DAY||25,1,1000,25);
+const OPUS_DAY_LIMIT=safeNumber(process.env.OPUS_RATE_LIMIT_PER_DAY||5,1,100,5);
+let dailyHits=[],dailyOpus=[];
 const GLOBAL_LIMIT=safeNumber(process.env.GLOBAL_RATE_LIMIT_PER_HOUR||30,1,500,30);
 let globalHits=[];
-export function rateLimited(ip){
-  const now=Date.now(),hour=3600000;
+export function rateLimited(ip,mode="standard"){
+  const now=Date.now(),hour=3600000,day=86400000;
   globalHits=globalHits.filter(t=>now-t<hour);
-  if(globalHits.length>=GLOBAL_LIMIT)return true;
+  dailyHits=dailyHits.filter(t=>now-t<day);
+  dailyOpus=dailyOpus.filter(t=>now-t<day);
+  if(globalHits.length>=GLOBAL_LIMIT || dailyHits.length>=DAY_LIMIT || (mode==="deep" && dailyOpus.length>=OPUS_DAY_LIMIT))return true;
   const list=(hits.get(ip)||[]).filter(t=>now-t<hour);
   if(list.length>=LIMIT){hits.set(ip,list);return true;}
   list.push(now);hits.set(ip,list);
   globalHits.push(now);
+  dailyHits.push(now);
+  if(mode==="deep")dailyOpus.push(now);
   if(hits.size>5000)hits.clear();
   return false;
 }
@@ -225,7 +236,7 @@ export async function handle(body,ip){
       const reading=await pending.get(key);
       return {status:200,json:{reading,cached:true}};
     }
-    if(rateLimited(ip||"unknown"))throw err("요청이 많아 잠시 제한되었습니다. 잠시 후 다시 시도해 주세요.",429);
+    if(rateLimited(ip||"unknown",mode))throw err("API 비용 보호를 위한 사용 횟수 제한에 도달했어요. 나중에 다시 시도해 주세요.",429);
     const work=getReading(body.chart,tight,mode);
     pending.set(key,work);
     let reading;
