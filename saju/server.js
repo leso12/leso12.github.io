@@ -80,6 +80,14 @@ http.createServer(async (req, res) => {
     res.writeHead(out.status, { "content-type": "application/json; charset=utf-8" }).end(JSON.stringify(out.json));
     return;
   }
+  // Serve the same vendored export library for local development and GitHub Pages.
+  if(url.pathname==="/vendor/html2pdf.bundle.min.js"){
+    try{
+      const code=await readFile(join(root,"vendor","html2pdf.bundle.min.js"));
+      res.writeHead(200,{"content-type":"text/javascript; charset=utf-8","cache-control":"public, max-age=3600"}).end(code);
+    }catch{res.writeHead(404).end("Library missing");}
+    return;
+  }
   const rel = normalize(url.pathname === "/" ? "/index.html" : url.pathname).replace(/^(\.\.[/\\])+/, "");
   const file = join(root, "public", rel);
   if (!file.startsWith(join(root, "public"))) { res.writeHead(403).end(); return; }
