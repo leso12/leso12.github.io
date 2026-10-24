@@ -630,8 +630,8 @@ async function ask(tight){
   $("status").className="status";$("status").textContent="두 전문가가 명식을 읽고 있습니다…";
   $("sheet").classList.add("loading");
   try{
-    const endpoint=window.SAJU_API_URL||(location.hostname.endsWith(".github.io")?"":"/api/reading");
-    if(!endpoint)throw new Error("사주 명식은 바로 확인할 수 있어요. Claude AI 해석은 보안 서버 연결 후 제공됩니다.");
+    const endpoint=location.hostname==="leso12.github.io"
+      ? "https://saju-claude-api.onrender.com/api/reading" : "/api/reading";
     const res=await fetch(endpoint,{method:"POST",headers:{"content-type":"application/json"},
       body:JSON.stringify({chart,tight:!!tight}),signal:ownController.signal});
     const data=await res.json().catch(()=>({}));
