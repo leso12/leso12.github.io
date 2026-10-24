@@ -23,84 +23,98 @@ function exampleChart(){
 }
 const chart=exampleChart();
 
-test('valid saju chart passes strict sanitization',()=>{
-  const clean=sanitize(chart);
-  assert.equal(clean.startAge,clean.dys[0].age);
-  assert.equal(clean.dayGan,clean.pillars[1].gz[0]);
-  assert.equal(Object.values(clean.wx).reduce((a,b)=>a+b,0),8);
-});
-test('rejects tampered data and invalid dates',()=>{
-  assert.throws(()=>sanitize({...chart,dayGan:'甲'}),/일간/);
-  assert.throws(()=>sanitize({...chart,input:{...chart.input,date:'1998-02-30'}}),/생년월일/);
-  assert.throws(()=>sanitize({...chart,pillars:[chart.pillars[0],chart.pillars[1]]}),/명식/);
-});
-test('has an exact JSON output contract',()=>{
-  assert.deepEqual(READING_SCHEMA.required,['A','B','summary','discoveries','focus','periods']);
-  const example=Object.fromEntries(['nature','talent','career','love','advice'].map(k=>[k,{t:'내용',g:'근거'}]));
-  const result=parseReading(JSON.stringify({A:example,B:example,summary:{common:'합의',diff:'차이',actions:['1','2','3']}}));
-  assert.equal(result.summary.actions.length,3);
-});
 
-test('accepts AI-selected insights, direct recommendation and conditional time periods',()=>{
-  const words='실제로 확인할 수 있는 조건을 먼저 비교해 보세요. '.repeat(15).trim();
-  const expert=Object.fromEntries(['nature','talent','career','love','advice'].map(k=>[k,{t:words,g:'전통 명리의 한 해석입니다.'}]));
-  const input={
-    A:expert,B:expert,
-    summary:{common:'공통 의견',diff:'서로 다른 근거',actions:['첫째','둘째','셋째']},
-    discoveries:[{title:'혼자 감당하는 일과 도움을 구하는 시점',point:'지원이 필요한 일을 구분해 보세요.',
-      detail:words,evidence:'월령과 일간의 관계',alternative:'환경에 따라 다르게 나타날 수 있습니다.',
-      question:'어떤 일에 시간을 더 쓰고 있나요?'}],
-    focus:{question:'이직이 맞을까요?',answer:'계약 조건이 확인될 때까지는 보류하는 쪽을 권합니다.',
-      explanation:words,conditions:['더 좋은 제안이 확정됐을 때','현재 근무 환경에 문제가 클 때'],
-      steps:['조건표 만들기','경험 정리','제안서 확인']},
-    periods:[{label:'2026년',theme:words,reality:'확인할 조건'}]
+const fakeKey=['sk','ant','unit-test','mock-only'].join('-');
+const section={title:'원국 구조',body:'丙子 일간과 丁丑 월주의 결합을 전통 명리학 관점에서 해설합니다. '.repeat(12),
+ basis:'일간과 월령: 원국의 실제 기둥을 확인합니다.'};
+const fullReading={
+ intro:'이 명식의 특성과 계절감을 자세히 해설합니다.',
+ sections:Array.from({length:8},(_,i)=>({...section,title:'명식 주제 '+(i+1)})),
+ outlook:[{period:'현재 대운',body:'주어진 대운을 근거로 시기를 해설합니다.',basis:'대운'},
+          {period:'올해 세운',body:'주어진 연도를 근거로 해설합니다.',basis:'세운'}],
+ questionAnswer:{question:'',answer:''},
+ closing:'이러한 명식은 전통적인 해석과 실제 삶을 구분하여 이해해야 합니다.'
+};
+test('valid saju chart passes sanitization',()=>{
+ const c=sanitize(chart);assert.equal(c.startAge,c.dys[0].age);
+ assert.equal(c.dayGan,c.pillars[1].gz[0]);
+ assert.equal(Object.values(c.wx).reduce((a,b)=>a+b,0),8);
+});
+test('invalid chart inputs rejected',()=>{
+ assert.throws(()=>sanitize({...chart,dayGan:'甲'}),/일간/);
+ assert.throws(()=>sanitize({...chart,input:{...chart.input,date:'1998-02-30'}}),/생년월일/);
+});
+test('new JSON schema describes a traditional reading, without actions or coaching',()=>{
+ assert.deepEqual(READING_SCHEMA.required,['intro','sections','outlook','questionAnswer','closing']);
+ assert.equal(READING_SCHEMA.properties.sections.items.properties.body.type,'string');
+ assert.equal(READING_SCHEMA.properties.questionAnswer.properties.answer.type,'string');
+ assert.equal('actions' in READING_SCHEMA.properties,false);
+});
+test('preserves full long saju descriptions and empty optional question',()=>{
+ const r=parseReading(JSON.stringify(fullReading));
+ assert.equal(r.sections.length,8);
+ assert.equal(r.sections[0].body,fullReading.sections[0].body);
+ assert.equal(r.questionAnswer.answer,'');
+ assert.equal(r.outlook.length,2);
+});
+test('rejects incomplete reports',()=>{
+ assert.throws(()=>parseReading(JSON.stringify({...fullReading,sections:[section]})),/완성되지/);
+});
+test('general saju request does not ask for forced decision advice',()=>{
+ const general={...chart,input:{...chart.input,worry:'전반적인 부분'}};
+ const prompt=buildPrompt(sanitize(general),false,'deep');
+ assert.ok(prompt.includes('questionAnswer의 두 값을 빈 문자열'));
+ assert.ok(prompt.includes('자기계발'));
+ assert.ok(prompt.includes('sections 8~9개'));
+});
+test('API is not invoked when key is not set',async()=>{
+ const old=process.env.ANTHROPIC_API_KEY;
+ delete process.env.ANTHROPIC_API_KEY;
+ try{const r=await handle({chart},'test-key-absent');assert.equal(r.status,503);}
+ finally{if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
+});
+test('standard model sends structured saju request without exposing key in body',async()=>{
+ const old=process.env.ANTHROPIC_API_KEY,prev=globalThis.fetch;
+ process.env.ANTHROPIC_API_KEY=fakeKey;let count=0;
+ try{
+   globalThis.fetch=async(url,init)=>{
+    count++;assert.equal(url,'https://api.anthropic.com/v1/messages');
+    assert.equal(init.headers.authorization,'Bearer '+fakeKey);
+    assert.equal(JSON.stringify(init.body).includes(fakeKey),false);
+    const body=JSON.parse(init.body);
+    assert.equal(body.model,process.env.CLAUDE_MODEL||'claude-sonnet-5-5');
+    assert.equal(body.output_config.format.type,'json_schema');
+    assert.ok(body.messages[0].content.includes('원국'));
+    return {ok:true,json:async()=>({stop_reason:'end_turn',usage:{input_tokens:300,output_tokens:850},
+      content:[{type:'text',text:JSON.stringify(fullReading)}]})};
+   };
+   const r=await handle({chart},'standard-mock-test');
+   assert.equal(r.status,200);assert.equal(r.json.reading.sections.length,8);
+   assert.equal(count,1);
+ }finally{globalThis.fetch=prev;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
+});
+test('complete structured output at Opus budget boundary is not discarded',async()=>{
+ const old=process.env.ANTHROPIC_API_KEY,prev=globalThis.fetch;
+ process.env.ANTHROPIC_API_KEY=fakeKey;let count=0;
+ try{
+  globalThis.fetch=async(_url,init)=>{
+   count++;const body=JSON.parse(init.body);
+   assert.equal(body.model,process.env.CLAUDE_DEEP_MODEL||'claude-opus-5-5');
+   assert.equal(body.max_tokens,18000);
+   return {ok:true,json:async()=>({stop_reason:'max_tokens',usage:{input_tokens:400,output_tokens:18000},
+     content:[{type:'text',text:JSON.stringify(fullReading)}]})};
   };
-  const r=parseReading(JSON.stringify(input));
-  assert.equal(r.discoveries[0].detail,words);
-  assert.equal(r.focus.answer,input.focus.answer);
-  assert.equal(r.periods[0].theme,words);
-  assert.equal(r.focus.steps.length,3);
-  assert.ok(READING_SCHEMA.properties.discoveries);
+  const r=await getReading(chart,false,'deep');
+  assert.equal(r.sections.length,8);assert.equal(count,1);
+ }finally{globalThis.fetch=prev;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
 });
-
-test('API is not invoked when key is not provided',async()=>{
-  const was=process.env.ANTHROPIC_API_KEY;delete process.env.ANTHROPIC_API_KEY;
-  const out=await handle({chart},'unit-nokey');
-  assert.equal(out.status,503);
-  if(was)process.env.ANTHROPIC_API_KEY=was;
-});
-test('mocked Anthropic API receives server-only key and schema, and results renderable JSON',async()=>{
-  const before=globalThis.fetch,old=process.env.ANTHROPIC_API_KEY;
-  process.env.ANTHROPIC_API_KEY='sk-ant-api03-TEST_PRIVATE_KEY0123456789';
-  const item={t:'근거 기반 해석',g:'일간과 월령'};
-  const expert=Object.fromEntries(['nature','talent','career','love','advice'].map(k=>[k,item]));
-  try {
-    globalThis.fetch=async(url,init)=>{
-      assert.equal(url,'https://api.anthropic.com/v1/messages');
-      assert.equal(init.headers.authorization,'Bearer sk-ant-api03-TEST_PRIVATE_KEY0123456789');
-      assert.ok(!JSON.stringify(init.body).includes('TEST_PRIVATE_KEY'));
-      const payload=JSON.parse(init.body);
-      assert.equal(payload.output_config.format.type,'json_schema');
-      assert.equal(payload.model,process.env.CLAUDE_MODEL||'claude-sonnet-5-5');
-      return {ok:true,json:async()=>({stop_reason:'end_turn',content:[{type:'text',text:JSON.stringify({A:expert,B:expert,summary:{common:'공통점',diff:'차이점',actions:['행동 1','행동 2','행동 3']}})}]})};
-    };
-    const out=await handle({chart,tight:false},'unit-mock');
-    assert.equal(out.status,200);
-    assert.equal(out.json.reading.B.career.t,'근거 기반 해석');
-  }finally{globalThis.fetch=before;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
-});
-
-
-test('keeps full Korean sentences beyond old 200-character truncation',()=>{
-  const paragraph='말을 꺼내기 전에 생각을 정리해 보세요. 중요한 결정을 서두르지 않고 비교해 보면 도움이 됩니다. '.repeat(6).trim();
-  const entry={t:paragraph,g:'전통 명리학에서 자기 생각을 표현하는 방식과 연결되는 요소입니다.'};
-  const expert=Object.fromEntries(['nature','talent','career','love','advice'].map(k=>[k,entry]));
-  const r=parseReading(JSON.stringify({A:expert,B:expert,summary:{
-    common:paragraph,diff:paragraph,actions:[paragraph,paragraph,paragraph]
-  }}));
-  assert.equal(r.A.nature.t,paragraph);
-  assert.equal(r.B.advice.t,paragraph);
-  assert.equal(r.summary.common,paragraph);
-  assert.equal(r.summary.actions[0],paragraph);
-  assert.ok(r.A.nature.t.endsWith('됩니다.'));
+test('incomplete Opus does not silently retry a paid call',async()=>{
+ const old=process.env.ANTHROPIC_API_KEY,prev=globalThis.fetch;
+ process.env.ANTHROPIC_API_KEY=fakeKey;let count=0;
+ try{
+  globalThis.fetch=async()=>{count++;return {ok:true,json:async()=>({
+   stop_reason:'max_tokens',usage:{output_tokens:18000},content:[{type:'text',text:'{"intro":"incomplete"}'}]})};};
+  await assert.rejects(()=>getReading(chart,false,'deep'),/추가 유료 요청/);
+  assert.equal(count,1);
+ }finally{globalThis.fetch=prev;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
 });
