@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
 <script src="./vendor/lunar.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.13/dist/html-to-image.min.js"></script>
+
 <style>
 [hidden]{display:none!important}
 /* Layout: 입력 패널(화면 전용) 위, A4 세로 인쇄용 한 장(헤더 명식 → 좌우 2단 해석 → 하단 3단 종합) 아래 */
@@ -278,6 +278,30 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
  .chart,.ex,.sb{break-inside:avoid}
 }
 
+
+/* Complete prose and downloadable results */
+@media screen{
+ .sheet,.sheet-viewport,.experts,.ex,.it,.it .t,.sum,.sb{height:auto!important;max-height:none!important;overflow:visible!important}
+ .it .t,.sb p,.sb li{word-break:keep-all;overflow-wrap:anywhere;white-space:normal}
+ .basis{margin-top:5px;font-size:12px;color:#796653;border:1px solid #eee1d0;border-radius:8px;padding:8px 10px}
+ .basis summary{cursor:pointer;font-size:11px;font-weight:600;color:#8c725c}
+ .basis p{margin:9px 0 2px;font-size:11px;line-height:1.75;overflow-wrap:anywhere}
+ .result-ready{margin:10px 0 3px;padding:12px;background:#f6efe4;border:1px solid #dbccb8;border-radius:10px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+ .result-ready a{display:inline-flex;justify-content:center;align-items:center;border-radius:8px;padding:9px 13px;background:#803247;color:#fff;font-size:13px;font-weight:700;text-decoration:none;max-width:100%;overflow-wrap:anywhere}
+ .result-ready button{border-radius:8px}
+ .result-ready small{width:100%;font-size:11px;color:#655a50}
+}
+@media screen and (max-width:700px){
+ .result-ready a{width:100%}
+ .basis{font-size:11px}
+}
+@media print{
+ .result-ready,.result-bar{display:none!important}
+ .sheet,.sheet-viewport,.experts,.ex,.it,.sum,.sb{height:auto!important;max-height:none!important;overflow:visible!important}
+ .basis{display:block}
+ .basis p{display:block!important}
+}
+
 </style>
 </head>
 <body>
@@ -356,8 +380,13 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
   <div class="result-bar no-print" id="result-bar" hidden>
     <div><strong>나의 사주 결과</strong><small id="token-usage">사이트에서 읽고 이미지를 저장하세요. 인쇄는 선택 사항이에요.</small></div>
     <div class="result-buttons">
-      <button type="button" id="save-image">이미지(PNG) 저장</button>
-      <button type="button" class="btn-sub" id="print" hidden>인쇄 · PDF</button>
+      <button type="button" id="save-image">PNG 이미지 저장</button>
+      <button type="button" class="btn-sub" id="print" hidden>PDF 파일 저장</button>
+    </div>
+    <div class="result-ready" id="file-ready" hidden>
+      <a id="file-download" href="#" download>파일 다운로드</a>
+      <button type="button" class="btn-sub" id="file-share">휴대폰에서 공유·저장</button>
+      <small>파일 만들기 후 링크를 한 번 더 눌러 저장해 주세요. Android에서는 다운로드 폴더에서 확인할 수 있어요.</small>
     </div>
   </div>
   <div class="sheet-viewport" id="vp" hidden>
@@ -610,7 +639,8 @@ function renderReading(R,isSample){
     <div class="ex ${k.toLowerCase()}">
       <div class="exh"><span class="tag">${EX[k].tag}</span><span class="nm">${EX[k].nm}</span><span class="ds">${EX[k].ds}</span></div>
       ${KEYS.map(([key,label])=>{const it=(R[k]||{})[key]||{};return `
-        <div class="it"><span class="h">${label}</span><span class="t">${esc(it.t)}</span><span class="g">${esc(it.g)}</span></div>`;}).join("")}
+        <div class="it"><span class="h">${label}</span><span class="t">${esc(it.t)}</span>
+          <details class="basis"><summary>이 해석의 근거 보기</summary><p>${esc(it.g)}</p></details></div>`;}).join("")}
     </div>`).join("");
   const S=R.summary||{};
   $("sum").innerHTML=`
@@ -677,6 +707,7 @@ function resetOnChange(){
   $("sheet").classList.remove("loading");
   const wasAnswered=!!lastReading;
   lastReading=null;lastSignature="";lastMode="";
+  clearFileExport();
   $("token-usage").textContent="사이트에서 읽고 이미지를 저장하세요. 인쇄는 선택 사항이에요.";
   $("print").hidden=true;
   if(hasPreview){
@@ -710,6 +741,7 @@ async function ask(tight){
     const data=await res.json().catch(()=>({}));
     if(!res.ok||!data.reading)throw new Error(data.error||"해석을 받지 못했습니다. 다시 시도하세요.");
     if(id!==requestId||!C||requestedSignature!==signature(C))return;
+    clearFileExport();
     lastReading=data.reading;lastSignature=requestedSignature;lastMode=mode;
     const stats=data.reading?.stats;
     $("token-usage").textContent=stats?.outputTokens>0
@@ -750,47 +782,100 @@ $("preview").addEventListener("click",()=>{
 $("form").addEventListener("submit",ev=>{ev.preventDefault();ask(false);});
 $("shorter").addEventListener("click",()=>ask(true));
 $("stop").addEventListener("click",()=>{if(ctl)ctl.abort();});
-$("print").addEventListener("click",()=>{
-  if(lastReading&&C&&lastSignature===signature(C))window.print();
-});
-$("save-image").addEventListener("click",saveResultImage);
+$("print").addEventListener("click",()=>prepareResultFile("pdf"));
+$("save-image").addEventListener("click",()=>prepareResultFile("png"));
+$("file-share").addEventListener("click",shareResultFile);
 
-async function saveResultImage(){
-  const btn=$("save-image"), status=$("status"), node=$("sheet");
-  if(!window.htmlToImage){
-    status.className="status err";
-    status.textContent="이미지 변환 도구가 로드되지 않았어요. 인터넷 연결 상태에서 새로고침해 주세요.";
+let preparedFile=null, preparedUrl=null, preparedName="";
+let exportLoader=null;
+function clearFileExport(){
+  if(preparedUrl)URL.revokeObjectURL(preparedUrl);
+  preparedUrl=null;preparedFile=null;preparedName="";
+  $("file-ready").hidden=true;
+  $("file-download").removeAttribute("href");
+}
+function loadExportLibrary(){
+  if(typeof window.html2pdf==="function")return Promise.resolve(window.html2pdf);
+  if(exportLoader)return exportLoader;
+  exportLoader=new Promise((resolve,reject)=>{
+    const script=document.createElement("script");
+    const timeout=setTimeout(()=>reject(new Error("저장 기능 로딩 시간이 초과됐어요.")),20000);
+    script.src="./vendor/html2pdf.bundle.min.js";
+    script.onload=()=>{
+      clearTimeout(timeout);
+      if(typeof window.html2pdf==="function")resolve(window.html2pdf);
+      else reject(new Error("저장 기능을 불러오지 못했어요."));
+    };
+    script.onerror=()=>{clearTimeout(timeout);reject(new Error("저장 도구 파일을 불러오지 못했습니다."));};
+    document.head.appendChild(script);
+  }).catch(e=>{exportLoader=null;throw e;});
+  return exportLoader;
+}
+function readyFile(blob,name){
+  clearFileExport();
+  preparedName=name;
+  preparedFile=new File([blob],name,{type:blob.type||"application/octet-stream"});
+  preparedUrl=URL.createObjectURL(blob);
+  $("file-download").href=preparedUrl;
+  $("file-download").download=name;
+  $("file-download").textContent="⬇ "+name+" 다운로드";
+  $("file-ready").hidden=false;
+  $("status").className="status";
+  $("status").textContent="파일 준비 완료! 아래 파일 다운로드를 직접 눌러 저장해 주세요.";
+  $("file-ready").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+async function prepareResultFile(format){
+  if(!C)return;
+  const isPdf=format==="pdf",btn=$(isPdf?"print":"save-image");
+  const previous=btn.textContent;
+  btn.disabled=true;btn.textContent="파일 준비 중…";
+  $("status").className="status";
+  $("status").textContent="화면을 이미지로 변환하고 있어요. 본문이 길면 조금 더 걸릴 수 있어요.";
+  try{
+    await loadExportLibrary();
+    if(document.fonts?.ready)await document.fonts.ready;
+    const node=$("sheet");
+    const name="나의사주_"+C.input.date+(isPdf?".pdf":".png");
+    const scale=Math.min(1.6,Math.max(0.8,8500/Math.max(1,node.scrollHeight)),1300/Math.max(1,node.scrollWidth));
+    const options={
+      margin:0,
+      filename:name,
+      image:{type:"jpeg",quality:.96},
+      html2canvas:{scale,logging:false,useCORS:true,backgroundColor:"#F6F0E2",scrollX:0,scrollY:0},
+      jsPDF:isPdf?{unit:"mm",format:"a4",orientation:"portrait"}:
+        {unit:"px",format:[Math.ceil(node.getBoundingClientRect().width),Math.ceil(node.getBoundingClientRect().width*1.45)],orientation:"portrait"},
+      pagebreak:{mode:["css","legacy"],avoid:[".chart",".it",".sb"]}
+    };
+    const worker=window.html2pdf().set(options).from(node);
+    let blob;
+    if(isPdf){
+      blob=await worker.toPdf().outputPdf("blob");
+      if(blob.type!=="application/pdf")blob=new Blob([blob],{type:"application/pdf"});
+    }else{
+      const canvas=await worker.toCanvas().get("canvas");
+      if(!canvas||!canvas.width||!canvas.height)throw new Error("빈 이미지");
+      blob=await new Promise((resolve,reject)=>canvas.toBlob(
+        b=>b?resolve(b):reject(new Error("이미지 저장용 데이터 생성 실패")),"image/png"));
+    }
+    if(!blob||!blob.size)throw new Error("빈 파일");
+    readyFile(blob,name);
+  }catch(e){
+    $("status").className="status err";
+    $("status").textContent="파일 생성에 실패했어요. 브라우저에서 다시 시도하거나 화면을 새로고침해 주세요.";
+    console.error("[export]",e?.name||"Error",e?.message||e);
+  }finally{
+    btn.disabled=false;btn.textContent=previous;
+  }
+}
+async function shareResultFile(){
+  if(!preparedFile)return;
+  if(!navigator.canShare?.({files:[preparedFile]})||!navigator.share){
+    $("status").textContent="이 브라우저에서는 파일 공유를 지원하지 않아요. 다운로드 링크를 눌러 저장해 주세요.";
     return;
   }
-  btn.disabled=true;btn.textContent="PNG 만드는 중…";
-  try{
-    if(document.fonts?.ready)await document.fonts.ready;
-    const width=node.scrollWidth,height=node.scrollHeight;
-    const ratio=Math.max(1,Math.min(2,1400/Math.max(350,width),9500/Math.max(1200,height)));
-    const blob=await window.htmlToImage.toBlob(node,{
-      backgroundColor:"#F6F0E2",pixelRatio:ratio,skipAutoScale:true
-    });
-    if(!blob)throw new Error("Empty image");
-    const filename="사주해석_"+(C?.input.date||"결과")+".png";
-    const file=new File([blob],filename,{type:"image/png"});
-    if(navigator.canShare?.({files:[file]})&&navigator.share){
-      await navigator.share({files:[file],title:"나의 사주 결과"});
-    }else{
-      const url=URL.createObjectURL(blob),a=document.createElement("a");
-      a.href=url;a.download=filename;a.style.display="none";document.body.append(a);a.click();a.remove();
-      setTimeout(()=>URL.revokeObjectURL(url),60000);
-    }
-    status.className="status";
-    status.textContent="이미지가 준비됐어요. 공유 메뉴에서 저장하거나 다운로드 파일을 확인해 주세요.";
-  }catch(e){
-    if(e?.name!=="AbortError"){
-      status.className="status err";
-      status.textContent="이미지 변환에 실패했어요. 다른 브라우저에서 다시 시도해 주세요.";
-      console.error("[png]",e?.message||e);
-    }
-  }finally{btn.disabled=false;btn.textContent="이미지(PNG) 저장";}
+  try{await navigator.share({files:[preparedFile],title:"나의 사주 결과"});}
+  catch(e){if(e?.name!=="AbortError")$("status").textContent="공유에 실패했어요. 파일 다운로드를 이용해 주세요.";}
 }
-
 
 $("leap").disabled=true;
 initRegions();
