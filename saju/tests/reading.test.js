@@ -48,13 +48,13 @@ test('API is not invoked when key is not provided',async()=>{
 });
 test('mocked Anthropic API receives server-only key and schema, and results renderable JSON',async()=>{
   const before=globalThis.fetch,old=process.env.ANTHROPIC_API_KEY;
-  process.env.ANTHROPIC_API_KEY='TEST_PRIVATE_KEY';
+  process.env.ANTHROPIC_API_KEY='sk-ant-api03-TEST_PRIVATE_KEY0123456789';
   const item={t:'근거 기반 해석',g:'일간과 월령'};
   const expert=Object.fromEntries(['nature','talent','career','love','advice'].map(k=>[k,item]));
   try {
     globalThis.fetch=async(url,init)=>{
       assert.equal(url,'https://api.anthropic.com/v1/messages');
-      assert.equal(init.headers.authorization,'Bearer TEST_PRIVATE_KEY');
+      assert.equal(init.headers.authorization,'Bearer sk-ant-api03-TEST_PRIVATE_KEY0123456789');
       assert.ok(!JSON.stringify(init.body).includes('TEST_PRIVATE_KEY'));
       const payload=JSON.parse(init.body);
       assert.equal(payload.output_config.format.type,'json_schema');
