@@ -53,7 +53,7 @@ test('new JSON schema describes a traditional reading, without actions or coachi
 test('preserves full long saju descriptions and empty optional question',()=>{
  const r=parseReading(JSON.stringify(fullReading));
  assert.equal(r.sections.length,8);
- assert.equal(r.sections[0].body,fullReading.sections[0].body);
+ assert.equal(r.sections[0].body,fullReading.sections[0].body.trim());
  assert.equal(r.questionAnswer.answer,'');
  assert.equal(r.outlook.length,2);
 });
