@@ -354,7 +354,7 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
   </div>
 
   <div class="result-bar no-print" id="result-bar" hidden>
-    <div><strong>나의 사주 결과</strong><small>사이트에서 읽고 이미지를 저장하세요. 인쇄는 선택 사항이에요.</small></div>
+    <div><strong>나의 사주 결과</strong><small id="token-usage">사이트에서 읽고 이미지를 저장하세요. 인쇄는 선택 사항이에요.</small></div>
     <div class="result-buttons">
       <button type="button" id="save-image">이미지(PNG) 저장</button>
       <button type="button" class="btn-sub" id="print" hidden>인쇄 · PDF</button>
@@ -677,6 +677,7 @@ function resetOnChange(){
   $("sheet").classList.remove("loading");
   const wasAnswered=!!lastReading;
   lastReading=null;lastSignature="";lastMode="";
+  $("token-usage").textContent="사이트에서 읽고 이미지를 저장하세요. 인쇄는 선택 사항이에요.";
   $("print").hidden=true;
   if(hasPreview){
     renderChart();if(C){$("vp").hidden=false;chartOnly();}
@@ -710,6 +711,10 @@ async function ask(tight){
     if(!res.ok||!data.reading)throw new Error(data.error||"해석을 받지 못했습니다. 다시 시도하세요.");
     if(id!==requestId||!C||requestedSignature!==signature(C))return;
     lastReading=data.reading;lastSignature=requestedSignature;lastMode=mode;
+    const stats=data.reading?.stats;
+    $("token-usage").textContent=stats?.outputTokens>0
+      ? `모델 ${mode==="deep"?"Opus":"Sonnet"} · 입력 ${stats.inputTokens.toLocaleString()} 토큰 · 출력 ${stats.outputTokens.toLocaleString()} 토큰`
+      : "AI 해석 완료 · 이미지로 저장할 수 있어요.";
     $("sheet").classList.remove("chart-only");
     renderChart();renderReading(lastReading,false);
     $("status").textContent=data.cached?"저장된 풀이를 불러왔어요. 다시 과금하지 않았어요.":"해석이 완료됐어요. 아래에서 읽거나 PNG로 저장하세요.";
