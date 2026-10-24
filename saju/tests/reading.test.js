@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
-import {sanitize,handle,parseReading,READING_SCHEMA} from '../lib/reading.js';
+import {sanitize,handle,getReading,buildPrompt,parseReading,READING_SCHEMA} from '../lib/reading.js';
 
 function exampleChart(){
   const raw=readFileSync(new URL('../public/vendor/lunar.js',import.meta.url),'utf8');
