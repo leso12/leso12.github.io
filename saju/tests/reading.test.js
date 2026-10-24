@@ -66,3 +66,18 @@ test('mocked Anthropic API receives server-only key and schema, and results rend
     assert.equal(out.json.reading.B.career.t,'근거 기반 해석');
   }finally{globalThis.fetch=before;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
 });
+
+
+test('keeps full Korean sentences beyond old 200-character truncation',()=>{
+  const paragraph='말을 꺼내기 전에 생각을 정리해 보세요. 중요한 결정을 서두르지 않고 비교해 보면 도움이 됩니다. '.repeat(6).trim();
+  const entry={t:paragraph,g:'전통 명리학에서 자기 생각을 표현하는 방식과 연결되는 요소입니다.'};
+  const expert=Object.fromEntries(['nature','talent','career','love','advice'].map(k=>[k,entry]));
+  const r=parseReading(JSON.stringify({A:expert,B:expert,summary:{
+    common:paragraph,diff:paragraph,actions:[paragraph,paragraph,paragraph]
+  }}));
+  assert.equal(r.A.nature.t,paragraph);
+  assert.equal(r.B.advice.t,paragraph);
+  assert.equal(r.summary.common,paragraph);
+  assert.equal(r.summary.actions[0],paragraph);
+  assert.ok(r.A.nature.t.endsWith('됩니다.'));
+});
