@@ -15,10 +15,25 @@ if (existsSync(join(root, ".env"))) {
     if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
   }
 }
-const { handle } = await import("./lib/reading.js");
+const { handle,getClaudeKey } = await import("./lib/reading.js");
 
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon" };
 const PORT = Number(process.env.PORT || 3000);
+// Read-only, non-billable authentication probe; secret and personal data are never logged.
+async function verifyClaudeCredentials(){
+  const key=getClaudeKey();
+  if(!key){console.warn("[claude-auth] API key missing");return;}
+  console.log("[claude-auth] key loaded; expected prefix:",key.startsWith("sk-ant-"),"contains whitespace:",/\s/.test(key));
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/models?limit=1",{
+      headers:{"authorization":`Bearer ${key}`,"anthropic-version":"2026-10-21"},
+      signal:AbortSignal.timeout(15000)
+    });
+    const data=await res.json().catch(()=>null);
+    const message=String(data?.error?.message||"").replace(/sk-ant-[^\s"']+/gi,"[redacted]").slice(0,160);
+    console.log("[claude-auth] check",JSON.stringify({status:res.status,type:String(data?.error?.type||""),message,requestId:String(res.headers.get("request-id")||"").slice(0,90)}));
+  }catch(e){console.error("[claude-auth] connectivity check failed",e?.name||"unknown");}
+}
 
 const ALLOWED_ORIGINS = new Set(["https://leso12.github.io", "https://saju-claude-api.onrender.com", "http://localhost:3000"]);
 
@@ -72,5 +87,5 @@ http.createServer(async (req, res) => {
   } catch { res.writeHead(404).end("Not found"); }
 }).listen(PORT, () => {
   console.log(`사주 웹앱: http://localhost:${PORT}`);
-  if (!process.env.ANTHROPIC_API_KEY) console.warn("⚠ ANTHROPIC_API_KEY가 없습니다. .env 파일을 만들어 주세요.");
+  void verifyClaudeCredentials();
 });
