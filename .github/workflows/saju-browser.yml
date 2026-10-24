@@ -1,0 +1,32 @@
+name: Saju Mobile PNG PDF Test
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "saju/**"
+      - ".github/workflows/saju-browser.yml"
+permissions:
+  contents: read
+jobs:
+  android-sized-chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install mobile browser test runner
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Launch saju web server
+        run: |
+          node saju/server.js > /tmp/saju-test-server.log 2>&1 &
+          echo $! > /tmp/saju-test-server.pid
+          for i in $(seq 1 40); do curl -fsS http://127.0.0.1:3000/health && break; sleep 1; done
+      - name: Verify mobile reading + PNG + PDF
+        run: node saju/tests/browser.cjs
+      - name: Server diagnostics on failure
+        if: failure()
+        run: tail -n 50 /tmp/saju-test-server.log
