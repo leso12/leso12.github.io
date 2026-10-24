@@ -1,0 +1,27 @@
+name: Saju checks
+on:
+  push:
+    paths:
+      - "saju/**"
+      - ".github/workflows/saju-ci.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static JS syntax check
+        shell: bash
+        run: |
+          node --check saju/server.js
+          node --check saju/lib/reading.js
+          node --check saju/api/reading.js
+          node --input-type=module -e 'import fs from "node:fs"; for(const p of ["saju/index.html","saju/public/index.html"]){ const html=fs.readFileSync(p,"utf8"); const ix=html.lastIndexOf("<script>"); const end=html.indexOf("</script>",ix); if(ix<0||end<0)throw Error("script missing"); new Function(html.slice(ix+8,end)); console.log("syntax OK:",p); }'
+      - name: Run saju unit tests (no real API calls)
+        run: cd saju && npm test
