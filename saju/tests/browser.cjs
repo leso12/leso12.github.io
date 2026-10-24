@@ -13,8 +13,8 @@ async function main(){
   const errs=[];
   page.on("pageerror",err=>errs.push(err.message));
   page.on("console",msg=>{if(msg.type()==="error")errs.push(msg.text().slice(0,300));});
-  await page.route("https://fonts.googleapis.com/**",route=>route.abort());
-  await page.route("https://fonts.gstatic.com/**",route=>route.abort());
+  await page.route("https://fonts.googleapis.com/**",route=>route.fulfill({status:200,contentType:"text/css",body:""}));
+  await page.route("https://fonts.gstatic.com/**",route=>route.fulfill({status:200,body:""}));
   await page.goto("http://127.0.0.1:3000",{waitUntil:"domcontentloaded"});
   await page.waitForFunction(()=>document.querySelector("#region-sido").options.length>=17);
   await page.locator("#date").fill("2000-01-19");
