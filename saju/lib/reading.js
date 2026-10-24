@@ -3,7 +3,9 @@
 const MODEL = process.env.CLAUDE_MODEL || "claude-sonnet-5-5";
 const ANTHROPIC_VERSION = "2026-10-21";
 export function getClaudeKey(){
-  const raw=String(process.env.ANTHROPIC_API_KEY||"").trim();
+  let raw=String(process.env.ANTHROPIC_API_KEY||"").trim();
+  // Recover from common copy/paste mistakes: dotenv assignment or Bearer prefix.
+  raw=raw.replace(/^ANTHROPIC_API_KEY\s*[:=]\s*/i,"").replace(/^Bearer\s+/i,"").trim();
   return raw.replace(/^(['"])(.*)\1$/, "$2").trim();
 }
 const API_URL = "https://api.anthropic.com/v1/messages";
@@ -131,6 +133,7 @@ export function parseReading(text) {
 export async function getReading(chart,tight,signal) {
   const key=getClaudeKey();
   if(!key)throw err("서버에 API 키가 설정되지 않았습니다. 배포 환경 변수를 확인해 주세요.",503);
+  if(!key.startsWith("sk-ant-"))throw err("Render의 ANTHROPIC_API_KEY VALUE가 키 형식이 아닙니다. VALUE에는 sk-ant-로 시작하는 발급된 키 전체를 입력해 주세요.",503);
   const c=sanitize(chart);
   const timeout=AbortSignal.timeout(55000);
   const combined=signal?AbortSignal.any([signal,timeout]):timeout;
@@ -197,7 +200,9 @@ export async function handle(body,ip){
     if(!body||typeof body!=="object"||Array.isArray(body))throw err("요청 형식이 올바르지 않습니다.");
     // 소요 비용을 발생시키기 전에 데이터 형태 검증
     sanitize(body.chart);
-    if(!getClaudeKey())throw err("서버에 API 키가 설정되지 않았습니다. 배포 환경 변수를 확인해 주세요.",503);
+    const configuredKey=getClaudeKey();
+    if(!configuredKey)throw err("서버에 API 키가 설정되지 않았습니다. 배포 환경 변수를 확인해 주세요.",503);
+    if(!configuredKey.startsWith("sk-ant-"))throw err("Render 환경변수 VALUE에 유효한 API 키가 입력되지 않았습니다. sk-ant-로 시작하는 키 전체가 필요합니다.",503);
     if(rateLimited(ip||"unknown"))throw err("요청이 많아 잠시 제한되었습니다. 잠시 후 다시 시도해 주세요.",429);
     const reading=await getReading(body.chart,body.tight);
     return {status:200,json:{reading}};
