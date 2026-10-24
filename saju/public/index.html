@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="생년월일로 사주 명식을 계산하고, 두 명리학자의 해석을 A4 한 장으로 받아보세요.">
+<meta name="description" content="사주 명식을 확인하고 풍부한 AI 해석을 웹에서 읽거나 이미지로 저장하세요.">
 <title>나의 사주 | 사주 명식 보기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
 <script src="./vendor/lunar.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.13/dist/html-to-image.min.js"></script>
 <style>
 [hidden]{display:none!important}
 /* Layout: 입력 패널(화면 전용) 위, A4 세로 인쇄용 한 장(헤더 명식 → 좌우 2단 해석 → 하단 3단 종합) 아래 */
@@ -215,6 +216,68 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
 }
 @media screen and (max-width:390px){.panel .grid,.actions{grid-template-columns:1fr}}
 
+
+/* Web-first reading: no A4 scaling or cropping on screen */
+@media screen {
+ .wrap{max-width:1060px;gap:19px}.panel{max-width:800px;width:100%;margin-inline:auto}
+ .sheet-viewport{height:auto!important;overflow:visible!important}
+ .sheet{width:100%;max-width:1060px;height:auto!important;min-height:0;padding:37px 39px 30px;gap:26px;transform:none!important;border-radius:14px;font-size:14px;line-height:1.7;box-shadow:0 10px 42px rgba(51,27,22,.11)}
+ .sheet::before{inset:9px;border-width:1px;border-radius:9px}.sheet::after{inset:13px;border-width:1px;border-radius:6px}
+ .hd{align-items:center;gap:24px}.ttl{gap:10px}.ttl h1{font-size:clamp(25px,3.5vw,36px);line-height:1.3}
+ .eyebrow{font-size:11px;letter-spacing:.19em}.meta{font-size:12px;gap:7px 13px;line-height:1.55}.seal{width:55px;height:55px;font-size:14px;padding:4px}
+ .chart{grid-template-columns:minmax(240px,330px) 1fr;gap:22px;padding-block:20px}
+ .pillars{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+ .pl{gap:5px}.pl .cap,.pl .ss{font-size:11px}.pl .ch{width:100%;max-width:65px;height:61px;font-size:27px;border-width:1px}.pl .ch small{font-size:10px}
+ .facts{gap:10px}.row{gap:11px}.row .k{font-size:12px;width:48px}.row .v,.wx span,.dy span{font-size:12px;line-height:1.6}
+ .dy{gap:5px}.dy span{font-size:11px;padding:2px 5px;border-width:1px}
+ .experts{display:grid;grid-template-columns:1fr 1fr;gap:18px;flex:none}
+ .ex,.ex+.ex{border:1px solid #e2d8c6;border-radius:13px;background:#fffdf8;padding:22px 23px 25px;gap:19px}
+ .ex+.ex{border-left:1px solid #e2d8c6}
+ .exh{gap:9px;padding-bottom:11px;border-bottom:1px solid #bfae96}.exh .tag{font-size:22px}.exh .nm{font-size:17px}.exh .ds{font-size:11px}
+ .it{gap:7px}.it .h{font-size:12px;letter-spacing:.02em;font-weight:700;color:#86384e}
+ .it .t{font-size:14px;line-height:1.85;white-space:pre-line;text-wrap:pretty}
+ .it .g{font-size:11.5px;line-height:1.65;color:#765a48}.it .g::before{content:"명식 근거  /  ";color:#988573}
+ .sum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding-top:21px;border-top:1px solid #d0c1aa}
+ .sb{border:1px solid #e6dccd;background:#fffaf1;border-radius:11px;padding:17px;gap:9px}
+ .sb .h{font-size:15px}.sb p,.sb li{font-size:13px;line-height:1.8}.sb li::before{width:20px;height:20px;font-size:11px}
+ .foot{font-size:11px;line-height:1.7;padding-top:10px}
+ .result-bar{max-width:1060px;width:100%;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;background:#fffefa;border:1px solid #e4dacb;border-radius:13px;padding:14px 19px}
+ .result-bar strong{font-size:15px}.result-bar small{display:block;font-size:12px;color:#85786c;margin-top:3px}
+ .result-buttons{display:flex;gap:8px;flex-wrap:wrap}
+ .result-buttons button{border-radius:8px;padding:9px 13px;min-height:40px}
+ #save-image{background:#81364b;border-color:#81364b;color:white}
+ .reading-mode-note{margin-top:6px}
+ .overflow-warn{display:none!important}
+}
+@media screen and (max-width:700px){
+ .wrap{gap:12px}.sheet{padding:24px 17px;gap:23px;font-size:13px}
+ .sheet::before{inset:7px}.sheet::after{inset:11px}
+ .hd{gap:10px}.ttl h1{font-size:23px}.eyebrow{font-size:10px}.meta{font-size:10.5px}
+ .seal{width:44px;height:44px;font-size:12px}
+ .chart{display:flex;flex-direction:column;gap:15px;padding-block:18px}
+ .pillars{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+ .pl{gap:4px}.pl .cap,.pl .ss{font-size:10px}.pl .ch{height:52px;font-size:22px}.pl .ch small{font-size:9px}
+ .facts{gap:9px}.row .k{font-size:12px;width:44px}.row .v,.wx span,.dy span{font-size:11px}
+ .experts{display:flex;flex-direction:column;gap:14px}
+ .ex,.ex+.ex{padding:19px 15px 23px;gap:18px;border:1px solid #e2d8c6;border-radius:11px}
+ .exh{flex-wrap:wrap}.exh .nm{font-size:16px}.exh .ds{font-size:11px}
+ .it .h{font-size:12px}.it .t{font-size:14px;line-height:1.9}.it .g{font-size:11px}
+ .sum{display:flex;flex-direction:column;gap:10px}.sb{padding:16px}
+ .sb .h{font-size:15px}.sb p,.sb li{font-size:13px}.foot{font-size:10px}
+ .result-bar{padding:14px}.result-bar strong{font-size:14px}
+ .result-buttons{width:100%}.result-buttons button{flex:1;font-size:12px}
+}
+@media print{
+ @page{size:A4;margin:14mm}
+ html,body{padding:0!important;background:#fff!important}
+ .panel,.result-bar,.overflow-warn{display:none!important}
+ .wrap{display:block;max-width:none!important}
+ .sheet-viewport{height:auto!important;overflow:visible!important}
+ .sheet{width:100%!important;min-height:0!important;height:auto!important;transform:none!important;box-shadow:none!important;overflow:visible!important;page-break-after:auto!important;break-inside:auto!important}
+ .sheet::before,.sheet::after{display:none!important}
+ .chart,.ex,.sb{break-inside:avoid}
+}
+
 </style>
 </head>
 <body>
@@ -263,6 +326,14 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
         <p class="note">지역 중심점 기준의 평균태양시 보정입니다. 균시차를 반영한 진태양시는 아니며, 오래된 출생 기록과 절기·시주 경계의 명식은 교차 검증이 필요해요.</p>
       </details>
       <div class="field wide">
+        <label for="reading-mode">해석 모델과 깊이</label>
+        <select id="reading-mode">
+          <option value="standard" selected>풍부한 기본 풀이 · Sonnet 5.5 (경제적 · 추천)</option>
+          <option value="deep">심층 풀이 · Opus 5.5 (더 높은 요금)</option>
+        </select>
+        <p class="note reading-mode-note">두 모델 모두 자세히 풀이해요. 상위 모델은 선택할 때만 호출돼요.</p>
+      </div>
+      <div class="field wide">
         <label for="worry">현재 고민</label>
         <textarea id="worry" maxlength="300" placeholder="궁금한 고민이 있으면 적어 주세요 (선택)"></textarea>
       </div>
@@ -271,10 +342,10 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
       <button type="button" class="btn-preview" id="preview">명식 먼저 보기</button>
       <button type="submit" class="btn-sub" id="go">AI 해석 받기</button>
       <button type="button" class="btn-sub" id="stop" hidden>중단</button>
-      <button type="button" class="btn-sub" id="print" hidden>A4로 인쇄 · PDF 저장</button>
+
       <span class="status" id="status" role="status"></span>
     </div>
-    <p class="note" id="region-hint">명식은 바로 확인할 수 있어요. AI 해석은 서버 연결 후 제공됩니다. AI 해석 요청 시 출생 정보와 고민이 Anthropic으로 전송되며, 입력과 결과는 사이트 자체 DB에 저장하지 않습니다.</p>
+    <p class="note" id="region-hint">명식은 바로 확인할 수 있고 AI 해석도 사이트 안에서 읽을 수 있어요. 이미지 저장은 무료예요. AI 요청 시 출생 정보와 고민이 Anthropic에 전송되며, 재요청 비용 절감을 위해 해석 결과가 서버 메모리에 최대 30분간 임시 보관될 수 있어요.</p>
   </form>
 
   <div class="overflow-warn" id="ovf" hidden>
@@ -282,6 +353,13 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
     <button type="button" class="btn-sub" id="shorter">더 짧게 다시 받기</button>
   </div>
 
+  <div class="result-bar no-print" id="result-bar" hidden>
+    <div><strong>나의 사주 결과</strong><small>사이트에서 읽고 이미지를 저장하세요. 인쇄는 선택 사항이에요.</small></div>
+    <div class="result-buttons">
+      <button type="button" id="save-image">이미지(PNG) 저장</button>
+      <button type="button" class="btn-sub" id="print" hidden>인쇄 · PDF</button>
+    </div>
+  </div>
   <div class="sheet-viewport" id="vp" hidden>
     <article class="sheet" id="sheet">
       <header class="hd">
@@ -487,8 +565,8 @@ function chartOnly(){
 }
 function previewChart(){
  renderChart();
- if(!C){$("vp").hidden=true;return false;}
- hasPreview=true;$("vp").hidden=false;chartOnly();return true;
+ if(!C){$("vp").hidden=true;$("result-bar").hidden=true;return false;}
+ hasPreview=true;$("vp").hidden=false;$("result-bar").hidden=false;chartOnly();return true;
 }
 function renderChart(){
   const r=compute();
@@ -572,28 +650,16 @@ const SAMPLE={
 /* ---------- A4 맞춤(화면) & 넘침 감지 ---------- */
 const MM=96/25.4, A4H=297*MM, A4W=210*MM;
 function fit(){
-  const sh=$("sheet"), vp=$("vp");
-  if(vp.hidden)return;
-  sh.style.transform="none";
-  if(window.matchMedia("screen and (max-width:700px)").matches){
-    // 스마트폰은 종이 비율의 미니어처 대신 읽기 쉬운 반응형 본문을 표시.
-    sh.style.marginLeft="auto";
-    vp.style.height="auto";
-    $("ovf").hidden=true;
-    return;
-  }
-  const over=sh.scrollHeight>A4H+2;
-  $("ovf").hidden=!(over&&lastReading);
-  const avail=vp.parentElement.clientWidth;
-  const s=Math.min(1,avail/A4W);
-  sh.style.transform=s<1?`scale(${s})`:"none";
-  sh.style.marginLeft=s<1?"0":"auto";
-  vp.style.height=(sh.offsetHeight*s)+"px";
+  if($("vp").hidden)return;
+  $("sheet").style.transform="none";
+  $("sheet").style.marginLeft="auto";
+  $("vp").style.height="auto";
+  $("ovf").hidden=true;
 }
 window.addEventListener("resize",fit);
 
 /* ---------- AI 해석 요청 (내 서버 /api/reading → Claude API) ---------- */
-let ctl=null, lastReading=null, lastSignature="", requestId=0;
+let ctl=null, lastReading=null, lastSignature="", lastMode="", requestId=0;
 function payload(c){
   return {
     input:c.input, corrNote:c.corrNote, solarStr:c.solarStr, noTime:c.noTime,
@@ -610,11 +676,11 @@ function resetOnChange(){
   $("go").disabled=false;$("shorter").disabled=false;$("stop").hidden=true;
   $("sheet").classList.remove("loading");
   const wasAnswered=!!lastReading;
-  lastReading=null;lastSignature="";
+  lastReading=null;lastSignature="";lastMode="";
   $("print").hidden=true;
   if(hasPreview){
     renderChart();if(C){$("vp").hidden=false;chartOnly();}
-    else $("vp").hidden=true;
+    else {$("vp").hidden=true;$("result-bar").hidden=true;}
   }
   if(C && wasAnswered){$("status").className="status";$("status").textContent="입력 내용이 바뀌어 이전 해석을 지웠습니다. 새 해석을 받아 주세요.";}
 }
@@ -624,6 +690,12 @@ async function ask(tight){
   if(ctl)ctl.abort();
   const id=++requestId;
   const chart=payload(C), requestedSignature=JSON.stringify(chart);
+  const mode=$("reading-mode").value==="deep"?"deep":"standard";
+  if(lastReading && lastSignature===requestedSignature && lastMode===mode){
+    $("sheet").classList.remove("chart-only");renderReading(lastReading,false);
+    $("status").textContent="이미 받은 결과예요. 추가 API 요금 없이 다시 보여줘요.";
+    $("vp").scrollIntoView({behavior:"smooth",block:"start"});return;
+  }
   ctl=new AbortController();
   const ownController=ctl;
   $("go").disabled=true;$("shorter").disabled=true;$("stop").hidden=false;
@@ -633,14 +705,15 @@ async function ask(tight){
     const endpoint=location.hostname==="leso12.github.io"
       ? "https://saju-claude-api.onrender.com/api/reading" : "/api/reading";
     const res=await fetch(endpoint,{method:"POST",headers:{"content-type":"application/json"},
-      body:JSON.stringify({chart,tight:!!tight}),signal:ownController.signal});
+      body:JSON.stringify({chart,tight:!!tight,mode}),signal:ownController.signal});
     const data=await res.json().catch(()=>({}));
     if(!res.ok||!data.reading)throw new Error(data.error||"해석을 받지 못했습니다. 다시 시도하세요.");
     if(id!==requestId||!C||requestedSignature!==signature(C))return;
-    lastReading=data.reading;lastSignature=requestedSignature;
+    lastReading=data.reading;lastSignature=requestedSignature;lastMode=mode;
     $("sheet").classList.remove("chart-only");
     renderChart();renderReading(lastReading,false);
-    $("status").textContent="해석이 완료됐습니다.";
+    $("status").textContent=data.cached?"저장된 풀이를 불러왔어요. 다시 과금하지 않았어요.":"해석이 완료됐어요. 아래에서 읽거나 PNG로 저장하세요.";
+    $("vp").scrollIntoView({behavior:"smooth",block:"start"});
     $("print").hidden=false;
   }catch(e){
     if(id!==requestId)return;
@@ -656,7 +729,7 @@ async function ask(tight){
 }
 
 /* ---------- 연결 ---------- */
-["date","time","notime","leap","manual-longitude","tst","worry","cal-solar","cal-lunar","sex-f","sex-m"].forEach(id=>$(id).addEventListener("input",()=>{
+["date","time","notime","leap","manual-longitude","tst","worry","reading-mode","cal-solar","cal-lunar","sex-f","sex-m"].forEach(id=>$(id).addEventListener("input",()=>{
   $("time").disabled=$("notime").checked;
   $("leap").disabled=!$("cal-lunar").checked;
   resetOnChange();
@@ -675,6 +748,44 @@ $("stop").addEventListener("click",()=>{if(ctl)ctl.abort();});
 $("print").addEventListener("click",()=>{
   if(lastReading&&C&&lastSignature===signature(C))window.print();
 });
+$("save-image").addEventListener("click",saveResultImage);
+
+async function saveResultImage(){
+  const btn=$("save-image"), status=$("status"), node=$("sheet");
+  if(!window.htmlToImage){
+    status.className="status err";
+    status.textContent="이미지 변환 도구가 로드되지 않았어요. 인터넷 연결 상태에서 새로고침해 주세요.";
+    return;
+  }
+  btn.disabled=true;btn.textContent="PNG 만드는 중…";
+  try{
+    if(document.fonts?.ready)await document.fonts.ready;
+    const width=node.scrollWidth,height=node.scrollHeight;
+    const ratio=Math.max(1,Math.min(2,1400/Math.max(350,width),9500/Math.max(1200,height)));
+    const blob=await window.htmlToImage.toBlob(node,{
+      backgroundColor:"#F6F0E2",pixelRatio:ratio,skipAutoScale:true
+    });
+    if(!blob)throw new Error("Empty image");
+    const filename="사주해석_"+(C?.input.date||"결과")+".png";
+    const file=new File([blob],filename,{type:"image/png"});
+    if(navigator.canShare?.({files:[file]})&&navigator.share){
+      await navigator.share({files:[file],title:"나의 사주 결과"});
+    }else{
+      const url=URL.createObjectURL(blob),a=document.createElement("a");
+      a.href=url;a.download=filename;a.style.display="none";document.body.append(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),60000);
+    }
+    status.className="status";
+    status.textContent="이미지가 준비됐어요. 공유 메뉴에서 저장하거나 다운로드 파일을 확인해 주세요.";
+  }catch(e){
+    if(e?.name!=="AbortError"){
+      status.className="status err";
+      status.textContent="이미지 변환에 실패했어요. 다른 브라우저에서 다시 시도해 주세요.";
+      console.error("[png]",e?.message||e);
+    }
+  }finally{btn.disabled=false;btn.textContent="이미지(PNG) 저장";}
+}
+
 
 $("leap").disabled=true;
 initRegions();
