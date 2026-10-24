@@ -23,7 +23,9 @@ const PORT = Number(process.env.PORT || 3000);
 async function verifyClaudeCredentials(){
   const key=getClaudeKey();
   if(!key){console.warn("[claude-auth] API key missing");return;}
-  console.log("[claude-auth] key loaded; expected prefix:",key.startsWith("sk-ant-"),"contains whitespace:",/\s/.test(key));
+  const looksLikeKey=key.startsWith("sk-ant-");
+  console.log("[claude-auth] key loaded; expected prefix:",looksLikeKey,"contains whitespace:",/\s/.test(key));
+  if(!looksLikeKey){console.error("[claude-auth] INVALID KEY FORMAT. Check Render ANTHROPIC_API_KEY VALUE; must start sk-ant-.");return;}
   try{
     const res=await fetch("https://api.anthropic.com/v1/models?limit=1",{
       headers:{"authorization":`Bearer ${key}`,"anthropic-version":"2026-10-21"},
