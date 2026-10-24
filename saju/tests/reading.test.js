@@ -35,11 +35,34 @@ test('rejects tampered data and invalid dates',()=>{
   assert.throws(()=>sanitize({...chart,pillars:[chart.pillars[0],chart.pillars[1]]}),/명식/);
 });
 test('has an exact JSON output contract',()=>{
-  assert.deepEqual(READING_SCHEMA.required,['A','B','summary']);
+  assert.deepEqual(READING_SCHEMA.required,['A','B','summary','discoveries','focus','periods']);
   const example=Object.fromEntries(['nature','talent','career','love','advice'].map(k=>[k,{t:'내용',g:'근거'}]));
   const result=parseReading(JSON.stringify({A:example,B:example,summary:{common:'합의',diff:'차이',actions:['1','2','3']}}));
   assert.equal(result.summary.actions.length,3);
 });
+
+test('accepts AI-selected insights, direct recommendation and conditional time periods',()=>{
+  const words='실제로 확인할 수 있는 조건을 먼저 비교해 보세요. '.repeat(15).trim();
+  const expert=Object.fromEntries(['nature','talent','career','love','advice'].map(k=>[k,{t:words,g:'전통 명리의 한 해석입니다.'}]));
+  const input={
+    A:expert,B:expert,
+    summary:{common:'공통 의견',diff:'서로 다른 근거',actions:['첫째','둘째','셋째']},
+    discoveries:[{title:'혼자 감당하는 일과 도움을 구하는 시점',point:'지원이 필요한 일을 구분해 보세요.',
+      detail:words,evidence:'월령과 일간의 관계',alternative:'환경에 따라 다르게 나타날 수 있습니다.',
+      question:'어떤 일에 시간을 더 쓰고 있나요?'}],
+    focus:{question:'이직이 맞을까요?',answer:'계약 조건이 확인될 때까지는 보류하는 쪽을 권합니다.',
+      explanation:words,conditions:['더 좋은 제안이 확정됐을 때','현재 근무 환경에 문제가 클 때'],
+      steps:['조건표 만들기','경험 정리','제안서 확인']},
+    periods:[{label:'2026년',theme:words,reality:'확인할 조건'}]
+  };
+  const r=parseReading(JSON.stringify(input));
+  assert.equal(r.discoveries[0].detail,words);
+  assert.equal(r.focus.answer,input.focus.answer);
+  assert.equal(r.periods[0].theme,words);
+  assert.equal(r.focus.steps.length,3);
+  assert.ok(READING_SCHEMA.properties.discoveries);
+});
+
 test('API is not invoked when key is not provided',async()=>{
   const was=process.env.ANTHROPIC_API_KEY;delete process.env.ANTHROPIC_API_KEY;
   const out=await handle({chart},'unit-nokey');
