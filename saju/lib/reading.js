@@ -1,6 +1,11 @@
 // Claude 사주 해석: 입력 검증 → 서버 프롬프트 → 구조화된 JSON 응답
 // API 키와 프롬프트는 서버에만 존재한다. 공개 배포 시 외부 공용 rate limit/봇 차단 추가 권장.
 const MODEL = process.env.CLAUDE_MODEL || "claude-sonnet-5-5";
+const ANTHROPIC_VERSION = "2026-10-21";
+export function getClaudeKey(){
+  const raw=String(process.env.ANTHROPIC_API_KEY||"").trim();
+  return raw.replace(/^(['"])(.*)\1$/, "$2").trim();
+}
 const API_URL = "https://api.anthropic.com/v1/messages";
 const GAN = "甲乙丙丁戊己庚辛壬癸", ZHI = "子丑寅卯辰巳午未申酉戌亥";
 const GAN_KO = "갑을병정무기경신임계", ZHI_KO = "자축인묘진사오미신유술해";
@@ -124,7 +129,7 @@ export function parseReading(text) {
 }
 
 export async function getReading(chart,tight,signal) {
-  const key=process.env.ANTHROPIC_API_KEY;
+  const key=getClaudeKey();
   if(!key)throw err("서버에 API 키가 설정되지 않았습니다. 배포 환경 변수를 확인해 주세요.",503);
   const c=sanitize(chart);
   const timeout=AbortSignal.timeout(55000);
@@ -133,7 +138,7 @@ export async function getReading(chart,tight,signal) {
   try{
     res=await fetch(API_URL,{
       method:"POST",signal:combined,
-      headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01"},
+      headers:{"content-type":"application/json","authorization":`Bearer ${key}`,"anthropic-version":ANTHROPIC_VERSION},
       body:JSON.stringify({
         model:MODEL,max_tokens:2400,
         ...(MODEL==="claude-sonnet-5-5"?{thinking:{type:"between_tools"}}:{}),
@@ -149,8 +154,13 @@ export async function getReading(chart,tight,signal) {
   }
   if(!res.ok){
     // 업스트림 오류의 원문을 사용자에게 전달하지 않는다 (개인 정보/토큰 보호).
-    console.error("[Claude] upstream status:",res.status);
-    if(res.status===401)throw err("Anthropic 인증 실패(401): API 키가 유효하지 않거나 만료됐습니다. Anthropic Console에서 새 키를 발급해 Render의 ANTHROPIC_API_KEY 값을 교체하고 배포해 주세요.",502);
+    // Only log scrubbed Anthropic error details, never the secret or user input.
+    const apiError=await res.json().catch(()=>null);
+    const errorType=String(apiError?.error?.type||"unknown").slice(0,60);
+    const detail=String(apiError?.error?.message||"").replace(/sk-ant-[^\s"']+/gi,"[redacted]").slice(0,180);
+    const requestId=String(res.headers?.get?.("request-id")||"").slice(0,90);
+    console.error("[Claude] upstream",JSON.stringify({status:res.status,errorType,detail,requestId}));
+    if(res.status===401)throw err("Anthropic 인증 실패(401): 서버에 등록된 키가 거부됐습니다. 키 형식과 유효성을 확인해 주세요.",502);
     if(res.status===403)throw err("Anthropic 접근 거부(403): API 키의 조직·워크스페이스 권한을 확인해 주세요.",502);
     if(res.status===429)throw err("Anthropic 사용량 제한에 도달했습니다. 잠시 후 다시 시도하세요.",429);
     if(res.status===400)throw err("모델 설정 또는 API 요청 형식이 올바르지 않습니다. 서버 로그를 확인해 주세요.",502);
@@ -187,7 +197,7 @@ export async function handle(body,ip){
     if(!body||typeof body!=="object"||Array.isArray(body))throw err("요청 형식이 올바르지 않습니다.");
     // 소요 비용을 발생시키기 전에 데이터 형태 검증
     sanitize(body.chart);
-    if(!process.env.ANTHROPIC_API_KEY)throw err("서버에 API 키가 설정되지 않았습니다. 배포 환경 변수를 확인해 주세요.",503);
+    if(!getClaudeKey())throw err("서버에 API 키가 설정되지 않았습니다. 배포 환경 변수를 확인해 주세요.",503);
     if(rateLimited(ip||"unknown"))throw err("요청이 많아 잠시 제한되었습니다. 잠시 후 다시 시도해 주세요.",429);
     const reading=await getReading(body.chart,body.tight);
     return {status:200,json:{reading}};
