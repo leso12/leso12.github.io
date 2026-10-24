@@ -20,14 +20,46 @@ const { handle } = await import("./lib/reading.js");
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon" };
 const PORT = Number(process.env.PORT || 3000);
 
+const ALLOWED_ORIGINS = new Set(["https://leso12.github.io", "https://saju-claude-api.onrender.com", "http://localhost:3000"]);
+
 http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://x");
+  if (url.pathname === "/health") {
+    res.writeHead(200, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }).end(JSON.stringify({ ok: true, service: "saju-api" }));
+    return;
+  }
   if (url.pathname === "/api/reading") {
+    const origin = req.headers.origin;
+    if (origin && !ALLOWED_ORIGINS.has(origin)) {
+      res.writeHead(403, { "content-type": "application/json; charset=utf-8" }).end(JSON.stringify({ error: "허용되지 않은 요청 출처입니다." }));
+      return;
+    }
+    if (origin) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Vary", "Origin");
+      res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    }
+    res.setHeader("Cache-Control", "no-store");
+    if (req.method === "OPTIONS") { res.writeHead(204).end(); return; }
     if (req.method !== "POST") { res.writeHead(405).end(); return; }
+    const contentType = String(req.headers["content-type"] || "").toLowerCase();
+    if (!contentType.includes("application/json")) {
+      res.writeHead(415, { "content-type": "application/json" }).end(JSON.stringify({ error: "JSON 요청만 허용됩니다." }));
+      return;
+    }
     let raw = "";
-    for await (const chunk of req) { raw += chunk; if (raw.length > 50_000) { res.writeHead(413).end(); return; } }
+    for await (const chunk of req) {
+      raw += chunk;
+      if (raw.length > 50_000) {
+        res.writeHead(413, { "content-type": "application/json" }).end(JSON.stringify({ error: "요청 데이터가 너무 큽니다." }));
+        return;
+      }
+    }
     let body = null; try { body = JSON.parse(raw); } catch {}
-    const out = await handle(body, req.socket.remoteAddress);
+    const forwarded = String(req.headers["x-forwarded-for"] || "").split(",");
+    const ip = forwarded.length > 1 ? forwarded[forwarded.length - 1].trim() : (forwarded[0].trim() || req.socket.remoteAddress);
+    const out = await handle(body, ip || "unknown");
     res.writeHead(out.status, { "content-type": "application/json; charset=utf-8" }).end(JSON.stringify(out.json));
     return;
   }
