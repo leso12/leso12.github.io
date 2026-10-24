@@ -23,35 +23,28 @@ async function main(){
   await page.locator("#region").selectOption({label:"이천시"});
   await page.locator("#preview").click();
   assert.equal(await page.locator("#vp").isVisible(),true,"chart must be visible on webpage");
-  const t="누구나 일이 많아지면 마음이 조급해질 수 있어요. 차분하게 우선순위를 정하고 중요한 일부터 살펴보세요. 지금 당장 큰 결정을 내리기보다는 선택지를 비교하면 도움이 됩니다. ".repeat(4);
-  const expert={};
-  for(const key of ["nature","talent","career","love","advice"]){
-    expert[key]={t,g:"스스로 표현하는 기운: 자기 의견을 정리하고 말로 전달하는 모습을 뜻합니다."};
-  }
-  const discover={title:"알아두면 중요한 선택의 균형",point:"먼저 사실을 확인하세요.",
-  detail:t,evidence:"명식의 요소가 관련됩니다.",alternative:"다른 해석도 가능합니다.",
-  question:"어떤 선택을 먼저 확인하면 좋을까요?"};
+
+  const t="이 명식의 일간·월지·십성과 오행의 관계를 명리학 관점에서 자세히 설명합니다. ".repeat(16);
   const reading={
-    A:expert,B:expert,
-    discoveries:[discover,{...discover,title:"혼자 책임지지 않아도 되는 때"},{...discover,title:"현실적 판단이 필요한 순간"},{...discover,title:"잘할 수 있는 일을 고르는 기준"}],
-    focus:{question:"이직을 고민하고 있어요.",answer:"조건을 비교한 뒤 결정해 보세요.",explanation:t,
-      conditions:["근로계약 조건이 더 나아질 때","현 직장의 업무 환경이 바뀔 때"],
-      steps:["현재 조건 정리","비교표 작성","제안 확인"]},
-    periods:[{label:"2026년",theme:t,reality:"현실 조건 확인"},{label:"2027년",theme:t,reality:"성과 확인"},{label:"2028년",theme:t,reality:"가치 확인"}],
-    summary:{common:t,diff:t,actions:["기록을 정리해 보세요.","우선순위를 정해 보세요.","결정하기 전에 시간을 주세요."]},
-    stats:{model:"mock",inputTokens:100,outputTokens:400}
+    intro:"원국의 계절과 일간을 중심으로 해설합니다. ".repeat(6),
+    sections:Array.from({length:8},(_,i)=>({title:"명식 상세 분석 "+(i+1),body:t,
+      basis:"실제 명식의 간지와 월령을 해설하는 전통적인 명리 근거입니다."})),
+    outlook:[{period:"현재 대운",body:t,basis:"대운의 실제 글자"},{period:"올해 세운",body:t,basis:"세운의 실제 글자"}],
+    questionAnswer:{question:"",answer:""},
+    closing:"사주명리의 해석은 정해진 운명이나 검증된 예측이 아닙니다.",
+    stats:{model:"mock",inputTokens:200,outputTokens:2800}
   };
   await page.route("**/api/reading",route=>route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({reading})}));
   await page.locator("#go").click();
-  await page.waitForFunction(()=>document.querySelector("#experts .it .t")?.textContent?.length>350);
-  const rendered=await page.locator("#experts .it .t").first().textContent();
-  assert.equal(rendered,t,"full text, not a 200-character fragment");
-  assert.equal(await page.locator("#deep-report").isVisible(),true,"dynamic chapters visible");
-  assert.equal(await page.locator("#deep-report .insight-card").count(),4,"four selected insights");
-  assert.equal(await page.locator("#deep-report .period-card").count(),3,"three periods");
-  assert.equal(await page.locator("#deep-report .direct-answer").textContent(),"조건을 비교한 뒤 결정해 보세요.");
-  assert.equal(await page.locator("#deep-report .insight-card").first().locator(".insight-detail").textContent(),t,"no dynamic insight truncation");
-  assert.equal(await page.locator("#result-bar").isVisible(),true,"result tools should be visible");
+
+  await page.waitForFunction(()=>document.querySelector("#deep-report .saju-section")?.textContent?.length>350);
+  assert.equal(await page.locator("#deep-report .saju-section").count(),8,"eight detailed traditional saju chapters");
+  assert.equal(await page.locator("#deep-report .saju-time").count(),2,"both luck cycles are visible");
+  assert.equal(await page.locator("#deep-report .saju-section .saju-prose").first().textContent(),t,"long saju content is intact");
+  assert.equal(await page.locator("#deep-report .saju-intro").isVisible(),true,"overview is visible");
+  assert.equal(await page.locator("#deep-report .deep-focus").count(),0,"unwanted life coaching is absent");
+  assert.equal(await page.locator("#deep-report .saju-outro").count(),1,"closing is visible");
+  assert.equal(await page.locator("#result-bar").isVisible(),true,"result tools are visible");
   assert.equal(await page.locator("#file-ready").isVisible(),false,"no auto-download");
   assert.equal(await page.evaluate(()=>document.querySelector(".sheet").scrollHeight<=document.querySelector(".sheet").clientHeight+5),true,"content must not be cropped");
   await page.locator("#save-image").click();
