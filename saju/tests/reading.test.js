@@ -54,7 +54,7 @@ test('mocked Anthropic API receives server-only key and schema, and results rend
   try {
     globalThis.fetch=async(url,init)=>{
       assert.equal(url,'https://api.anthropic.com/v1/messages');
-      assert.equal(init.headers['x-api-key'],'TEST_PRIVATE_KEY');
+      assert.equal(init.headers.authorization,'Bearer TEST_PRIVATE_KEY');
       assert.ok(!JSON.stringify(init.body).includes('TEST_PRIVATE_KEY'));
       const payload=JSON.parse(init.body);
       assert.equal(payload.output_config.format.type,'json_schema');
