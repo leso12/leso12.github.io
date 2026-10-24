@@ -73,7 +73,7 @@ export function sanitize(c) {
 }
 
 export function buildPrompt(c,tight=false) {
-  const L=tight?{t:100,g:40,s:85,a:28}:{t:210,g:75,s:170,a:50};
+  const L=tight?{t:"80~130",g:"80",s:"130",a:"80"}:{t:"180~300",g:"140",s:"250",a:"120"};
   const gzKo=gz=>gz.split("").map(ko).join("");
   const pillars=c.pillars.map(p=>`${p.pos}주 ${p.gz}(${gzKo(p.gz)}) — 천간 ${p.ssGan}, 지지 ${p.ssZhi}, 지장간 ${p.hide.join(" ")}`).join("\n");
   return `두 독립적인 사주명리 해석을 작성해주세요. 명식은 이미 만세력으로 계산했으니 다시 계산하지 마세요.
@@ -95,13 +95,21 @@ ${pillars}
 ${JSON.stringify(c.input.worry||"(없음 — 현재 흐름을 중심으로 설명)")}
 
 [전문가 관점]
-A 현실 분석가: 일간, 월령, 십성, 오행과 운의 상호작용을 연결해 성향·재능·직업·재물·애정·인생의 반복 패턴을 구체적으로 설명. 추상적인 단정 대신 그 해석이 나타날 수 있는 상황과 반대되는 상황을 1가지씩 제시.
-B 전통 명리 검토자: A의 판단을 무조건 동의하지 말고 다르게 해석 가능한 근거와 한계를 짚는다. 특히 월령·용신을 억지로 단정하지 말고, 실제 명식에 주어진 기호만 근거로 사용. A와 다른 현실적인 조언을 한다.
-필수: 각 항목의 설명은 예시와 이유를 포함하여 충분한 문장으로 작성. '좋아진다', '운이 있다' 같은 빈말 반복 금지. 단, 계산 결과에 없는 사건과 경험을 사용자 사실처럼 꾸며내지 말 것.
+A 현실 분석가: 명식을 실제 생활에 연결하되 단정적으로 성격을 규정하지 말고, 구체적인 상황 예시와 선택 기준을 설명.
+B 전통 명리 검토자: A와 다른 시각을 제시하되 불확실한 사주 풀이를 사실인 것처럼 꾸미지 말고, 해석이 달라지는 이유를 이야기.
+[매우 중요한 문체 규칙]
+- 일반 독자가 읽는 잡지 칼럼처럼 쉬운 한국어로 써 주세요. 친구에게 설명하는 듯 자연스러운 존댓말.
+- t(본문)에는 한자(甲乙丙丁 등), 한문 사자성어, 학술용어, '격국·용신·일지·관성·상관·비견·반합·월령' 등의 용어를 쓰지 마세요.
+- 전문 명리 근거는 g 필드에서만 언급하되 '상관: 자기 표현과 비판적 사고'처럼 일상말로 풀어 쓰세요. 한자 나열·기호 남발을 피하세요.
+- 하나의 문단에는 2~4개의 짧고 완결된 문장. 명식만으로 특정 직업·인생 사건·개인 경험을 알고 있는 듯 단정하지 마세요.
+- 비슷한 성격 특성이나 운세를 다섯 항목에 반복하지 말고, 각 질문의 주제에 집중하세요.
+- 직업 예시는 다양한 가능성을 제시하고 현재 사용자의 직업을 알고 있다고 가장하지 마세요.
+- 문장 끝은 반드시 자연스럽게 마무리하고, 마지막 문장을 중간에 끊거나 '다만', '그래서', '협업'처럼 단어만 남기지 마세요.
 
 [JSON 필드]
-A/B 각각 nature(성향), talent(재능과 약점), career(직업·재물), love(관계·연애), advice(고민 조언) 5개. 각 항목의 t는 공백 포함 ${L.t}자 안팎(짧게 끝내지 말고 구체적으로), g는 실제 명식에서 유효한 근거를 ${L.g}자 이내. 자명한 문장 반복과 과도한 겁주기 금지.
-summary.common과 diff는 각각 ${L.s}자 이내(공통점, 차이와 이유), summary.actions는 ${L.a}자 이내의 실천 행동 정확히 3개.
+A/B 각각 nature(성향), talent(재능과 약점), career(직업·재물), love(관계·연애), advice(고민 조언) 5개. 각 항목 t는 공백 포함 ${L.t}자 정도로 쉬운 한국어로 2~4개 완결된 문장. g에는 명식에 있는 근거와 알기 쉬운 뜻을 ${L.g}자 이내로.
+summary.common과 diff는 각각 ${L.s}자 정도로 쉬운 말로 공통점과 차이를 해설. summary.actions는 ${L.a}자 이내로 구체적 실천 행동 정확히 3개.
+필드 길이는 참고 분량입니다. 완성된 문장의 자연스러운 종결이 글자 수보다 최우선입니다.
 두 사람의 논점이 똑같지 않게, 짧고 구체적인 한국어로 작성. 단정적인 미래 예언, 질병·사망·사고·파산 예언 금지. 취업·재무·건강·연애 결정에 대해 실제 확인할 수 있는 조건도 함께 제시.
 결과는 웹에서 충분히 읽는 해설문으로 표시합니다. A4 한 페이지 제한은 없으니 명료하고 구체적으로 설명하세요.`;
 }
@@ -125,10 +133,14 @@ export function parseReading(text) {
   const R=JSON.parse(s.slice(a,b+1));
   if(!R?.A||!R?.B||!R?.summary)throw err("AI 응답의 필수 항목이 없습니다.",502);
   const keys=["nature","talent","career","love","advice"];
-  const pick=e=>Object.fromEntries(keys.map(k=>[k,{t:str(e?.[k]?.t,200),g:str(e?.[k]?.g,80)}]));
+  const pick=e=>Object.fromEntries(keys.map(k=>[k,{
+    // Previously cropped mid-sentence at 200 characters; never cut usable prose.
+    t:str(e?.[k]?.t,2400).trim(),
+    g:str(e?.[k]?.g,650).trim()
+  }]));
   return {A:pick(R.A),B:pick(R.B),summary:{
-    common:str(R.summary.common,200),diff:str(R.summary.diff,200),
-    actions:arr(R.summary.actions,3).map(x=>str(x,60))
+    common:str(R.summary.common,1200).trim(),diff:str(R.summary.diff,1200).trim(),
+    actions:arr(R.summary.actions,3).map(x=>str(x,360).trim())
   }};
 }
 
@@ -192,7 +204,8 @@ import { createHash } from "node:crypto";
 const CACHE_TTL_MS=30*60*1000;
 const readings=new Map();
 const pending=new Map();
-const cacheKey=(c,tight,mode)=>createHash("sha256").update(JSON.stringify([c,!!tight,mode])).digest("hex");
+const PROMPT_VERSION="easy-complete-2026-10-v2";
+const cacheKey=(c,tight,mode)=>createHash("sha256").update(JSON.stringify([PROMPT_VERSION,c,!!tight,mode])).digest("hex");
 export function clearReadingsForTests(){readings.clear();pending.clear();}
 const hits=new Map();
 const LIMIT=safeNumber(process.env.RATE_LIMIT_PER_HOUR||10,1,200,10);
