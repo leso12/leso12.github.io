@@ -28,12 +28,29 @@ async function main(){
   for(const key of ["nature","talent","career","love","advice"]){
     expert[key]={t,g:"스스로 표현하는 기운: 자기 의견을 정리하고 말로 전달하는 모습을 뜻합니다."};
   }
-  const reading={A:expert,B:expert,summary:{common:t,diff:t,actions:["기록을 정리해 보세요.","우선순위를 정해 보세요.","결정하기 전에 시간을 주세요."]},stats:{model:"mock",inputTokens:100,outputTokens:400}};
+  const discover={title:"알아두면 중요한 선택의 균형",point:"먼저 사실을 확인하세요.",
+  detail:t,evidence:"명식의 요소가 관련됩니다.",alternative:"다른 해석도 가능합니다.",
+  question:"어떤 선택을 먼저 확인하면 좋을까요?"};
+  const reading={
+    A:expert,B:expert,
+    discoveries:[discover,{...discover,title:"혼자 책임지지 않아도 되는 때"},{...discover,title:"현실적 판단이 필요한 순간"},{...discover,title:"잘할 수 있는 일을 고르는 기준"}],
+    focus:{question:"이직을 고민하고 있어요.",answer:"조건을 비교한 뒤 결정해 보세요.",explanation:t,
+      conditions:["근로계약 조건이 더 나아질 때","현 직장의 업무 환경이 바뀔 때"],
+      steps:["현재 조건 정리","비교표 작성","제안 확인"]},
+    periods:[{label:"2026년",theme:t,reality:"현실 조건 확인"},{label:"2027년",theme:t,reality:"성과 확인"},{label:"2028년",theme:t,reality:"가치 확인"}],
+    summary:{common:t,diff:t,actions:["기록을 정리해 보세요.","우선순위를 정해 보세요.","결정하기 전에 시간을 주세요."]},
+    stats:{model:"mock",inputTokens:100,outputTokens:400}
+  };
   await page.route("**/api/reading",route=>route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({reading})}));
   await page.locator("#go").click();
   await page.waitForFunction(()=>document.querySelector("#experts .it .t")?.textContent?.length>350);
   const rendered=await page.locator("#experts .it .t").first().textContent();
   assert.equal(rendered,t,"full text, not a 200-character fragment");
+  assert.equal(await page.locator("#deep-report").isVisible(),true,"dynamic chapters visible");
+  assert.equal(await page.locator("#deep-report .insight-card").count(),4,"four selected insights");
+  assert.equal(await page.locator("#deep-report .period-card").count(),3,"three periods");
+  assert.equal(await page.locator("#deep-report .direct-answer").textContent(),"조건을 비교한 뒤 결정해 보세요.");
+  assert.equal(await page.locator("#deep-report .insight-card").first().locator(".insight-detail").textContent(),t,"no dynamic insight truncation");
   assert.equal(await page.locator("#result-bar").isVisible(),true,"result tools should be visible");
   assert.equal(await page.locator("#file-ready").isVisible(),false,"no auto-download");
   assert.equal(await page.evaluate(()=>document.querySelector(".sheet").scrollHeight<=document.querySelector(".sheet").clientHeight+5),true,"content must not be cropped");
