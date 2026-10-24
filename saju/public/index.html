@@ -302,6 +302,51 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
  .basis p{display:block!important}
 }
 
+
+@media screen {
+ .deep-report{display:flex;flex-direction:column;gap:22px;min-height:0;overflow:visible}
+ .deep-report[hidden]{display:none!important}
+ .chapter-heading{display:flex;align-items:baseline;gap:12px;margin:3px 0 1px;border-bottom:1px solid #ddceb8;padding:0 2px 11px}
+ .chapter-heading h2{font:700 clamp(19px,2.3vw,24px)/1.4 var(--serif);color:#482c30;margin:0}
+ .chapter-heading p{margin:0;font-size:12px;color:#8b7a70}
+ .deep-focus{padding:25px 27px;border-radius:14px;background:#f1e8dd;border:1px solid #d7c3aa}
+ .deep-focus h3{font-size:16px;color:#783449;margin:0 0 12px}
+ .deep-focus .direct-answer{margin:0 0 17px;color:#46232d;font-size:20px;font-weight:700;line-height:1.65;word-break:keep-all;overflow-wrap:anywhere}
+ .deep-focus .explanation{margin:0 0 15px;font-size:14px;line-height:1.85;word-break:keep-all;overflow-wrap:anywhere}
+ .deep-focus h4{font-size:13px;margin:19px 0 8px;color:#75485a}
+ .deep-focus ul,.deep-focus ol{margin:0;padding-left:21px;display:grid;gap:7px;font-size:13px;line-height:1.75}
+ .deep-focus li{word-break:keep-all;overflow-wrap:anywhere}
+ .insight-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+ .insight-card{padding:24px;background:#fffdf9;border:1px solid #e3d7c5;border-radius:13px;display:flex;flex-direction:column;gap:12px;min-width:0}
+ .insight-number{font:600 12px var(--sans);letter-spacing:.13em;color:#9d785b}
+ .insight-card h3{font:700 19px/1.5 var(--serif);color:#472c34;margin:0;word-break:keep-all}
+ .insight-card .insight-point{font-size:15px;line-height:1.7;font-weight:700;color:#80354d;margin:0}
+ .insight-card .insight-detail{font-size:14px;line-height:1.85;margin:0;word-break:keep-all;overflow-wrap:anywhere}
+ .insight-card details{border-top:1px dashed #dccaba;padding-top:11px;font-size:12px;color:#706153;line-height:1.8}
+ .insight-card details summary{font-weight:650;cursor:pointer;color:#765849}
+ .insight-card details p{margin:9px 0 3px;word-break:keep-all;overflow-wrap:anywhere}
+ .insight-card .insight-question{padding:10px 13px;background:#f7f0e5;border-radius:9px;font-size:12px;line-height:1.8;margin:2px 0 0}
+ .periods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+ .period-card{padding:20px;background:#fffaf3;border:1px solid #e3d5c2;border-radius:12px}
+ .period-card h3{margin:0 0 11px;font-size:17px;color:#81364b}
+ .period-card p{font-size:13px;line-height:1.75;margin:0 0 10px;word-break:keep-all;overflow-wrap:anywhere}
+ .period-card small{font-size:11px;line-height:1.75;color:#786755}
+ .compare-heading{font:700 19px var(--serif);margin:4px 0 0;color:#4c3039}
+}
+@media screen and (max-width:700px) {
+ .deep-report{gap:18px}.chapter-heading{display:block;padding-bottom:10px}
+ .chapter-heading h2{font-size:20px}.chapter-heading p{font-size:11px;margin-top:5px}
+ .deep-focus{padding:21px 17px}.deep-focus .direct-answer{font-size:18px}
+ .insight-grid,.periods{display:flex;flex-direction:column;gap:12px}
+ .insight-card{padding:21px 16px;gap:11px}
+ .insight-card h3{font-size:19px}.insight-card .insight-point{font-size:14px}.insight-card .insight-detail{font-size:14px}
+ .period-card{padding:17px}
+}
+@media print {
+ .insight-card,.deep-focus,.period-card{break-inside:avoid}
+ .insight-card details>*{display:block!important}
+}
+
 </style>
 </head>
 <body>
@@ -358,8 +403,8 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
         <p class="note reading-mode-note">두 모델 모두 자세히 풀이해요. 상위 모델은 선택할 때만 호출돼요.</p>
       </div>
       <div class="field wide">
-        <label for="worry">현재 고민</label>
-        <textarea id="worry" maxlength="300" placeholder="궁금한 고민이 있으면 적어 주세요 (선택)"></textarea>
+        <label for="worry">더 알고 싶은 점을 자유롭게 적어 주세요 (선택)</label>
+        <textarea id="worry" maxlength="300" placeholder="예: 내 사주에서 특히 눈에 띄는 것은 무엇이고, 올해 일을 바꾸는 것과 유지하는 것 중 어떤 선택을 권하는지 이유까지 알려줘."></textarea>
       </div>
     </div>
     <div class="actions">
@@ -410,6 +455,8 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
         </div>
       </section>
 
+      <section class="deep-report" id="deep-report" hidden></section>
+      <h2 class="compare-heading" id="compare-title" hidden>두 명리학자의 다른 시선</h2>
       <section class="experts" id="experts"></section>
       <section class="sum" id="sum"></section>
 
@@ -590,6 +637,7 @@ let C=null, hasPreview=false;
 function chartOnly(){
  $("sheet").classList.add("chart-only");
  $("experts").replaceChildren();$("sum").replaceChildren();
+ $("deep-report").hidden=true;$("deep-report").replaceChildren();$("compare-title").hidden=true;
  $("footL").textContent="명식 미리보기 · AI 해석 전";fit();
 }
 function previewChart(){
@@ -634,7 +682,60 @@ const EX={
   B:{tag:"乙",nm:"전문가 B",ds:"신중한 정통파"}
 };
 function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+function dynamicInsights(R){
+ const insights=(Array.isArray(R.discoveries)?R.discoveries:[]).filter(x=>x && x.title && x.detail);
+ const F=R.focus||{};
+ const periods=(Array.isArray(R.periods)?R.periods:[]).filter(x=>x && x.label && x.theme);
+ const heading=(t,sub)=>'<div class="chapter-heading"><h2>'+esc(t)+'</h2><p>'+esc(sub||"")+'</p></div>';
+ const ul=(xs,ordered=false)=>'<'+(ordered?'ol':'ul')+'>'+xs.map(x=>'<li>'+esc(x)+'</li>').join('')+'</'+(ordered?'ol':'ul')+'>';
+ let html="";
+ if(F.answer){
+   html+=heading("내 질문에 대한 답","결론부터, 왜 그렇게 보는지까지");
+   html+='<section class="deep-focus"><h3>'+esc(F.question||"가장 중요한 선택")+'</h3>';
+   html+='<p class="direct-answer">'+esc(F.answer)+'</p>';
+   if(F.explanation)html+='<p class="explanation">'+esc(F.explanation)+'</p>';
+   if(F.conditions?.length)html+='<h4>이런 경우에는 판단이 달라져요</h4>'+ul(F.conditions);
+   if(F.steps?.length)html+='<h4>이렇게 시작해 보세요</h4>'+ul(F.steps,true);
+   html+='</section>';
+ }
+ if(insights.length){
+   html+=heading("명식에서 발견한 특징","AI가 사주에 따라 고른 주제들이에요");
+   html+='<div class="insight-grid">';
+   for(let i=0;i<insights.length;i++){
+     const x=insights[i];
+     html+='<article class="insight-card"><span class="insight-number">발견 '+String(i+1).padStart(2,"0")+'</span>';
+     html+='<h3>'+esc(x.title)+'</h3>';
+     if(x.point)html+='<p class="insight-point">'+esc(x.point)+'</p>';
+     html+='<p class="insight-detail">'+esc(x.detail)+'</p>';
+     if(x.question)html+='<p class="insight-question"><strong>생각해 볼 질문</strong> · '+esc(x.question)+'</p>';
+     if(x.evidence||x.alternative){
+       html+='<details><summary>근거와 다른 가능성 보기</summary>';
+       if(x.evidence)html+='<p><strong>명식 근거</strong> · '+esc(x.evidence)+'</p>';
+       if(x.alternative)html+='<p><strong>다른 가능성</strong> · '+esc(x.alternative)+'</p>';
+       html+='</details>';
+     }
+     html+='</article>';
+   }
+   html+='</div>';
+ }
+ if(periods.length){
+   html+=heading("시기별 흐름","운세는 정해진 미래가 아닌 전통적 해석이에요");
+   html+='<div class="periods">';
+   for(const p of periods){
+     html+='<article class="period-card"><h3>'+esc(p.label)+'</h3><p>'+esc(p.theme)+'</p>';
+     if(p.reality)html+='<small>'+esc(p.reality)+'</small>';
+     html+='</article>';
+   }
+   html+='</div>';
+ }
+ $("deep-report").innerHTML=html;
+ $("deep-report").hidden=!html;
+ $("compare-title").hidden=!html;
+}
+
 function renderReading(R,isSample){
+  dynamicInsights(R);
   $("experts").innerHTML=["A","B"].map(k=>`
     <div class="ex ${k.toLowerCase()}">
       <div class="exh"><span class="tag">${EX[k].tag}</span><span class="nm">${EX[k].nm}</span><span class="ds">${EX[k].ds}</span></div>
