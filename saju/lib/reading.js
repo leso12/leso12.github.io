@@ -150,7 +150,8 @@ export async function getReading(chart,tight,signal) {
   if(!res.ok){
     // 업스트림 오류의 원문을 사용자에게 전달하지 않는다 (개인 정보/토큰 보호).
     console.error("[Claude] upstream status:",res.status);
-    if(res.status===401||res.status===403)throw err("API 키 또는 Anthropic 계정 권한을 확인해 주세요.",502);
+    if(res.status===401)throw err("Anthropic 인증 실패(401): API 키가 유효하지 않거나 만료됐습니다. Anthropic Console에서 새 키를 발급해 Render의 ANTHROPIC_API_KEY 값을 교체하고 배포해 주세요.",502);
+    if(res.status===403)throw err("Anthropic 접근 거부(403): API 키의 조직·워크스페이스 권한을 확인해 주세요.",502);
     if(res.status===429)throw err("Anthropic 사용량 제한에 도달했습니다. 잠시 후 다시 시도하세요.",429);
     if(res.status===400)throw err("모델 설정 또는 API 요청 형식이 올바르지 않습니다. 서버 로그를 확인해 주세요.",502);
     throw err(`AI 서비스 오류 (${res.status}). 다시 시도해 주세요.`,502);
