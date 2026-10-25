@@ -77,7 +77,9 @@ http.createServer(async (req, res) => {
     const forwarded = String(req.headers["x-forwarded-for"] || "").split(",");
     const ip = forwarded.length > 1 ? forwarded[forwarded.length - 1].trim() : (forwarded[0].trim() || req.socket.remoteAddress);
     const out = await handle(body, ip || "unknown");
-    res.writeHead(out.status, { "content-type": "application/json; charset=utf-8" }).end(JSON.stringify(out.json));
+    const headers={ "content-type": "application/json; charset=utf-8", "cache-control": "no-store" };
+    if(out.json?.retryAfterSeconds>0)headers["retry-after"]=String(Math.floor(out.json.retryAfterSeconds));
+    res.writeHead(out.status, headers).end(JSON.stringify(out.json));
     return;
   }
   // Serve the same vendored export library for local development and GitHub Pages.
