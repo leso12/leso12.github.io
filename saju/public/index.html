@@ -516,7 +516,7 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
     <div class="actions">
       <button type="button" class="btn-preview" id="preview">명식 먼저 보기</button>
       <button type="submit" class="btn-sub" id="go">AI 해석 받기</button>
-      <button type="button" class="btn-sub" id="stop" hidden>중단</button>
+      <button type="button" class="btn-sub" id="stop" hidden>화면 요청 중단</button>
 
       <span class="status" id="status" role="status"></span>
     </div>
@@ -886,7 +886,7 @@ function fit(){
 window.addEventListener("resize",fit);
 
 /* ---------- AI 해석 요청 (내 서버 /api/reading → Claude API) ---------- */
-let ctl=null, lastReading=null, lastSignature="", lastMode="", requestId=0;
+let ctl=null, lastReading=null, lastSignature="", lastMode="", requestId=0, deepCostAccepted=false;
 function payload(c){
   return {
     input:c.input, corrNote:c.corrNote, solarStr:c.solarStr, noTime:c.noTime,
@@ -1009,6 +1009,11 @@ async function ask(tight){
     $("status").textContent="이미 받은 결과예요. 추가 API 요금 없이 다시 보여줘요.";
     $("vp").scrollIntoView({behavior:"smooth",block:"start"});return;
   }
+  if(mode==="deep" && !deepCostAccepted){
+    const okay=window.confirm("Opus 심층 풀이는 Sonnet보다 사용료가 높고, 응답 길이 초과 시에도 토큰 비용이 발생할 수 있어요. 유료 해석을 시작할까요?");
+    if(!okay)return;
+    deepCostAccepted=true;
+  }
   ctl=new AbortController();
   const ownController=ctl;
   $("go").disabled=true;$("shorter").disabled=true;$("stop").hidden=false;
@@ -1040,7 +1045,7 @@ async function ask(tight){
     $("print").hidden=false;
   }catch(e){
     if(id!==requestId)return;
-    if(e.name==="AbortError"){$("status").textContent="해석 요청을 중단했습니다.";}
+    if(e.name==="AbortError"){$("status").textContent="화면의 요청을 중단했어요. 이미 시작된 서버 AI 생성에는 비용이 발생할 수 있어요.";}
     else{
       $("status").className="status err";
       $("status").textContent="AI 해석 요청이 완료되지 않았어요. 아래 안내를 확인해 주세요.";
