@@ -419,6 +419,27 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
 .ai-problem .hint{font-size:11px;color:#806b70}
 @media screen and (max-width:700px){.ai-problem{padding:15px}.ai-problem .ai-problem-actions a{width:100%;justify-content:center}}
 
+
+/* Long-report navigation and readability */
+.reader-tools{max-width:1060px;width:100%;margin:0 auto;display:flex;gap:12px;flex-wrap:wrap;align-items:end;background:#fffefb;border:1px solid #e5d8c8;border-radius:13px;padding:14px 18px}
+.reader-tools[hidden]{display:none!important}
+.reader-tools label{font-weight:700;font-size:12px;color:#7c4f54;display:block;margin-bottom:7px}
+.reader-chapters{flex:1;min-width:220px}
+.reader-chapters select{width:100%;min-height:41px;font-size:13px;border:1px solid #d5cab9;border-radius:9px;background:#fff;color:#42363a;padding:7px 11px}
+.reader-text-controls{display:flex;gap:7px}
+.reader-text-controls button{font-size:14px;min-height:41px;border:1px solid #d5cab9;border-radius:9px;padding:8px 14px;background:#fff;color:#6d3a4e}
+.sheet[data-reader-font="large"] .saju-prose,.sheet[data-reader-font="large"] .saju-intro p,.sheet[data-reader-font="large"] .saju-outro p{font-size:17px}
+.sheet[data-reader-font="large"] .saju-time p,.sheet[data-reader-font="large"] .saju-focus-timing p{font-size:16px}
+.sheet[data-reader-font="small"] .saju-prose,.sheet[data-reader-font="small"] .saju-intro p,.sheet[data-reader-font="small"] .saju-outro p{font-size:13px}
+.sheet[data-reader-font="small"] .saju-time p,.sheet[data-reader-font="small"] .saju-focus-timing p{font-size:12px}
+@media screen and (max-width:700px){
+ .reader-tools{padding:12px 14px;gap:9px}
+ .reader-chapters{width:100%;flex:auto}
+ .reader-text-controls{margin-left:auto}
+ .sheet[data-reader-font="large"] .saju-prose,.sheet[data-reader-font="large"] .saju-intro p,.sheet[data-reader-font="large"] .saju-outro p{font-size:16px}
+}
+@media print{.reader-tools{display:none!important}}
+
 </style>
 </head>
 <body>
@@ -513,6 +534,18 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
       <a id="file-download" href="#" download>파일 다운로드</a>
       <button type="button" class="btn-sub" id="file-share">휴대폰에서 공유·저장</button>
       <small>파일 만들기 후 링크를 한 번 더 눌러 저장해 주세요. Android에서는 다운로드 폴더에서 확인할 수 있어요.</small>
+    </div>
+  </div>
+  <div class="reader-tools" id="reader-tools" hidden>
+    <div class="reader-chapters"><label for="chapter-nav">상세 해설 목차</label>
+      <select id="chapter-nav"><option value="">보고서 목차에서 이동</option></select>
+    </div>
+    <div><label id="reader-font-state">글자 크기: 기본</label>
+      <div class="reader-text-controls">
+        <button type="button" id="font-smaller" aria-label="결과 글자 작게">A−</button>
+        <button type="button" id="font-normal" aria-label="결과 글자 기본">기본</button>
+        <button type="button" id="font-larger" aria-label="결과 글자 크게">A＋</button>
+      </div>
     </div>
   </div>
   <div class="sheet-viewport" id="vp" hidden>
@@ -759,6 +792,27 @@ function renderChart(){
 /* ---------- 해석 렌더 ---------- */
 
 function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+let readerFontSize="normal";
+function buildChapterNavigation(){
+ const nodes=[...document.querySelectorAll("#deep-report .saju-intro, #deep-report .saju-section, #deep-report .saju-focus, #deep-report .saju-time, #deep-report .saju-outro")];
+ const control=$("chapter-nav");
+ control.replaceChildren(new Option("보고서 목차에서 이동",""));
+ nodes.forEach((node,i)=>{
+  const name=node.querySelector("h3,h2,.saju-kicker")?.textContent?.trim()||"본문 "+(i+1);
+  const id="saju-section-"+i;
+  node.id=id;
+  control.append(new Option(name,id));
+ });
+ $("reader-tools").hidden=nodes.length===0;
+}
+function changeReaderSize(next){
+ readerFontSize=next;
+ $("sheet").dataset.readerFont=next;
+ const label=next==="large"?"크게":next==="small"?"작게":"기본";
+ $("reader-font-state").textContent="글자 크기: "+label;
+}
+
 function renderReading(R,isSample){
  $("experts").replaceChildren();$("experts").hidden=true;
  $("sum").replaceChildren();$("sum").hidden=true;
@@ -803,6 +857,7 @@ function renderReading(R,isSample){
  if(R.closing)blocks.push('<section class="saju-outro"><h2>명리 해석 정리</h2><p>'+esc(R.closing)+'</p></section>');
  $("deep-report").innerHTML=blocks.join("");
  $("deep-report").hidden=!blocks.length;
+ buildChapterNavigation();
  $("footL").textContent=isSample?"예시 해석 · ":"원국·대운·세운 해설";
  fit();
 }
@@ -868,6 +923,7 @@ function showApiError(e){
 
 function resetOnChange(){
   clearApiError();
+  $("reader-tools").hidden=true;
   // 서버 응답이 와도 현재 화면의 다른 출생 정보에 잘못 붙지 않도록 중단/무효화한다.
   requestId++;
   if(ctl){ctl.abort();ctl=null;}
@@ -963,6 +1019,13 @@ $("stop").addEventListener("click",()=>{if(ctl)ctl.abort();});
 $("print").addEventListener("click",()=>prepareResultFile("pdf"));
 $("save-image").addEventListener("click",()=>prepareResultFile("png"));
 $("file-share").addEventListener("click",shareResultFile);
+$("chapter-nav").addEventListener("change",()=>{
+ const node=document.getElementById($("chapter-nav").value);
+ if(node)node.scrollIntoView({behavior:"smooth",block:"start"});
+});
+$("font-smaller").addEventListener("click",()=>changeReaderSize("small"));
+$("font-normal").addEventListener("click",()=>changeReaderSize("normal"));
+$("font-larger").addEventListener("click",()=>changeReaderSize("large"));
 
 let preparedFile=null, preparedUrl=null, preparedName="";
 let exportLoader=null;
