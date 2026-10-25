@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
-import {sanitize,handle,getReading,buildPrompt,detectInterestTopics,parseReading,READING_SCHEMA} from '../lib/reading.js';
+import {sanitize,handle,getReading,buildPrompt,detectInterestTopics,parseReading,READING_SCHEMA,classifyAnthropicError,clearReadingsForTests} from '../lib/reading.js';
 
 function exampleChart(){
   const raw=readFileSync(new URL('../public/vendor/lunar.js',import.meta.url),'utf8');
@@ -149,4 +149,45 @@ test('incomplete Opus does not silently retry a paid call',async()=>{
   await assert.rejects(()=>getReading(chart,false,'deep'),/추가 유료 요청/);
   assert.equal(count,1);
  }finally{globalThis.fetch=prev;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
+});
+
+
+test('Anthropic credit and configured spending limits receive distinct actions',()=>{
+ const credit=classifyAnthropicError(402,{error:{type:'billing_error',message:'Payment details required'}});
+ assert.equal(credit.status,402);assert.equal(credit.code,'BILLING_REQUIRED');
+ assert.match(credit.message,/결제/);
+ const lowBalance=classifyAnthropicError(400,{error:{type:'invalid_request_error',message:'Your credit balance is too low to access the Anthropic API.'}});
+ assert.equal(lowBalance.code,'BILLING_REQUIRED');
+ const configured=classifyAnthropicError(400,{error:{type:'invalid_request_error',
+  message:'You have reached your specified workspace API usage limits'}});
+ assert.equal(configured.code,'SPEND_LIMIT');
+ const tier=classifyAnthropicError(429,{error:{type:'rate_limit_error',
+  details:{error_code:'enforced_spend_limit_reached'},message:'Monthly threshold'}});
+ assert.equal(tier.code,'SPEND_LIMIT');
+ const transient=classifyAnthropicError(429,{error:{type:'rate_limit_error',message:'Too many requests'}},'35');
+ assert.equal(transient.code,'PROVIDER_RATE_LIMIT');assert.equal(transient.retryAfterSeconds,35);
+ assert.equal(classifyAnthropicError(400,{error:{message:'invalid JSON'}}).code,'PROVIDER_REQUEST');
+ assert.equal(classifyAnthropicError(401).code,'AUTH_CONFIG');
+});
+test('billing error blocks a new paid request temporarily without exposing provider data',async()=>{
+ clearReadingsForTests();
+ const oldKey=process.env.ANTHROPIC_API_KEY,oldFetch=globalThis.fetch;
+ process.env.ANTHROPIC_API_KEY=fakeKey;let upstreamCalls=0;
+ try{
+  globalThis.fetch=async()=>{upstreamCalls++;return {ok:false,status:402,
+   headers:{get:()=>null},json:async()=>({error:{type:'billing_error',
+    message:'Your confidential organization information goes here'}})};};
+  const result=await handle({chart},'billing-test');
+  assert.equal(result.status,402);assert.equal(result.json.code,'BILLING_REQUIRED');
+  assert.ok(result.json.retryAfterSeconds>0);
+  assert.ok(!JSON.stringify(result.json).includes('confidential'));
+  const secondChart={...chart,input:{...chart.input,worry:'연애운 심층'}};
+  const second=await handle({chart:secondChart},'billing-test-2');
+  assert.equal(second.json.code,'BILLING_REQUIRED');
+  assert.equal(upstreamCalls,1,'do not repeat paid provider calls during billing hold');
+ }finally{
+  clearReadingsForTests();
+  globalThis.fetch=oldFetch;
+  if(oldKey)process.env.ANTHROPIC_API_KEY=oldKey;else delete process.env.ANTHROPIC_API_KEY;
+ }
 });
