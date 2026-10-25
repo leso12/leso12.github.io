@@ -24,7 +24,36 @@ const safeNumber = (x,min,max,def=0) => {
   const n=Number(x);
   return Number.isFinite(n) ? Math.max(min,Math.min(max,n)) : def;
 };
-const err = (message,status=400) => Object.assign(new Error(message),{status});
+const err = (message,status=400,code="REQUEST_ERROR",retryAfterSeconds=0) =>
+  Object.assign(new Error(message),{status,code,retryAfterSeconds});
+const BILLING_URL="https://platform.claude.com/settings/billing";
+const numRetry=(value)=>{const n=Number(value);return Number.isFinite(n)?Math.min(3600,Math.max(1,Math.floor(n))):60;};
+/** Anthropic error.type, details.error_code and *billing-only* message signatures.
+ * Never return upstream text to the public client: provider messages are untrusted.
+ * 400 user/workspace spend limit differs from malformed-request 400.
+ * 429 enforced_spend_limit differs from short-lived requests-per-minute 429.
+ */
+export function classifyAnthropicError(status,apiError={},retryAfter=null){
+ const type=String(apiError?.error?.type||"");
+ const message=String(apiError?.error?.message||"").toLowerCase();
+ const detail=String(apiError?.error?.details?.error_code||"").toLowerCase();
+ const spending=/specified (workspace )?api usage limits|spend limit|spending limit|spend cap|monthly api usage threshold|monthly api usage limit|credit balance is too low|insufficient (funds|credit|balance)|purchase credits|add funds|buy credits|prepaid credits/i;
+ if(status===402||type==="billing_error"||/credit balance is too low|insufficient (funds|credit|balance)|purchase credits|add funds|buy credits/.test(message)){
+   return err("AI 이용 크레딧이 부족하거나 결제 설정에 문제가 있어요. 사이트 운영자는 Anthropic 콘솔에서 잔액과 결제를 확인해 주세요.",402,"BILLING_REQUIRED",90);
+ }
+ if((status===400&&spending.test(message))||(status===429&&(
+   detail==="enforced_spend_limit_reached"||spending.test(message)
+ ))){
+   return err("Anthropic 조직 또는 워크스페이스의 지출 한도에 도달했어요. 사이트 운영자는 결제 및 지출 한도를 확인해 주세요.",429,"SPEND_LIMIT",180);
+ }
+ if(status===429)return err("AI 서비스에 요청이 몰려 잠시 이용할 수 없어요. 조금 뒤 다시 시도해 주세요.",429,"PROVIDER_RATE_LIMIT",numRetry(retryAfter));
+ if(status===401)return err("AI 인증 정보에 문제가 있어요. 사이트 운영자의 설정 확인이 필요합니다.",503,"AUTH_CONFIG");
+ if(status===403)return err("해당 AI 모델 사용 권한을 확인해야 해요. 사이트 운영자에게 알려 주세요.",503,"MODEL_PERMISSION");
+ if(status===400)return err("AI 요청 형식이나 모델 설정에 문제가 있어요. 사이트 운영자에게 알려 주세요.",502,"PROVIDER_REQUEST");
+ if(status===529||status===503)return err("AI 서비스가 일시적으로 혼잡해요. 잠시 후 다시 시도해 주세요.",503,"PROVIDER_BUSY",90);
+ return err("AI 서비스 오류가 발생했어요. 잠시 후 다시 시도해 주세요.",502,"PROVIDER_ERROR");
+}
+
 
 export function sanitize(c) {
   if (!c || typeof c !== "object" || Array.isArray(c)) throw err("명식 데이터가 없습니다.");
@@ -177,11 +206,8 @@ export async function getReading(chart,tight,mode="standard",signal) {
     const detail=String(apiError?.error?.message||"").replace(/sk-ant-[^\s"']+/gi,"[redacted]").slice(0,180);
     const requestId=String(res.headers?.get?.("request-id")||"").slice(0,90);
     console.error("[Claude] upstream",JSON.stringify({status:res.status,errorType,detail,requestId}));
-    if(res.status===401)throw err("Anthropic 인증 실패(401): 서버에 등록된 키가 거부됐습니다. 키 형식과 유효성을 확인해 주세요.",502);
-    if(res.status===403)throw err("Anthropic 접근 거부(403): API 키의 조직·워크스페이스 권한을 확인해 주세요.",502);
-    if(res.status===429)throw err("Anthropic 사용량 제한에 도달했습니다. 잠시 후 다시 시도하세요.",429);
-    if(res.status===400)throw err("모델 설정 또는 API 요청 형식이 올바르지 않습니다. 서버 로그를 확인해 주세요.",502);
-    throw err(`AI 서비스 오류 (${res.status}). 다시 시도해 주세요.`,502);
+    throw classifyAnthropicError(res.status,apiError,res.headers?.get?.("retry-after"));
+
   }
   const data=await res.json();
   const responseText=(data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
@@ -226,13 +252,14 @@ const readings=new Map();
 const pending=new Map();
 const PROMPT_VERSION="focused-saju-subjects-2026-10-v6";
 const cacheKey=(c,tight,mode)=>createHash("sha256").update(JSON.stringify([PROMPT_VERSION,c,!!tight,mode])).digest("hex");
-export function clearReadingsForTests(){readings.clear();pending.clear();}
+let lastProviderBlock=null;
+export function clearReadingsForTests(){readings.clear();pending.clear();lastProviderBlock=null;}
 const hits=new Map();
 const LIMIT=safeNumber(process.env.RATE_LIMIT_PER_HOUR||10,1,200,10);
-const DAY_LIMIT=safeNumber(process.env.GLOBAL_RATE_LIMIT_PER_DAY||25,1,1000,25);
-const OPUS_DAY_LIMIT=safeNumber(process.env.OPUS_RATE_LIMIT_PER_DAY||5,1,100,5);
+const DAY_LIMIT=safeNumber(process.env.GLOBAL_RATE_LIMIT_PER_DAY||12,1,1000,12);
+const OPUS_DAY_LIMIT=safeNumber(process.env.OPUS_RATE_LIMIT_PER_DAY||2,1,100,2);
 let dailyHits=[],dailyOpus=[];
-const GLOBAL_LIMIT=safeNumber(process.env.GLOBAL_RATE_LIMIT_PER_HOUR||30,1,500,30);
+const GLOBAL_LIMIT=safeNumber(process.env.GLOBAL_RATE_LIMIT_PER_HOUR||8,1,500,8);
 let globalHits=[];
 export function rateLimited(ip,mode="standard"){
   const now=Date.now(),hour=3600000,day=86400000;
@@ -269,11 +296,24 @@ export async function handle(body,ip){
       const reading=await pending.get(key);
       return {status:200,json:{reading,cached:true}};
     }
-    if(rateLimited(ip||"unknown",mode))throw err("API 비용 보호를 위한 사용 횟수 제한에 도달했어요. 나중에 다시 시도해 주세요.",429);
+    if(lastProviderBlock && lastProviderBlock.until>Date.now()){
+      const left=Math.ceil((lastProviderBlock.until-Date.now())/1000);
+      throw err(lastProviderBlock.message,lastProviderBlock.status,lastProviderBlock.code,left);
+    }
+    if(lastProviderBlock && lastProviderBlock.until<=Date.now())lastProviderBlock=null;
+    if(pending.size>=2)throw err("다른 사주 해석이 진행 중이에요. 잠시 뒤 다시 이용해 주세요.",429,"SITE_BUSY",45);
+    if(rateLimited(ip||"unknown",mode))throw err("사이트의 AI 해석 사용 횟수 제한에 도달했어요. 잠시 후 다시 이용해 주세요.",429,"SITE_LIMIT",3600);
     const work=getReading(body.chart,tight,mode);
     pending.set(key,work);
     let reading;
-    try{reading=await work;}finally{pending.delete(key);}
+    try{reading=await work;}
+    catch(e){
+      if(["BILLING_REQUIRED","SPEND_LIMIT"].includes(e.code)){
+        const wait=e.retryAfterSeconds||90;
+        lastProviderBlock={status:e.status,code:e.code,message:e.message,until:Date.now()+wait*1000};
+      }
+      throw e;
+    }finally{pending.delete(key);}
     readings.set(key,{reading,until:Date.now()+CACHE_TTL_MS});
     if(readings.size>100){
       const first=readings.keys().next().value;
@@ -282,6 +322,10 @@ export async function handle(body,ip){
     return {status:200,json:{reading,cached:false}};
   }catch(e){
     console.error("[reading]",e.message);
-    return {status:e.status||500,json:{error:e.status?e.message:"해석 중 오류가 발생했습니다. 다시 시도해 주세요."}};
+    return {status:e.status||500,json:{
+      error:e.status?e.message:"해석 중 오류가 발생했습니다. 다시 시도해 주세요.",
+      code:e.code||"INTERNAL_ERROR",
+      retryAfterSeconds:Number(e.retryAfterSeconds)||0
+    }};
   }
 }
