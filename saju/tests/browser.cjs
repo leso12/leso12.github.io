@@ -74,6 +74,22 @@ async function main(){
   assert.equal(pdfData.subarray(0,4).toString("ascii"),"%PDF","actual PDF signature");
   assert.ok(pdfData.length>10000,"actual PDF is nonempty");
   console.log("MOBILE PDF SUCCESS",pdfData.length);
+
+  // A separate error flow must not lose birth details or direct users to a fake credit balance.
+  await page.route("**/api/reading",route=>route.fulfill({
+    status:402,contentType:"application/json",
+    body:JSON.stringify({error:"AI 크레딧을 확인해 주세요.",code:"BILLING_REQUIRED",retryAfterSeconds:90})
+  }));
+  await page.locator("#worry").fill("이직운과 결혼운");
+  await page.locator("#go").click();
+  await page.waitForFunction(()=>!document.querySelector("#ai-problem").hidden);
+  assert.equal(await page.locator("#ai-problem").getAttribute("data-code"),"BILLING_REQUIRED");
+  assert.equal(await page.locator("#ai-billing-link").isVisible(),true,"billing only link");
+  assert.equal(await page.locator("#worry").inputValue(),"이직운과 결혼운","interest remains after failure");
+  assert.equal(await page.locator("#date").inputValue(),"2000-01-19","birthdate preserved");
+  assert.equal(await page.locator("#time").inputValue(),"16:06","time preserved");
+  await page.locator("#worry").fill("결혼운만");
+  assert.equal(await page.locator("#ai-problem").isVisible(),false,"old error clears after editing");
   assert.equal(errs.length,0,JSON.stringify(errs));
  }finally{await browser.close();}
 }
