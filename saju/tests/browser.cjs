@@ -53,6 +53,13 @@ async function main(){
   assert.equal(await page.locator("#deep-report .deep-focus").count(),0,"unwanted life coaching is absent");
   assert.equal(await page.locator("#deep-report .saju-outro").count(),1,"closing is visible");
   assert.equal(await page.locator("#result-bar").isVisible(),true,"result tools are visible");
+  assert.equal(await page.locator("#reader-tools").isVisible(),true,"report reading controls visible");
+  assert.ok(await page.locator("#chapter-nav option").count()>8,"chapters populated");
+  await page.locator("#font-larger").click();
+  assert.equal(await page.locator("#sheet").getAttribute("data-reader-font"),"large");
+  await page.locator("#font-normal").click();
+  await page.locator("#chapter-nav").selectOption("saju-section-1");
+  assert.equal(await page.locator("#chapter-nav").inputValue(),"saju-section-1");
   assert.equal(await page.locator("#file-ready").isVisible(),false,"no auto-download");
   assert.equal(await page.evaluate(()=>document.querySelector(".sheet").scrollHeight<=document.querySelector(".sheet").clientHeight+5),true,"content must not be cropped");
   await page.locator("#save-image").click();
