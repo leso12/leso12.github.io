@@ -390,6 +390,24 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
  .saju-basis>div{display:block!important}
 }
 
+
+@media screen{
+ .saju-focus{border:1px solid #d5bdab;background:#fff9f3;border-radius:14px;padding:25px 28px;min-height:0;overflow:visible}
+ .saju-focus-topic{display:inline-block;padding:5px 10px;background:#eee1d7;color:#834256;border-radius:7px;font-size:12px;font-weight:750;margin-bottom:12px}
+ .saju-focus h3{font:700 21px/1.55 var(--serif);color:#703849;margin:0 0 16px}
+ .saju-focus-timing{margin-top:17px;padding:15px 17px;background:#f2e9da;border-radius:9px}
+ .saju-focus-timing strong{font-size:13px;color:#773b4d}
+ .saju-focus-timing p{font-size:14px;line-height:1.85;white-space:pre-line;word-break:keep-all;overflow-wrap:anywhere;margin:8px 0 0}
+ .saju-focus-limits{margin-top:15px;border-top:1px solid #e9dccc;padding-top:11px;font-size:12px;line-height:1.7;color:#78675d}
+}
+@media screen and (max-width:700px){
+ .saju-focus{padding:21px 16px}
+ .saju-focus h3{font-size:19px}
+ .saju-focus-timing{padding:13px 14px}
+ .saju-focus-timing p{font-size:13px}
+}
+@media print{.saju-focus{break-inside:auto;margin-bottom:6mm}}
+
 </style>
 </head>
 <body>
@@ -446,8 +464,9 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
         <p class="note reading-mode-note">두 모델 모두 원국·오행·십성·대운·세운 중심으로 자세히 풀어요. Opus는 더 높은 비용이 들어요.</p>
       </div>
       <div class="field wide">
-        <label for="worry">특히 궁금한 사주 분야 (선택)</label>
-        <textarea id="worry" maxlength="300" placeholder="예: 전반적인 사주를 자세히 풀어줘. 특히 오행·십성·연애·대운을 더 깊게 설명해줘."></textarea>
+        <label for="worry">특히 자세히 보고 싶은 분야 (선택)</label>
+        <textarea id="worry" maxlength="300" placeholder="예: 연애운 · 결혼운 · 이직운, 올해 이직운이 궁금해, 결혼 시기와 배우자궁을 자세히 풀어줘"></textarea>
+        <p class="note">입력하지 않으면 전체 사주를 풀이해요. 특정 분야를 적으면 기본 풀이에 그 분야의 상세 해석을 추가해요.</p>
       </div>
     </div>
     <div class="actions">
@@ -737,6 +756,18 @@ function renderReading(R,isSample){
       '<div class="saju-prose">'+esc(part.body)+'</div>'+
       (part.basis?'<details class="saju-basis"><summary>이 해석에 사용된 명식 근거</summary><div>'+esc(part.basis)+'</div></details>':"")+'</section>');
   });
+ }
+ if(Array.isArray(R.focusSections)&&R.focusSections.length){
+  blocks.push('<div class="saju-chapter-head"><h2>궁금한 분야 심층 풀이</h2><p>기본 사주 분석에 더해 관심 분야를 원국과 운의 관계로 풀어봅니다.</p></div>');
+  for(const item of R.focusSections){
+   blocks.push('<section class="saju-focus"><div class="saju-focus-topic">'+esc(item.topic)+'</div>'+
+     '<h3>'+esc(item.title||item.topic)+'</h3>'+
+     '<div class="saju-prose">'+esc(item.body||"")+'</div>'+
+     (item.timing?'<div class="saju-focus-timing"><strong>대운·세운과 시기별 의미</strong><p>'+esc(item.timing)+'</p></div>':"")+
+     (item.basis?'<details class="saju-basis"><summary>명식의 실제 근거 보기</summary><div>'+esc(item.basis)+'</div></details>':"")+
+     (item.limits?'<div class="saju-focus-limits">'+esc(item.limits)+'</div>':"")+
+     '</section>');
+  }
  }
  if(times.length){
   blocks.push('<div class="saju-chapter-head"><h2>대운과 세운의 흐름</h2><p>원국에 더해지는 시기별 기운의 전통적 해석이에요.</p></div>');
