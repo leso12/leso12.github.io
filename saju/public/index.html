@@ -440,6 +440,13 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
 }
 @media print{.reader-tools{display:none!important}}
 
+
+.form-memory{margin-top:10px;display:flex;gap:8px 13px;align-items:center;flex-wrap:wrap;border-top:1px solid #e9dece;padding-top:13px}
+.form-memory label{font-size:12px;display:inline-flex;align-items:center;gap:9px;cursor:pointer;line-height:1.6}
+.form-memory input{width:17px;height:17px}
+.form-memory button{border:1px solid #c5b7a5;border-radius:8px;padding:6px 10px;background:#fff;min-height:33px;font-size:12px}
+.form-memory small{font-size:11px;color:#8e7d71;width:100%}
+
 </style>
 </head>
 <body>
@@ -500,6 +507,11 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
         <textarea id="worry" maxlength="300" placeholder="예: 연애운 · 결혼운 · 이직운, 올해 이직운이 궁금해, 결혼 시기와 배우자궁을 자세히 풀어줘"></textarea>
         <p class="note">입력하지 않으면 전체 사주를 풀이해요. 특정 분야를 적으면 기본 풀이에 그 분야의 상세 해석을 추가해요.</p>
       </div>
+    </div>
+    <div class="form-memory">
+      <label for="remember-input"><input type="checkbox" id="remember-input">이 탭에서만 출생정보·질문 임시 보관</label>
+      <button type="button" id="clear-input-memory">임시 정보 지우기</button>
+      <small id="saved-input-note">기본값은 저장 안 함이에요. 직접 켜야만 현재 탭에 보관합니다.</small>
     </div>
     <div class="actions">
       <button type="button" class="btn-preview" id="preview">명식 먼저 보기</button>
@@ -921,6 +933,50 @@ function showApiError(e){
  $("ai-problem").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 
+
+const TEMP_FORM_KEY="saju-tab-form-v1";
+function clearTemporaryInput(){
+ try{sessionStorage.removeItem(TEMP_FORM_KEY);}catch{}
+ $("remember-input").checked=false;
+ $("saved-input-note").textContent="임시 보관을 해제했어요.";
+}
+function saveTemporaryInput(){
+ if(!$("remember-input").checked)return;
+ try{
+  const f={};
+  for(const id of ["date","time","manual-longitude","worry","reading-mode","region-sido","region"])
+   f[id]=$(id).value;
+  for(const id of ["notime","leap","tst","cal-solar","cal-lunar","sex-f","sex-m"])
+   f[id]=$(id).checked;
+  sessionStorage.setItem(TEMP_FORM_KEY,JSON.stringify({consent:true,inputs:f}));
+  $("saved-input-note").textContent="이 탭에만 입력을 임시 보관 중이에요.";
+ }catch{
+  $("remember-input").checked=false;
+  $("saved-input-note").textContent="이 브라우저에서는 임시 보관을 사용할 수 없어요.";
+ }
+}
+function restoreTemporaryInput(){
+ try{
+  const obj=JSON.parse(sessionStorage.getItem(TEMP_FORM_KEY)||"null");
+  if(!obj?.consent||!obj.inputs)return;
+  const f=obj.inputs;
+  $("remember-input").checked=true;
+  for(const id of ["date","time","manual-longitude","worry","reading-mode"]){
+    if(typeof f[id]==="string")$(id).value=f[id];
+  }
+  for(const id of ["notime","leap","tst","cal-solar","cal-lunar","sex-f","sex-m"]){
+    if(typeof f[id]==="boolean")$(id).checked=f[id];
+  }
+  if(typeof f["region-sido"]==="string")$("region-sido").value=f["region-sido"];
+  syncDistrict();
+  if(typeof f.region==="string")$("region").value=f.region;
+  syncManual();
+  $("time").disabled=$("notime").checked;
+  $("leap").disabled=!$("cal-lunar").checked;
+  $("saved-input-note").textContent="이 탭의 임시 입력을 복원했어요.";
+ }catch{try{sessionStorage.removeItem(TEMP_FORM_KEY)}catch{}}
+}
+
 function resetOnChange(){
   clearApiError();
   $("reader-tools").hidden=true;
@@ -1019,6 +1075,16 @@ $("stop").addEventListener("click",()=>{if(ctl)ctl.abort();});
 $("print").addEventListener("click",()=>prepareResultFile("pdf"));
 $("save-image").addEventListener("click",()=>prepareResultFile("png"));
 $("file-share").addEventListener("click",shareResultFile);
+$("remember-input").addEventListener("change",()=>{
+ if($("remember-input").checked)saveTemporaryInput();else clearTemporaryInput();
+});
+$("clear-input-memory").addEventListener("click",clearTemporaryInput);
+$("form").addEventListener("input",ev=>{
+ if(ev.target?.id!=="remember-input")saveTemporaryInput();
+});
+$("form").addEventListener("change",ev=>{
+ if(ev.target?.id!=="remember-input")saveTemporaryInput();
+});
 $("chapter-nav").addEventListener("change",()=>{
  const node=document.getElementById($("chapter-nav").value);
  if(node)node.scrollIntoView({behavior:"smooth",block:"start"});
@@ -1119,7 +1185,7 @@ async function shareResultFile(){
 }
 
 $("leap").disabled=true;
-initRegions();
+initRegions().then(restoreTemporaryInput);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
 
 })();
