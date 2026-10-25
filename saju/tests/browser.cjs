@@ -29,6 +29,12 @@ async function main(){
     intro:"원국의 계절과 일간을 중심으로 해설합니다. ".repeat(6),
     sections:Array.from({length:8},(_,i)=>({title:"명식 상세 분석 "+(i+1),body:t,
       basis:"실제 명식의 간지와 월령을 해설하는 전통적인 명리 근거입니다."})),
+    focusSections:[
+      {topic:"연애·인연",title:"연애운과 일지의 관계",body:"배우자궁과 일간을 연결해 해석합니다. ".repeat(10),
+        basis:"일간·일지·관성",timing:"현재 대운과 올해 세운의 작용",limits:"미래 사건을 확정할 수 없습니다."},
+      {topic:"결혼·배우자",title:"배우자궁의 전통적 의미",body:"일간의 관계를 근거로 결혼의 전통적 의미를 풀이합니다. ".repeat(10),
+        basis:"배우자궁",timing:"대운 해설",limits:"실제 결혼은 예언할 수 없습니다."}
+    ],
     outlook:[{period:"현재 대운",body:t,basis:"대운의 실제 글자"},{period:"올해 세운",body:t,basis:"세운의 실제 글자"}],
     questionAnswer:{question:"",answer:""},
     closing:"사주명리의 해석은 정해진 운명이나 검증된 예측이 아닙니다.",
@@ -40,6 +46,8 @@ async function main(){
   await page.waitForFunction(()=>document.querySelector("#deep-report .saju-section")?.textContent?.length>350);
   assert.equal(await page.locator("#deep-report .saju-section").count(),8,"eight detailed traditional saju chapters");
   assert.equal(await page.locator("#deep-report .saju-time").count(),2,"both luck cycles are visible");
+  assert.equal(await page.locator("#deep-report .saju-focus").count(),2,"two deep requested topics displayed");
+  assert.match(await page.locator("#deep-report .saju-focus").first().textContent(),/대운·세운과 시기별 의미/);
   assert.equal(await page.locator("#deep-report .saju-section .saju-prose").first().textContent(),t,"long saju content is intact");
   assert.equal(await page.locator("#deep-report .saju-intro").isVisible(),true,"overview is visible");
   assert.equal(await page.locator("#deep-report .deep-focus").count(),0,"unwanted life coaching is absent");
