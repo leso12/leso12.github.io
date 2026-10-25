@@ -108,7 +108,7 @@ async function main(){
   assert.equal(await page.locator("#date").inputValue(),"2000-01-19","opt-in saved date restored");
   assert.equal(await page.locator("#time").inputValue(),"16:06","opt-in saved time restored");
   assert.equal(await page.locator("#worry").inputValue(),"연애운 심층 해석");
-  assert.equal(await page.locator("#region").inputValue(),await page.locator("#region").inputValue());
+  assert.equal((await page.locator("#region option:checked").textContent()).trim(),"이천시","chosen district restored");
   await page.locator("#clear-input-memory").click();
   assert.equal(await page.evaluate(()=>sessionStorage.getItem("saju-tab-form-v1")),null);
   assert.equal(await page.locator("#remember-input").isChecked(),false);
