@@ -97,7 +97,10 @@ async function main(){
   assert.equal(await page.locator("#time").inputValue(),"16:06","time preserved");
   await page.locator("#worry").fill("결혼운만");
   assert.equal(await page.locator("#ai-problem").isVisible(),false,"old error clears after editing");
-  assert.equal(errs.length,0,JSON.stringify(errs));
+  // Browser console prints HTTP 402 as an error even though our test
+  // intentionally simulated exactly that billing response and handled it.
+  const unexpected=errs.filter(msg=>!msg.includes("status of 402 (Payment Required)"));
+  assert.equal(unexpected.length,0,JSON.stringify(unexpected));
  }finally{await browser.close();}
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});
