@@ -97,6 +97,21 @@ async function main(){
   assert.equal(await page.locator("#time").inputValue(),"16:06","time preserved");
   await page.locator("#worry").fill("결혼운만");
   assert.equal(await page.locator("#ai-problem").isVisible(),false,"old error clears after editing");
+
+  // Explicit opt-in only: data restored after reload and deleted on request.
+  assert.equal(await page.locator("#remember-input").isChecked(),false,"temporary storage must be opt-in");
+  await page.locator("#remember-input").check();
+  await page.locator("#worry").fill("연애운 심층 해석");
+  assert.equal(await page.evaluate(()=>!!sessionStorage.getItem("saju-tab-form-v1")),true);
+  await page.reload({waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>document.querySelector("#remember-input")?.checked===true,{timeout:20000});
+  assert.equal(await page.locator("#date").inputValue(),"2000-01-19","opt-in saved date restored");
+  assert.equal(await page.locator("#time").inputValue(),"16:06","opt-in saved time restored");
+  assert.equal(await page.locator("#worry").inputValue(),"연애운 심층 해석");
+  assert.equal(await page.locator("#region").inputValue(),await page.locator("#region").inputValue());
+  await page.locator("#clear-input-memory").click();
+  assert.equal(await page.evaluate(()=>sessionStorage.getItem("saju-tab-form-v1")),null);
+  assert.equal(await page.locator("#remember-input").isChecked(),false);
   // Browser console prints HTTP 402 as an error even though our test
   // intentionally simulated exactly that billing response and handled it.
   const unexpected=errs.filter(msg=>!msg.includes("status of 402 (Payment Required)"));
