@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
-import {sanitize,handle,getReading,buildPrompt,parseReading,READING_SCHEMA} from '../lib/reading.js';
+import {sanitize,handle,getReading,buildPrompt,detectInterestTopics,parseReading,READING_SCHEMA} from '../lib/reading.js';
 
 function exampleChart(){
   const raw=readFileSync(new URL('../public/vendor/lunar.js',import.meta.url),'utf8');
@@ -30,6 +30,7 @@ const section={title:'원국 구조',body:'丙子 일간과 丁丑 월주의 결
 const fullReading={
  intro:'이 명식의 특성과 계절감을 자세히 해설합니다.',
  sections:Array.from({length:8},(_,i)=>({...section,title:'명식 주제 '+(i+1)})),
+ focusSections:[],
  outlook:[{period:'현재 대운',body:'주어진 대운을 근거로 시기를 해설합니다.',basis:'대운'},
           {period:'올해 세운',body:'주어진 연도를 근거로 해설합니다.',basis:'세운'}],
  questionAnswer:{question:'',answer:''},
@@ -45,7 +46,7 @@ test('invalid chart inputs rejected',()=>{
  assert.throws(()=>sanitize({...chart,input:{...chart.input,date:'1998-02-30'}}),/생년월일/);
 });
 test('new JSON schema describes a traditional reading, without actions or coaching',()=>{
- assert.deepEqual(READING_SCHEMA.required,['intro','sections','outlook','questionAnswer','closing']);
+ assert.deepEqual(READING_SCHEMA.required,['intro','sections','focusSections','outlook','questionAnswer','closing']);
  assert.equal(READING_SCHEMA.properties.sections.items.properties.body.type,'string');
  assert.equal(READING_SCHEMA.properties.questionAnswer.properties.answer.type,'string');
  assert.equal('actions' in READING_SCHEMA.properties,false);
@@ -55,6 +56,7 @@ test('preserves full long saju descriptions and empty optional question',()=>{
  assert.equal(r.sections.length,8);
  assert.equal(r.sections[0].body,fullReading.sections[0].body.trim());
  assert.equal(r.questionAnswer.answer,'');
+ assert.deepEqual(r.focusSections,[]);
  assert.equal(r.outlook.length,2);
 });
 test('rejects incomplete reports',()=>{
@@ -67,6 +69,36 @@ test('general saju request does not ask for forced decision advice',()=>{
  assert.ok(prompt.includes('자기계발'));
  assert.ok(prompt.includes('sections 8~9개'));
 });
+
+test('recognizes love, marriage, and job-move topics even without a question mark',()=>{
+ assert.deepEqual(detectInterestTopics('연애 결혼 이직 등'),['연애·인연','결혼·배우자','이직·직업']);
+ assert.deepEqual(detectInterestTopics('결혼운'),['결혼·배우자']);
+ assert.deepEqual(detectInterestTopics('이직운과 직장 운이 궁금해'),['이직·직업']);
+ assert.deepEqual(detectInterestTopics('전체적인 사주만 봐줘'),[]);
+ assert.deepEqual(detectInterestTopics('연애·결혼·직업 등 전반적인 부분'),
+   ['연애·인연','결혼·배우자','이직·직업']);
+});
+test('prompts detailed extra saju analysis for each requested topic, without coaching',()=>{
+ const ask={...chart,input:{...chart.input,worry:'연애운, 결혼운, 이직운'}};
+ const prompt=buildPrompt(sanitize(ask),false,'deep');
+ assert.match(prompt,/관심 분야: 연애·인연, 결혼·배우자, 이직·직업/);
+ assert.match(prompt,/focusSections를 반드시 작성하라/);
+ assert.match(prompt,/기존의 사주 전반 풀이를 유지/);
+ assert.match(prompt,/결혼 또는 이직 성패를 확정 예언하지 말 것/);
+});
+test('separate focus chapters preserve long explanations and chart-based timing',()=>{
+ const focus={topic:'결혼·배우자',title:'일지와 관성의 관계',
+  body:'정관과 배우자궁이 만나는 전통적 해석입니다. '.repeat(20),
+  basis:'일간과 일지, 관성 십성',timing:'현재 대운과 세운의 관계',
+  limits:'배우자 만남이나 결혼 시기를 확정하지 않습니다.'};
+ const report={...fullReading,focusSections:[focus]};
+ const result=parseReading(JSON.stringify(report));
+ assert.equal(result.focusSections.length,1);
+ assert.equal(result.focusSections[0].body,focus.body.trim());
+ assert.equal(result.focusSections[0].timing,focus.timing);
+ assert.equal(result.sections.length,8);
+});
+
 test('API is not invoked when key is not set',async()=>{
  const old=process.env.ANTHROPIC_API_KEY;
  delete process.env.ANTHROPIC_API_KEY;
