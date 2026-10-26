@@ -25,13 +25,13 @@ const chart=exampleChart();
 
 
 const fakeKey=['sk','ant','unit-test','mock-only'].join('-');
-const section={title:'원국 구조',body:'丙子 일간과 丁丑 월주의 결합을 전통 명리학 관점에서 해설합니다. '.repeat(12),
+const section={title:'원국 구조',easy:'불을 상징하는 기운이 드러나지만 태어난 계절 때문에 해석은 달라질 수 있어요.',body:'丙子 일간과 丁丑 월주의 결합을 전통 명리학 관점에서 해설합니다. '.repeat(12),
  basis:'일간과 월령: 원국의 실제 기둥을 확인합니다.'};
 const fullReading={
  intro:'이 명식의 특성과 계절감을 자세히 해설합니다.',
  sections:Array.from({length:8},(_,i)=>({...section,title:'명식 주제 '+(i+1)})),
  focusSections:[],
- outlook:[{period:'현재 대운',body:'주어진 대운을 근거로 시기를 해설합니다.',basis:'대운'},
+ outlook:[{period:'현재 대운',easy:'10년 정도의 흐름을 살펴보는 해석이에요.',body:'주어진 대운을 근거로 시기를 해설합니다.',basis:'대운'},
           {period:'올해 세운',body:'주어진 연도를 근거로 해설합니다.',basis:'세운'}],
  questionAnswer:{question:'',answer:''},
  closing:'이러한 명식은 전통적인 해석과 실제 삶을 구분하여 이해해야 합니다.'
@@ -48,6 +48,9 @@ test('invalid chart inputs rejected',()=>{
 test('new JSON schema describes a traditional reading, without actions or coaching',()=>{
  assert.deepEqual(READING_SCHEMA.required,['intro','sections','focusSections','outlook','questionAnswer','closing']);
  assert.equal(READING_SCHEMA.properties.sections.items.properties.body.type,'string');
+ assert.ok(READING_SCHEMA.properties.sections.items.required.includes('easy'));
+ assert.ok(READING_SCHEMA.properties.focusSections.items.required.includes('easy'));
+ assert.ok(READING_SCHEMA.properties.outlook.items.required.includes('easy'));
  assert.equal(READING_SCHEMA.properties.questionAnswer.properties.answer.type,'string');
  assert.equal('actions' in READING_SCHEMA.properties,false);
 });
@@ -55,6 +58,8 @@ test('preserves full long saju descriptions and empty optional question',()=>{
  const r=parseReading(JSON.stringify(fullReading));
  assert.equal(r.sections.length,8);
  assert.equal(r.sections[0].body,fullReading.sections[0].body.trim());
+ assert.equal(r.sections[0].easy,section.easy);
+ assert.equal(r.outlook[0].easy,'10년 정도의 흐름을 살펴보는 해석이에요.');
  assert.equal(r.questionAnswer.answer,'');
  assert.deepEqual(r.focusSections,[]);
  assert.equal(r.outlook.length,2);
@@ -87,7 +92,7 @@ test('prompts detailed extra saju analysis for each requested topic, without coa
  assert.match(prompt,/결혼 또는 이직 성패를 확정 예언하지 말 것/);
 });
 test('separate focus chapters preserve long explanations and chart-based timing',()=>{
- const focus={topic:'결혼·배우자',title:'일지와 관성의 관계',
+ const focus={topic:'결혼·배우자',title:'일지와 관성의 관계',easy:'사주에서 관계를 뜻하는 자리를 먼저 읽어요.',
   body:'정관과 배우자궁이 만나는 전통적 해석입니다. '.repeat(20),
   basis:'일간과 일지, 관성 십성',timing:'현재 대운과 세운의 관계',
   limits:'배우자 만남이나 결혼 시기를 확정하지 않습니다.'};
@@ -96,7 +101,16 @@ test('separate focus chapters preserve long explanations and chart-based timing'
  assert.equal(result.focusSections.length,1);
  assert.equal(result.focusSections[0].body,focus.body.trim());
  assert.equal(result.focusSections[0].timing,focus.timing);
+ assert.equal(result.focusSections[0].easy,focus.easy);
  assert.equal(result.sections.length,8);
+});
+
+test('new prompt asks for straightforward everyday Korean plus original detail',()=>{
+ const prompt=buildPrompt(sanitize(chart),false,'standard');
+ assert.match(prompt,/일반 성인/);
+ assert.match(prompt,/쉽게 말하면|생활말/);
+ assert.match(prompt,/basis/);
+ assert.match(prompt,/depth|깊이|기존 깊이/);
 });
 
 test('API is not invoked when key is not set',async()=>{
