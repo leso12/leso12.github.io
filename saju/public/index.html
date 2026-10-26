@@ -447,6 +447,36 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
 .form-memory button{border:1px solid #c5b7a5;border-radius:8px;padding:6px 10px;background:#fff;min-height:33px;font-size:12px}
 .form-memory small{font-size:11px;color:#8e7d71;width:100%}
 
+
+/* Two reading depths from the same API response, with no additional token usage */
+.reader-level{display:flex;flex-direction:column;gap:7px}
+.reader-level-buttons{display:flex;gap:5px;background:#f5eee5;padding:3px;border-radius:10px}
+.reader-level-buttons button{background:transparent;color:#735e58;border:none;border-radius:7px;padding:9px 13px;min-height:39px;font-size:12px;font-weight:650}
+.reader-level-buttons button[aria-pressed="true"]{background:#81394f;color:#fff}
+.saju-easy{background:#f3e9db;border-left:4px solid #a26a76;border-radius:9px;padding:17px 19px;margin:0 0 12px;font-size:15px;line-height:1.9;word-break:keep-all;overflow-wrap:anywhere;color:#403033}
+.saju-easy strong{display:block;margin-bottom:6px;font-size:12px;color:#884054}
+.saju-text-more{border-top:1px solid #eee2d3;margin-top:10px;padding-top:10px}
+.saju-text-more summary{font-size:13px;font-weight:700;color:#84455a;cursor:pointer;min-height:32px;display:flex;align-items:center}
+.saju-text-more .saju-prose{padding-top:12px;font-size:14px;line-height:1.95}
+.saju-glossary{width:100%;font-size:12px;border-top:1px solid #ecdfd0;padding-top:10px}
+.saju-glossary summary{font-weight:700;color:#76505a;cursor:pointer;min-height:32px}
+.saju-glossary dl{display:grid;grid-template-columns:90px 1fr;column-gap:12px;row-gap:9px;margin:12px 0 4px}
+.saju-glossary dt{font-weight:700;color:#703e52}
+.saju-glossary dd{margin:0;line-height:1.6;color:#53464a}
+.saju-text-more[open]>summary{color:#7b3c50}
+@media screen and (max-width:700px){
+ .reader-level{width:100%}
+ .reader-level-buttons{width:100%}
+ .reader-level-buttons button{flex:1}
+ .saju-easy{padding:15px 14px;font-size:14px}
+ .saju-glossary dl{grid-template-columns:76px 1fr;font-size:11px}
+}
+@media print{
+ .reader-level,.saju-glossary{display:none!important}
+ .saju-text-more{display:block!important}
+ .saju-text-more>.saju-prose{display:block!important}
+}
+
 </style>
 </head>
 <body>
@@ -549,6 +579,13 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
     </div>
   </div>
   <div class="reader-tools" id="reader-tools" hidden>
+    <div class="reader-level">
+      <label id="reading-level-title">읽는 방법</label>
+      <div class="reader-level-buttons" role="group" aria-labelledby="reading-level-title">
+        <button id="reader-easy" type="button" aria-pressed="true">쉽게 읽기</button>
+        <button id="reader-detail" type="button" aria-pressed="false">자세히 읽기</button>
+      </div>
+    </div>
     <div class="reader-chapters"><label for="chapter-nav">상세 해설 목차</label>
       <select id="chapter-nav"><option value="">보고서 목차에서 이동</option></select>
     </div>
@@ -559,6 +596,20 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
         <button type="button" id="font-larger" aria-label="결과 글자 크게">A＋</button>
       </div>
     </div>
+    <details class="saju-glossary" id="glossary">
+      <summary>어려운 사주 용어 쉽게 알아보기</summary>
+      <dl>
+        <dt>원국</dt><dd>태어났을 때 정해지는 사주의 기본 여덟 글자예요.</dd>
+        <dt>일간</dt><dd>사주에서 나 자신을 대표하는 윗글자예요.</dd>
+        <dt>월령</dt><dd>태어난 계절의 영향이에요.</dd>
+        <dt>오행</dt><dd>나무·불·흙·쇠·물이라는 다섯 가지 성질이에요.</dd>
+        <dt>십성</dt><dd>나를 기준으로 다른 글자와 맺는 관계의 종류예요.</dd>
+        <dt>지장간</dt><dd>아래 글자 안에 들어 있다고 보는 숨은 성질이에요.</dd>
+        <dt>합·충</dt><dd>글자끼리 서로 어울리거나 부딪힌다고 해석하는 관계예요.</dd>
+        <dt>대운</dt><dd>보통 약 10년 단위로 읽는 전통적 운의 흐름이에요.</dd>
+        <dt>세운</dt><dd>해마다 바뀌는 운의 흐름을 뜻해요.</dd>
+      </dl>
+    </details>
   </div>
   <div class="sheet-viewport" id="vp" hidden>
     <article class="sheet" id="sheet">
@@ -825,6 +876,25 @@ function changeReaderSize(next){
  $("reader-font-state").textContent="글자 크기: "+label;
 }
 
+
+let readerLevel="easy";
+function explainSaju(easy,body){
+ const summary=String(easy||"").trim();
+ const detail=String(body||"").trim();
+ if(!summary)return '<div class="saju-prose">'+esc(detail)+'</div>';
+ return '<div class="saju-easy"><strong>쉽게 말하면</strong>'+esc(summary)+'</div>'+
+   '<details class="saju-text-more"><summary>자세한 사주 해설 펼치기</summary><div class="saju-prose">'+esc(detail)+'</div></details>';
+}
+function setReadingLevel(level){
+ readerLevel=level==="detail"?"detail":"easy";
+ $("reader-easy").setAttribute("aria-pressed",String(readerLevel==="easy"));
+ $("reader-detail").setAttribute("aria-pressed",String(readerLevel==="detail"));
+ for(const node of document.querySelectorAll("#deep-report .saju-text-more")){
+  node.open=readerLevel==="detail";
+ }
+ // Rendering and saving use exactly the same server reading. No paid refetch.
+}
+
 function renderReading(R,isSample){
  $("experts").replaceChildren();$("experts").hidden=true;
  $("sum").replaceChildren();$("sum").hidden=true;
@@ -838,7 +908,7 @@ function renderReading(R,isSample){
   blocks.push('<div class="saju-chapter-head"><h2>원국을 깊이 읽다</h2><p>내 사주에 실제 있는 글자와 전통 명리 해석을 연결했어요.</p></div>');
   parts.forEach((part,i)=>{
    blocks.push('<section class="saju-section"><div class="saju-section-index">'+String(i+1).padStart(2,"0")+'</div><h3>'+esc(part.title)+'</h3>'+
-      '<div class="saju-prose">'+esc(part.body)+'</div>'+
+      explainSaju(part.easy,part.body)+
       (part.basis?'<details class="saju-basis"><summary>이 해석에 사용된 명식 근거</summary><div>'+esc(part.basis)+'</div></details>':"")+'</section>');
   });
  }
@@ -847,7 +917,7 @@ function renderReading(R,isSample){
   for(const item of R.focusSections){
    blocks.push('<section class="saju-focus"><div class="saju-focus-topic">'+esc(item.topic)+'</div>'+
      '<h3>'+esc(item.title||item.topic)+'</h3>'+
-     '<div class="saju-prose">'+esc(item.body||"")+'</div>'+
+     explainSaju(item.easy,item.body)+
      (item.timing?'<div class="saju-focus-timing"><strong>대운·세운과 시기별 의미</strong><p>'+esc(item.timing)+'</p></div>':"")+
      (item.basis?'<details class="saju-basis"><summary>명식의 실제 근거 보기</summary><div>'+esc(item.basis)+'</div></details>':"")+
      (item.limits?'<div class="saju-focus-limits">'+esc(item.limits)+'</div>':"")+
@@ -857,7 +927,7 @@ function renderReading(R,isSample){
  if(times.length){
   blocks.push('<div class="saju-chapter-head"><h2>대운과 세운의 흐름</h2><p>원국에 더해지는 시기별 기운의 전통적 해석이에요.</p></div>');
   blocks.push('<div class="saju-time-list">'+times.map((time,i)=>
-   '<section class="saju-time"><h3>'+esc(time.period)+'</h3><p>'+esc(time.body)+'</p>'+
+   '<section class="saju-time"><h3>'+esc(time.period)+'</h3>'+explainSaju(time.easy,time.body)+
    (time.basis?'<details class="saju-basis"><summary>시기 해석의 근거</summary><div>'+esc(time.basis)+'</div></details>':"")+'</section>').join("")+'</div>');
  }
  const q=R.questionAnswer||{};
@@ -870,6 +940,7 @@ function renderReading(R,isSample){
  $("deep-report").innerHTML=blocks.join("");
  $("deep-report").hidden=!blocks.length;
  buildChapterNavigation();
+ setReadingLevel(readerLevel);
  $("footL").textContent=isSample?"예시 해석 · ":"원국·대운·세운 해설";
  fit();
 }
@@ -1097,6 +1168,8 @@ $("chapter-nav").addEventListener("change",()=>{
 $("font-smaller").addEventListener("click",()=>changeReaderSize("small"));
 $("font-normal").addEventListener("click",()=>changeReaderSize("normal"));
 $("font-larger").addEventListener("click",()=>changeReaderSize("large"));
+$("reader-easy").addEventListener("click",()=>setReadingLevel("easy"));
+$("reader-detail").addEventListener("click",()=>setReadingLevel("detail"));
 
 let preparedFile=null, preparedUrl=null, preparedName="";
 let exportLoader=null;
@@ -1143,10 +1216,14 @@ async function prepareResultFile(format){
   btn.disabled=true;btn.textContent="파일 준비 중…";
   $("status").className="status";
   $("status").textContent="화면을 이미지로 변환하고 있어요. 본문이 길면 조금 더 걸릴 수 있어요.";
+  let hiddenDepth=[];
   try{
     await loadExportLibrary();
     if(document.fonts?.ready)await document.fonts.ready;
     const node=$("sheet");
+    // Export the FULL interpretation even when the reader uses easy mode.
+    hiddenDepth=[...node.querySelectorAll(".saju-text-more")].map(x=>[x,x.open]);
+    for(const [detail] of hiddenDepth)detail.open=true;
     const name="나의사주_"+C.input.date+(isPdf?".pdf":".png");
     const scale=Math.min(1.6,Math.max(0.8,8500/Math.max(1,node.scrollHeight)),1300/Math.max(1,node.scrollWidth));
     const options={
@@ -1176,6 +1253,9 @@ async function prepareResultFile(format){
     $("status").textContent="파일 생성에 실패했어요. 브라우저에서 다시 시도하거나 화면을 새로고침해 주세요.";
     console.error("[export]",e?.name||"Error",e?.message||e);
   }finally{
+    if(typeof hiddenDepth!=="undefined"){
+      for(const [detail,wasOpen] of hiddenDepth)detail.open=wasOpen;
+    }
     btn.disabled=false;btn.textContent=previous;
   }
 }
