@@ -27,15 +27,15 @@ async function main(){
   const t="이 명식의 일간·월지·십성과 오행의 관계를 명리학 관점에서 자세히 설명합니다. ".repeat(16);
   const reading={
     intro:"원국의 계절과 일간을 중심으로 해설합니다. ".repeat(6),
-    sections:Array.from({length:8},(_,i)=>({title:"명식 상세 분석 "+(i+1),body:t,
+    sections:Array.from({length:8},(_,i)=>({title:"명식 상세 분석 "+(i+1),easy:"명식의 기운이 어떤 성향으로 이어지는지 일상적인 말로 이해할 수 있어요.",body:t,
       basis:"실제 명식의 간지와 월령을 해설하는 전통적인 명리 근거입니다."})),
     focusSections:[
-      {topic:"연애·인연",title:"연애운과 일지의 관계",body:"배우자궁과 일간을 연결해 해석합니다. ".repeat(10),
+      {topic:"연애·인연",title:"연애운과 일지의 관계",easy:"관계를 보는 글자와 서로 어울리는 부분을 살펴요.",body:"배우자궁과 일간을 연결해 해석합니다. ".repeat(10),
         basis:"일간·일지·관성",timing:"현재 대운과 올해 세운의 작용",limits:"미래 사건을 확정할 수 없습니다."},
-      {topic:"결혼·배우자",title:"배우자궁의 전통적 의미",body:"일간의 관계를 근거로 결혼의 전통적 의미를 풀이합니다. ".repeat(10),
+      {topic:"결혼·배우자",title:"배우자궁의 전통적 의미",easy:"결혼에 관한 전통적 해석을 쉬운 말로 풀어요.",body:"일간의 관계를 근거로 결혼의 전통적 의미를 풀이합니다. ".repeat(10),
         basis:"배우자궁",timing:"대운 해설",limits:"실제 결혼은 예언할 수 없습니다."}
     ],
-    outlook:[{period:"현재 대운",body:t,basis:"대운의 실제 글자"},{period:"올해 세운",body:t,basis:"세운의 실제 글자"}],
+    outlook:[{period:"현재 대운",easy:"오랜 기간의 흐름을 읽어요.",body:t,basis:"대운의 실제 글자"},{period:"올해 세운",easy:"올해의 흐름을 읽어요.",body:t,basis:"세운의 실제 글자"}],
     questionAnswer:{question:"",answer:""},
     closing:"사주명리의 해석은 정해진 운명이나 검증된 예측이 아닙니다.",
     stats:{model:"mock",inputTokens:200,outputTokens:2800}
@@ -45,6 +45,16 @@ async function main(){
 
   await page.waitForFunction(()=>document.querySelector("#deep-report .saju-section")?.textContent?.length>350);
   assert.equal(await page.locator("#deep-report .saju-section").count(),8,"eight detailed traditional saju chapters");
+  assert.equal(await page.locator("#reader-easy").getAttribute("aria-pressed"),"true","simple view default");
+  assert.equal(await page.locator(".saju-easy").count(),12,"plain explanations on all 8+2+2 sections");
+  assert.equal(await page.locator(".saju-text-more[open]").count(),0,"simple view hides jargon-rich explanations");
+  await page.locator("#reader-detail").click();
+  assert.equal(await page.locator(".saju-text-more[open]").count(),12,"detail mode opens every full explanation with no new API request");
+  await page.locator("#reader-easy").click();
+  assert.equal(await page.locator(".saju-text-more[open]").count(),0,"return to easy mode");
+  await page.locator("#glossary summary").click();
+  assert.equal(await page.locator("#glossary").getAttribute("open"),"","glossary available without generating tokens");
+  await page.locator("#glossary summary").click();
   assert.equal(await page.locator("#deep-report .saju-time").count(),2,"both luck cycles are visible");
   assert.equal(await page.locator("#deep-report .saju-focus").count(),2,"two deep requested topics displayed");
   assert.match(await page.locator("#deep-report .saju-focus").first().textContent(),/대운·세운과 시기별 의미/);
