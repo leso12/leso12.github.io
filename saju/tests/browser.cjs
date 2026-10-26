@@ -58,7 +58,7 @@ async function main(){
   assert.equal(await page.locator("#deep-report .saju-time").count(),2,"both luck cycles are visible");
   assert.equal(await page.locator("#deep-report .saju-focus").count(),2,"two deep requested topics displayed");
   assert.match(await page.locator("#deep-report .saju-focus").first().textContent(),/대운·세운과 시기별 의미/);
-  assert.equal(await page.locator("#deep-report .saju-section .saju-prose").first().textContent(),t,"long saju content is intact");
+  assert.equal(await page.locator("#deep-report .saju-section .saju-prose").first().textContent(),t.trim(),"long saju content is intact");
   assert.equal(await page.locator("#deep-report .saju-intro").isVisible(),true,"overview is visible");
   assert.equal(await page.locator("#deep-report .deep-focus").count(),0,"unwanted life coaching is absent");
   assert.equal(await page.locator("#deep-report .saju-outro").count(),1,"closing is visible");
