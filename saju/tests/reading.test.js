@@ -11,7 +11,7 @@ function exampleChart(){
   const s=Solar.fromYmdHms(1998,3,14,7,30,0);
   const e=s.getLunar().getEightChar();e.setSect(2);
   const P=[['시','Time'],['일','Day'],['월','Month'],['연','Year']].map(([pos,key])=>({pos,gz:e['get'+key](),ssGan:'비견',ssZhi:'비견',hide:[]}));
-  const mapGan='木木火火土土金金水水',mapZhi='水土木木火火火土金金土水',GAN='甲乙丙丁戊己庚辛壬癸',ZHI='子丑寅卯辰巳午未申酉戌亥';
+  const mapGan='木木火火土土金金水水',mapZhi='水土木木土火火土金金土水',GAN='甲乙丙丁戊己庚辛壬癸',ZHI='子丑寅卯辰巳午未申酉戌亥';
   const wx={木:0,火:0,土:0,金:0,水:0};
   P.forEach(p=>{wx[mapGan[GAN.indexOf(p.gz[0])]]++;wx[mapZhi[ZHI.indexOf(p.gz[1])]]++;});
   const ys=e.getYun(0).getDaYun().slice(1,9);
@@ -72,7 +72,7 @@ test('general saju request does not ask for forced decision advice',()=>{
  const prompt=buildPrompt(sanitize(general),false,'deep');
  assert.ok(prompt.includes('questionAnswer의 두 값을 빈 문자열'));
  assert.ok(prompt.includes('자기계발'));
- assert.ok(prompt.includes('sections 8~9개'));
+ assert.ok(prompt.includes('sections 10~11개'));
 });
 
 test('recognizes love, marriage, and job-move topics even without a question mark',()=>{
@@ -146,7 +146,7 @@ test('complete structured output at Opus budget boundary is not discarded',async
   globalThis.fetch=async(_url,init)=>{
    count++;const body=JSON.parse(init.body);
    assert.equal(body.model,process.env.CLAUDE_DEEP_MODEL||'claude-opus-5-5');
-   assert.equal(body.max_tokens,18000);
+   assert.equal(body.max_tokens,32000);
    return {ok:true,json:async()=>({stop_reason:'max_tokens',usage:{input_tokens:400,output_tokens:18000},
      content:[{type:'text',text:JSON.stringify(fullReading)}]})};
   };
@@ -204,4 +204,17 @@ test('billing error blocks a new paid request temporarily without exposing provi
   globalThis.fetch=oldFetch;
   if(oldKey)process.env.ANTHROPIC_API_KEY=oldKey;else delete process.env.ANTHROPIC_API_KEY;
  }
+});
+
+test('extended chart facts (12운성, 공망, 형파해, 향후 세운) reach the prompt',()=>{
+ const rich={...chart,pillars:chart.pillars.map(p=>({...p,us:'제왕'})),rel:['일지·월지 인사형(무은지형)','연지·시지 자유파'],
+  kong:'戌亥',kongHit:['연지'],seunNext:[{year:2027,gz:'丁未'},{year:2028,gz:'戊申'}],
+  warnings:['절입 시각 1시간 이내에 태어나 출생 시간 오차에 따라 월주가 달라질 수 있어요.'],sect:1};
+ const c=sanitize(rich);
+ assert.equal(c.pillars[0].us,'제왕');assert.equal(c.kong,'戌亥');assert.equal(c.seunNext.length,2);
+ assert.equal(c.sect,1);assert.equal(c.warnings.length,1);
+ const prompt=buildPrompt(c,false,'standard');
+ for(const k of ['무은지형','戌亥','丁未','12운성','boundaryWarnings','다음 대운','sections 9~10개'])assert.ok(prompt.includes(k),k);
+ assert.equal(sanitize({...chart,kong:'XX'}).kong,'');
+ assert.equal(sanitize({...chart,seunNext:[{year:2027,gz:'甲丑'}]}).seunNext.length,0);
 });

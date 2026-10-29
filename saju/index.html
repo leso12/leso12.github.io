@@ -82,6 +82,9 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .pl{display:flex;flex-direction:column;align-items:center;gap:.6mm}
 .pl .cap{font-size:7.5pt;color:var(--ink-soft);letter-spacing:.12em}
 .pl .ss{font-size:7.5pt;color:var(--gold);font-weight:600;min-height:1.5em}
+.pl .ss.us{color:var(--ink-soft);font-weight:500}
+.chart-warn:not([hidden]){display:block}
+.chart-warn{margin:4px 0 0;font-size:8pt;color:#a5541b;line-height:1.5}
 .pl .ch{font-family:var(--serif);font-weight:700;font-size:17pt;line-height:1.1;width:13mm;height:13mm;display:grid;place-items:center;border:.2mm solid var(--hair);background:var(--paper-2)}
 .pl .ch small{display:block;font-family:var(--sans);font-size:6.5pt;font-weight:500;color:var(--ink-soft);margin-top:-.5mm}
 .pl.day .ch{border-color:var(--burgundy);color:var(--burgundy)}
@@ -522,7 +525,12 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
       </div>
       <details class="advanced wide"><summary>시간 보정 설정 · 계산 기준</summary>
         <div class="inline"><label><input type="checkbox" id="tst" checked>경도에 따른 시간 보정 적용</label></div>
-        <p class="note">지역 중심점 기준의 평균태양시 보정입니다. 균시차를 반영한 진태양시는 아니며, 오래된 출생 기록과 절기·시주 경계의 명식은 교차 검증이 필요해요.</p>
+        <div class="field"><label for="day-sect">밤 11시~자정 출생의 일주 기준</label>
+          <select id="day-sect">
+            <option value="2" selected>당일 일주 유지 (야자시·조자시 구분)</option>
+            <option value="1">다음 날 일주로 넘김 (자시 통합)</option>
+          </select></div>
+        <p class="note">일주·시주는 지역 경도로 보정한 평균태양시로, 연주·월주와 대운은 절기 시각과 같은 기준시로 맞춰 계산해요. 균시차는 반영하지 않으며, 절기·시주 경계 근처라면 화면에 안내가 표시돼요.</p>
       </details>
       <div class="field wide">
         <label for="reading-mode">해석 모델과 깊이</label>
@@ -626,7 +634,7 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
         <div class="pillars" id="pillars"></div>
         <div class="facts">
           <div class="row"><span class="k">오행</span><span class="v wx" id="wx"></span></div>
-          <div class="row"><span class="k">합·충</span><span class="v" id="rel"></span></div>
+          <div class="row"><span class="k">합·충</span><span class="v"><span id="rel"></span><span class="chart-warn" id="chart-warn" hidden></span></span></div>
           <div class="row"><span class="k">대운</span><span class="v dy" id="dy"></span></div>
           <div class="row"><span class="k">관심</span><span class="v" id="wr"></span></div>
         </div>
@@ -653,7 +661,7 @@ const $=id=>document.getElementById(id);
 /* ---------- 기본 표 ---------- */
 const GAN="甲乙丙丁戊己庚辛壬癸", ZHI="子丑寅卯辰巳午未申酉戌亥";
 const GAN_KO="갑을병정무기경신임계", ZHI_KO="자축인묘진사오미신유술해";
-const GAN_WX="木木火火土土金金水水", ZHI_WX="水土木木火火火土金金土水";
+const GAN_WX="木木火火土土金金水水", ZHI_WX="水土木木土火火土金金土水";
 const WX_KO={木:"목",火:"화",土:"토",金:"금",水:"수"};
 const SS_KO={"比肩":"비견","劫财":"겁재","食神":"식신","伤官":"상관","偏财":"편재","正财":"정재","七杀":"편관","正官":"정관","偏印":"편인","正印":"정인","日主":"일간"};
 const ko=c=>{let i=GAN.indexOf(c);if(i>=0)return GAN_KO[i];i=ZHI.indexOf(c);return i>=0?ZHI_KO[i]:c;};
@@ -697,15 +705,38 @@ const GAN_HE=[["甲","己","토"],["乙","庚","금"],["丙","辛","수"],["丁"
 const ZHI_HE=[["子","丑"],["寅","亥"],["卯","戌"],["辰","酉"],["巳","申"],["午","未"]];
 const ZHI_CHONG=[["子","午"],["丑","未"],["寅","申"],["卯","酉"],["辰","戌"],["巳","亥"]];
 const SANHE=[["申子辰","수"],["亥卯未","목"],["寅午戌","화"],["巳酉丑","금"]];
+const FANGHE=[["寅卯辰","목"],["巳午未","화"],["申酉戌","금"],["亥子丑","수"]];
+const GAN_CHONG=[["甲","庚"],["乙","辛"],["丙","壬"],["丁","癸"]];
+const ZHI_PO=[["子","酉"],["丑","辰"],["寅","亥"],["卯","午"],["巳","申"],["未","戌"]];
+const ZHI_HAI=[["子","未"],["丑","午"],["寅","巳"],["卯","辰"],["申","亥"],["酉","戌"]];
+const ZHI_YUANJIN=[["子","未"],["丑","午"],["寅","酉"],["卯","申"],["辰","亥"],["巳","戌"]];
+const ZHI_XING=[["寅","巳","무은지형"],["巳","申","무은지형"],["寅","申","무은지형"],["丑","戌","지세지형"],["戌","未","지세지형"],["丑","未","지세지형"],["子","卯","무례지형"]];
+const SANXING=[["寅巳申","무은지형"],["丑戌未","지세지형"]];
+const ZI_XING="辰午酉亥";
+const pairOf=(a,b,x,y)=>(a===x&&b===y)||(a===y&&b===x);
 function relations(items){ // items:[{pos,gan,zhi}]
   const out=[];
   for(let i=0;i<items.length;i++)for(let j=i+1;j<items.length;j++){
-    const a=items[i],b=items[j];
-    GAN_HE.forEach(([x,y,w])=>{if((a.gan===x&&b.gan===y)||(a.gan===y&&b.gan===x))out.push(`${a.pos}간·${b.pos}간 ${ko(a.gan)}${ko(b.gan)}합(${w})`);});
-    ZHI_HE.forEach(([x,y])=>{if((a.zhi===x&&b.zhi===y)||(a.zhi===y&&b.zhi===x))out.push(`${a.pos}지·${b.pos}지 ${ko(a.zhi)}${ko(b.zhi)}합`);});
-    ZHI_CHONG.forEach(([x,y])=>{if((a.zhi===x&&b.zhi===y)||(a.zhi===y&&b.zhi===x))out.push(`${a.pos}지·${b.pos}지 ${ko(a.zhi)}${ko(b.zhi)}충`);});
-    SANHE.forEach(([s,w])=>{if(a.zhi!==b.zhi&&s.includes(a.zhi)&&s.includes(b.zhi)&&(a.zhi===s[1]||b.zhi===s[1]))out.push(`${a.pos}지·${b.pos}지 ${ko(a.zhi)}${ko(b.zhi)} 반합(${w})`);});
+    const a=items[i],b=items[j],G=`${a.pos}간·${b.pos}간 ${ko(a.gan)}${ko(b.gan)}`,Z=`${a.pos}지·${b.pos}지 ${ko(a.zhi)}${ko(b.zhi)}`;
+    GAN_HE.forEach(([x,y,w])=>{if(pairOf(a.gan,b.gan,x,y))out.push(`${G}합(${w})`);});
+    GAN_CHONG.forEach(([x,y])=>{if(pairOf(a.gan,b.gan,x,y))out.push(`${G}충`);});
+    ZHI_HE.forEach(([x,y])=>{if(pairOf(a.zhi,b.zhi,x,y))out.push(`${Z}합`);});
+    ZHI_CHONG.forEach(([x,y])=>{if(pairOf(a.zhi,b.zhi,x,y))out.push(`${Z}충`);});
+    SANHE.forEach(([s,w])=>{if(a.zhi!==b.zhi&&s.includes(a.zhi)&&s.includes(b.zhi)&&(a.zhi===s[1]||b.zhi===s[1]))out.push(`${Z} 반합(${w})`);});
+    ZHI_XING.forEach(([x,y,n])=>{if(pairOf(a.zhi,b.zhi,x,y))out.push(`${Z}형(${n})`);});
+    if(a.zhi===b.zhi&&ZI_XING.includes(a.zhi))out.push(`${Z} 자형`);
+    ZHI_PO.forEach(([x,y])=>{if(pairOf(a.zhi,b.zhi,x,y))out.push(`${Z}파`);});
+    ZHI_HAI.forEach(([x,y])=>{if(pairOf(a.zhi,b.zhi,x,y))out.push(`${Z}해`);});
+    ZHI_YUANJIN.forEach(([x,y])=>{if(pairOf(a.zhi,b.zhi,x,y))out.push(`${Z} 원진`);});
   }
+  // 세 글자가 모두 모여야 성립하는 삼합·방합·삼형
+  const triple=(set,label)=>{
+    const hit=[...set].map(ch=>items.find(it=>it.zhi===ch));
+    if(hit.every(Boolean))out.push(`${hit.map(h=>h.pos+"지").join("·")} ${[...set].map(ko).join("")} ${label}`);
+  };
+  SANHE.forEach(([s,w])=>triple(s,`삼합(${w}국)`));
+  FANGHE.forEach(([s,w])=>triple(s,`방합(${w})`));
+  SANXING.forEach(([s,n])=>triple(s,`삼형(${n})`));
   return out;
 }
 
@@ -716,11 +747,30 @@ function meridianFor(y,m,d){ // 한국 표준시 기준 자오선
   if(v<=19111231)return 127.5;
   return 135;
 }
-function dstMinutes(y,m,d){ // 1987·1988 서머타임 등 대표 구간만 반영
+function dstMinutes(y,m,d,h=12,mi=0){ // 서머타임 대표 구간 반영
   const v=y*10000+m*100+d;
-  const R=[[19480601,19480912],[19490403,19490910],[19500401,19500909],[19510506,19510908],[19550505,19550908],[19560520,19560929],[19570505,19570921],[19580504,19580920],[19590503,19590919],[19600501,19600917],[19870510,19871010],[19880508,19881008]];
+  // 1987·1988: 02:00 시작 ~ 03:00 종료(시 단위까지 반영)
+  const t=v*10000+h*100+mi;
+  if((t>=198705100200&&t<198710110300)||(t>=198805080200&&t<198810090300))return 60;
+  const R=[[19480601,19480912],[19490403,19490910],[19500401,19500909],[19510506,19510908],[19550505,19550908],[19560520,19560929],[19570505,19570921],[19580504,19580920],[19590503,19590919],[19600501,19600917]];
   return R.some(([a,b])=>v>=a&&v<=b)?60:0;
 }
+// 분 단위로 시각을 이동 (율리우스일 소수 오차 없이)
+function shiftMinutes(s,min){
+  const t=new Date(Date.UTC(s.getYear(),s.getMonth()-1,s.getDay(),s.getHour(),s.getMinute()+min,0));
+  return Solar.fromYmdHms(t.getUTCFullYear(),t.getUTCMonth()+1,t.getUTCDate(),t.getUTCHours(),t.getUTCMinutes(),0);
+}
+// 지장간 (본기 먼저) · 12운성
+const HIDE={子:["癸"],丑:["己","癸","辛"],寅:["甲","丙","戊"],卯:["乙"],辰:["戊","乙","癸"],巳:["丙","庚","戊"],午:["丁","己"],未:["己","丁","乙"],申:["庚","壬","戊"],酉:["辛"],戌:["戊","辛","丁"],亥:["壬","甲"]};
+const UNSEONG=["장생","목욕","관대","건록","제왕","쇠","병","사","묘","절","태","양"];
+const CHANGSHENG={甲:"亥",丙:"寅",戊:"寅",庚:"巳",壬:"申",乙:"午",丁:"酉",己:"酉",辛:"子",癸:"卯"};
+function unseong(dayGan,zhi){
+  const start=ZHI.indexOf(CHANGSHENG[dayGan]),z=ZHI.indexOf(zhi);
+  if(start<0||z<0)return "";
+  const yang=GAN.indexOf(dayGan)%2===0;
+  return UNSEONG[((yang?z-start:start-z)%12+12)%12];
+}
+const monthAt=s=>{const e=s.getLunar().getEightChar();return e.getYear()+e.getMonth();};
 
 /* ---------- 명식 계산 ---------- */
 function compute(){
@@ -758,45 +808,78 @@ function compute(){
   }
   }catch(e){return {error:"만세력 계산에 실패했습니다. 날짜를 확인해 주세요."};}
 
+  // solar = 출생 당시 시계 시각(당시 한국 표준시, 서머타임 포함)
+  const clock=solar;
+  const cy=clock.getYear(),cm=clock.getMonth(),cd=clock.getDay(),ch=clock.getHour(),cmi=clock.getMinute();
+  const meridian=meridianFor(cy,cm,cd);
+  const dst=dstMinutes(cy,cm,cd,ch,cmi);
+  const sect=$("day-sect").value==="1"?1:2;
+  // 1) 연주·월주·대운: 만세력 절기 시각(북경시 UTC+8)과 같은 기준시로 환산
+  const toBeijing=s=>shiftMinutes(s,480-(Math.round(meridian*4)+dst));
+  const bj=toBeijing(clock);
+  // 2) 일주·시주: 출생지 경도 기준 평균태양시
   let corr=0, corrNote="";
   if(!noTime&&$("tst").checked&&lon!=="none"){
-    const sy=solar.getYear(),sm=solar.getMonth(),sd=solar.getDay();
-    corr=Math.round((Number(lon)-meridianFor(sy,sm,sd))*4)-dstMinutes(sy,sm,sd);
-    solar=solar.nextMinute?solar.nextMinute(corr):Solar.fromJulianDay(solar.getJulianDay()+corr/1440);
+    corr=Math.round((Number(lon)-meridian)*4)-dst;
+    solar=shiftMinutes(clock,corr);
     corrNote=`${corr>0?"+":""}${corr}분`;
   }
-  const e=solar.getLunar().getEightChar(); e.setSect(2);
+  const eYM=bj.getLunar().getEightChar(); eYM.setSect(sect);
+  const eDT=solar.getLunar().getEightChar(); eDT.setSect(sect);
+  const dayGan=eDT.getDay()[0];
   const P=[
-    {pos:"시",key:"Time",gz:e.getTime()},
-    {pos:"일",key:"Day",gz:e.getDay()},
-    {pos:"월",key:"Month",gz:e.getMonth()},
-    {pos:"연",key:"Year",gz:e.getYear()}
-  ].map(p=>({...p,gan:p.gz[0],zhi:p.gz[1],
-    ssGan:p.key==="Day"?"일간":ssKo(e["get"+p.key+"ShiShenGan"]()),
-    ssZhi:ssKo((e["get"+p.key+"ShiShenZhi"]()||[])[0]||""),
-    hide:(e["get"+p.key+"HideGan"]()||[]).map(g=>g+"("+ssKo(e.getDayGan&&ssOf(e.getDayGan(),g))+")"),
-    off:p.key==="Time"&&noTime}));
+    {pos:"시",key:"Time",gz:eDT.getTime()},
+    {pos:"일",key:"Day",gz:eDT.getDay()},
+    {pos:"월",key:"Month",gz:eYM.getMonth()},
+    {pos:"연",key:"Year",gz:eYM.getYear()}
+  ].map(p=>{
+    const gan=p.gz[0],zhi=p.gz[1],hid=HIDE[zhi]||[];
+    return {...p,gan,zhi,
+      ssGan:p.key==="Day"?"일간":ssOf(dayGan,gan),
+      ssZhi:ssOf(dayGan,hid[0]),
+      hide:hid.map(g=>g+"("+ssOf(dayGan,g)+")"),
+      us:unseong(dayGan,zhi),
+      off:p.key==="Time"&&noTime};
+  });
 
   const used=P.filter(p=>!p.off);
   const wx={木:0,火:0,土:0,金:0,水:0};
   used.forEach(p=>{wx[wxOf(p.gan)]++;wx[wxOf(p.zhi)]++;});
+  const kong=eDT.getDayXunKong();
+  const kongHit=used.filter(p=>p.key!=="Day"&&kong.includes(p.zhi)).map(p=>p.pos+"지");
 
-  const yun=e.getYun(sex);
+  const yun=eYM.getYun(sex);
   const nowY=new Date().getFullYear();
   const dys=yun.getDaYun().slice(1,9).map(d=>({age:d.getStartAge(),year:d.getStartYear(),gz:d.getGanZhi()}));
   const cur=dys.filter(d=>d.year<=nowY).pop()||null;
-  const seun=Solar.fromYmd(nowY,6,1).getLunar().getYearInGanZhiExact();
+  const yearGZ=y=>Solar.fromYmd(y,6,1).getLunar().getYearInGanZhiExact();
+  const seun=yearGZ(nowY);
+  const seunNext=[1,2].map(k=>({year:nowY+k,gz:yearGZ(nowY+k)}));
   const rel=relations(used);
   const relLuck=[];
   if(cur)relLuck.push(...relations([...used,{pos:"대운",gan:cur.gz[0],zhi:cur.gz[1]}]).filter(r=>r.includes("대운")));
   relLuck.push(...relations([...used,{pos:"세운",gan:seun[0],zhi:seun[1]}]).filter(r=>r.includes("세운")));
 
+  // 경계 근처 안내
+  const warnings=[];
+  if(noTime){
+    const d0=toBeijing(Solar.fromYmdHms(cy,cm,cd,0,0,0)),d1=toBeijing(Solar.fromYmdHms(cy,cm,cd,23,59,0));
+    if(monthAt(d0)!==monthAt(d1))warnings.push("출생일이 절입일이라 출생 시간에 따라 월주(또는 연주)가 달라질 수 있어요.");
+  }else{
+    if(monthAt(shiftMinutes(bj,-60))!==monthAt(shiftMinutes(bj,60)))warnings.push("절입 시각 1시간 이내에 태어나 출생 시간 오차에 따라 월주(또는 연주)가 달라질 수 있어요.");
+    const local=solar.getHour()*60+solar.getMinute();
+    const edge=Math.min(...[0,60,180,300,420,540,660,780,900,1020,1140,1260,1380,1440].map(b=>Math.abs(local-b)));
+    if(edge<=10)warnings.push("시주가 바뀌는 경계 10분 이내라 출생 시간 오차에 따라 시주가 달라질 수 있어요.");
+    if(solar.getHour()===23)warnings.push(`밤 11시대 출생이라 일주 기준(${sect===2?"당일 유지":"다음 날"})에 따라 일주가 달라져요.`);
+  }
+  if(lon==="none")warnings.push("해외 출생은 현지 시간대를 반영하지 않았어요. 한국 시각으로 환산해 입력해 주세요.");
+
   const sTime=`${String(solar.getHour()).padStart(2,"0")}:${String(solar.getMinute()).padStart(2,"0")}`;
   return {
     input:{date:$("date").value,cal:lunar?(leap?"음력(윤달)":"음력"):"양력",time:noTime?"모름":$("time").value,sex:sex?"남성":"여성",region:regionName,worry:$("worry").value.trim()},
     solarStr:`${solar.getYear()}.${String(solar.getMonth()).padStart(2,"0")}.${String(solar.getDay()).padStart(2,"0")}${noTime?"":" "+sTime}`,
-    corrNote,noTime,P,wx,dys,cur,seun,nowY,rel,relLuck,
-    month:e.getMonth()[1],dayGan:e.getDay()[0],
+    corrNote,noTime,P,wx,dys,cur,seun,seunNext,nowY,rel,relLuck,kong,kongHit,warnings,sect,
+    month:eYM.getMonth()[1],dayGan,
     age:nowY-solar.getYear()+1, startAge:dys[0]?.age ?? 0
   };
 }
@@ -839,16 +922,20 @@ function renderChart(){
       <span class="ch">${p.off?"?":p.gan}${p.off?"":`<small>${ko(p.gan)}·${WX_KO[wxOf(p.gan)]}</small>`}</span>
       <span class="ch">${p.off?"?":p.zhi}${p.off?"":`<small>${ko(p.zhi)}·${WX_KO[wxOf(p.zhi)]}</small>`}</span>
       <span class="ss">${p.off?"시간 모름":p.ssZhi}</span>
+      <span class="ss us">${p.off?"":p.us}</span>
     </div>`).join("");
 
   $("wx").innerHTML=Object.entries(r.wx).map(([k,v])=>`<span class="${v?"":"zero"}"><b>${k}</b>${WX_KO[k]} <i>${v}</i></span>`).join("")
     +`<span style="color:var(--ink-soft)">· 일간 ${r.dayGan}${WX_KO[wxOf(r.dayGan)]}, 월령 ${r.month}${WX_KO[wxOf(r.month)]}</span>`;
   const relAll=[...r.rel,...r.relLuck];
-  $("rel").textContent=relAll.length?relAll.slice(0,5).join(" · "):"원국 내 뚜렷한 합·충 없음";
+  $("rel").textContent=(relAll.length?relAll.slice(0,8).join(" · ")+(relAll.length>8?` 외 ${relAll.length-8}개`:""):"원국 내 뚜렷한 합·충·형 없음")
+    +` · 공망 ${r.kong}${r.kongHit.length?"("+r.kongHit.join("·")+")":""}`;
+  const warn=$("chart-warn");
+  warn.hidden=!r.warnings.length;warn.textContent=r.warnings.length?"⚠ "+r.warnings.join(" "):"";
   $("dy").innerHTML=r.dys.map(d=>`<span class="${r.cur&&d.year===r.cur.year?"now":""}">${d.age}세 ${d.gz}</span>`).join("")
     +`<span class="now" style="border-style:dashed">${r.nowY} 세운 ${r.seun}</span>`;
   $("wr").textContent=i.worry||"(입력 없음 · 전반적 흐름 중심)";
-  $("footL").textContent=`${r.noTime?"시주 제외 6자 분석 · ":""}${r.corrNote?"경도 보정 "+r.corrNote+" 보정 · ":""}대운 ${r.startAge}세 시작 · 만세력 기준 절기 월`;
+  $("footL").textContent=`${r.noTime?"시주 제외 6자 분석 · ":""}${r.corrNote?"경도 보정 "+r.corrNote+" 보정 · ":""}대운 ${r.startAge}세 시작 · 절기 월 · 일주 기준 ${r.sect===2?"야자시 당일":"자시 다음 날"}`;
   fit();
 }
 
@@ -961,9 +1048,10 @@ let ctl=null, lastReading=null, lastSignature="", lastMode="", requestId=0, deep
 function payload(c){
   return {
     input:c.input, corrNote:c.corrNote, solarStr:c.solarStr, noTime:c.noTime,
-    pillars:c.P.filter(p=>!p.off).map(p=>({pos:p.pos,gz:p.gz,ssGan:p.ssGan,ssZhi:p.ssZhi,hide:p.hide})),
+    pillars:c.P.filter(p=>!p.off).map(p=>({pos:p.pos,gz:p.gz,ssGan:p.ssGan,ssZhi:p.ssZhi,hide:p.hide,us:p.us})),
     wx:c.wx, dayGan:c.dayGan, month:c.month, rel:c.rel, relLuck:c.relLuck,
-    startAge:c.startAge, dys:c.dys, cur:c.cur, nowY:c.nowY, seun:c.seun, age:c.age
+    startAge:c.startAge, dys:c.dys, cur:c.cur, nowY:c.nowY, seun:c.seun, age:c.age,
+    seunNext:c.seunNext, kong:c.kong, kongHit:c.kongHit, warnings:c.warnings, sect:c.sect
   };
 }
 const signature=c=>JSON.stringify(payload(c));
@@ -1015,7 +1103,7 @@ function saveTemporaryInput(){
  if(!$("remember-input").checked)return;
  try{
   const f={};
-  for(const id of ["date","time","manual-longitude","worry","reading-mode","region-sido","region"])
+  for(const id of ["date","time","manual-longitude","worry","reading-mode","region-sido","region","day-sect"])
    f[id]=$(id).value;
   for(const id of ["notime","leap","tst","cal-solar","cal-lunar","sex-f","sex-m"])
    f[id]=$(id).checked;
@@ -1032,7 +1120,7 @@ function restoreTemporaryInput(){
   if(!obj?.consent||!obj.inputs)return;
   const f=obj.inputs;
   $("remember-input").checked=true;
-  for(const id of ["date","time","manual-longitude","worry","reading-mode"]){
+  for(const id of ["date","time","manual-longitude","worry","reading-mode","day-sect"]){
     if(typeof f[id]==="string")$(id).value=f[id];
   }
   for(const id of ["notime","leap","tst","cal-solar","cal-lunar","sex-f","sex-m"]){
@@ -1132,7 +1220,7 @@ async function ask(tight){
 }
 
 /* ---------- 연결 ---------- */
-["date","time","notime","leap","manual-longitude","tst","worry","reading-mode","cal-solar","cal-lunar","sex-f","sex-m"].forEach(id=>$(id).addEventListener("input",()=>{
+["date","time","notime","leap","manual-longitude","tst","day-sect","worry","reading-mode","cal-solar","cal-lunar","sex-f","sex-m"].forEach(id=>$(id).addEventListener("input",()=>{
   $("time").disabled=$("notime").checked;
   $("leap").disabled=!$("cal-lunar").checked;
   resetOnChange();
