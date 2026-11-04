@@ -85,7 +85,47 @@ async function scanRepo(p,manual=false){if(!p.github_repo||!maybeRepo(p.github_r
 async function seedTemplates(){if(state.projects.length)return;await query('projects',{method:'POST',body:TEMPLATES.map(([name,description])=>({user_id:uid(),name,description}))});toast('5개 프로젝트를 등록했어. 진척도는 아직 미산정이야.');await load();}
 async function signout(silent=false){const token=session?.access_token;session=null;state=null;selected=null;localStorage.removeItem(STORE_KEY);clearInterval(liveTimer);liveTimer=null;$('#appScreen').hidden=true;$('#authScreen').hidden=false;if(token)fetch(CFG.url+'/auth/v1/logout',{method:'POST',headers:authHeaders(token)}).catch(()=>{});if(!silent)toast('로그아웃했어.');}
 async function authenticated(){if(!session)return;$('#authScreen').hidden=true;$('#appScreen').hidden=false;$('#whoami').textContent=session.user?.email||'내 계정';await load();clearInterval(liveTimer);liveTimer=setInterval(async()=>{if(!document.hidden){await load(false);if(state&&Date.now()-repoScanAt>90000){for(const p of state.projects.filter(p=>p.github_repo).slice(0,6)){try{await scanRepo(p);}catch{}}}}},10000);}
-$('#authForm').addEventListener('submit',async e=>{e.preventDefault();$('#authError').textContent='';try{const r=await authRequest('token?grant_type=password',{email:$('#email').value.trim(),password:$('#password').value});saveSession(sessionFromResponse(r));$('#password').value='';await authenticated();}catch(err){$('#authError').textContent=err.message;}});
+$('#authForm').addEventListener('submit',async e=>{e.preventDefault();$('#authError').textContent='';try{const r=await authRequest('token?grant_type=password',{email:$('#email').value.trim(),password:$('#password').value});saveSession(sessionFromResponse(r));$('#password').value='';await authenticated();}catch(err){$('#authError').textContent=/invalid login credentials/i.test(err.message)?'이메일 또는 비밀번호가 일치하지 않아. 비밀번호가 기억나지 않는다면 아래 재설정 버튼을 눌러 줘.':err.message;}});
+let recoveryAccessToken=null;
+$('#recoverBtn').addEventListener('click',async()=>{
+ const email=$('#email').value.trim();$('#authError').textContent='';
+ if(!email||!$('#email').checkValidity()){ $('#authError').textContent='먼저 올바른 이메일 주소를 입력해 줘.';$('#email').focus();return; }
+ $('#recoverBtn').disabled=true;
+ try{
+  await authRequest('recover?redirect_to='+encodeURIComponent(location.origin+location.pathname),{email});
+  $('#authError').textContent='비밀번호 재설정 요청을 보냈어. 메일함과 스팸함을 확인하고, 받은 메일의 링크를 열어 줘. 연결이 잘못되면 Supabase Redirect URLs 설정을 확인해 줘.';
+ }catch(err){$('#authError').textContent='재설정 메일 요청에 실패했어: '+err.message;}
+ finally{$('#recoverBtn').disabled=false;}
+});
+$('#recoverForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const password=$('#newPassword').value;
+ $('#authError').textContent='';
+ if(!recoveryAccessToken){$('#authError').textContent='재설정 링크가 만료되었어. 재설정 메일을 다시 받아 줘.';return;}
+ if(password.length<8||password!==$('#repeatPassword').value){$('#authError').textContent='8자 이상의 새 비밀번호를 두 칸에 똑같이 입력해 줘.';return;}
+ try{
+  const response=await fetch(CFG.url+'/auth/v1/user',{method:'PUT',headers:authHeaders(recoveryAccessToken),body:JSON.stringify({password})});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw Error(data.msg||data.error_description||data.message||data.error||'비밀번호 변경 실패');
+  recoveryAccessToken=null;
+  $('#newPassword').value='';$('#repeatPassword').value='';$('#password').value='';
+  $('#recoverForm').hidden=true;$('#authForm').hidden=false;$('#signupBtn').hidden=false;$('#recoverBtn').hidden=false;
+  $('#authError').textContent='비밀번호 변경 완료! 새 비밀번호로 로그인해 줘.';
+ }catch(err){$('#authError').textContent='비밀번호 변경에 실패했어: '+err.message;}
+});
+function checkRecoveryRedirect(){
+ const p=new URLSearchParams(location.hash.replace(/^#/,''));
+ if(p.get('type')==='recovery'&&p.get('access_token')){
+  recoveryAccessToken=p.get('access_token');
+  $('#authForm').hidden=true;$('#signupBtn').hidden=true;$('#recoverBtn').hidden=true;$('#recoverForm').hidden=false;
+  $('#authError').textContent='새 비밀번호를 입력하고 저장해 줘.';
+  history.replaceState(null,'',location.pathname+location.search);
+ }else if(p.get('error_description')){
+  $('#authError').textContent='인증 링크가 만료되거나 유효하지 않아. 비밀번호 재설정 메일을 다시 요청해 줘.';
+  history.replaceState(null,'',location.pathname+location.search);
+ }
+}
+checkRecoveryRedirect();
 $('#signupBtn').addEventListener('click',async()=>{const email=$('#email').value.trim(),password=$('#password').value;if(!email||password.length<6){$('#authError').textContent='이메일과 6자 이상의 비밀번호를 입력해 줘.';return;}try{const r=await authRequest('signup?redirect_to='+encodeURIComponent(location.origin+location.pathname),{email,password});if(r.access_token){saveSession(sessionFromResponse(r));await authenticated();}else $('#authError').textContent='가입 요청을 받았어. 인증 메일이 오면 확인하고 로그인해 줘. 이메일 인증 설정에 따라 확인 링크의 접속 주소를 Supabase에서 설정해야 할 수 있어.';}catch(err){$('#authError').textContent=err.message;}});
 document.addEventListener('click',async e=>{
  const pr=e.target.closest('[data-project]');if(pr){selected=pr.dataset.project;render();window.scrollTo(0,0);return;}
