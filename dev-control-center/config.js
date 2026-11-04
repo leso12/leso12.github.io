@@ -2,5 +2,5 @@
 window.DEVCC_CONFIG = Object.freeze({
   url: 'https://vulpttgewjfkxojimyxl.supabase.co',
   publishableKey: 'sb_publishable_Tc7VuwOoq2-rc5aizrurPg_ffzD1nyV',
-  version: '0.3.0'
+  version: '0.4.0'
 });
