@@ -73,12 +73,67 @@ function overview(){
 }
 function activityHTML(items){return '<div class="activities">'+(items.length?items.map(a=>'<div class="event"><div class="dot"></div><div><b>'+safe(a.title)+'</b><span>'+fmt(a.at)+'</span></div></div>').join(''):'<div class="empty">변경 기록이 없어.</div>')+'</div>';}
 function taskHTML(task){return '<div class="item task"><div class="item-main"><b>'+safe(task.title)+'</b><small>'+safe(task.evidence||'검증 근거 미등록')+'</small></div><div class="item-actions"><select data-status="'+safe(task.id)+'">'+Object.entries(STATUS).map(([v,t])=>'<option value="'+v+'"'+(task.status===v?' selected':'')+'>'+t+'</option>').join('')+'</select><button class="smallbtn" data-evidence="'+safe(task.id)+'">근거</button><button class="smallbtn danger" data-delete-task="'+safe(task.id)+'">삭제</button></div></div>';}
+
+function notesList(title,items){
+ const list=Array.isArray(items)?items.filter(x=>typeof x==='string'&&x.trim()).slice(0,40):[];
+ return '<div class="detail-list"><h3>'+safe(title)+'</h3>'+
+ (list.length?'<ul>'+list.map(x=>'<li>'+safe(x)+'</li>').join('')+'</ul>':'<p class="muted-note">아직 등록된 내용이 없어.</p>')+'</div>';
+}
+function projectDetailsHTML(p){
+ const d=p.details||{};
+ const filled=Boolean(d.summary||d.current||(d.highlights||[]).length||(d.issues||[]).length||(d.next||[]).length);
+ return '<section class="panel notes-panel"><div class="panel-head"><h2>프로젝트 개발 내용</h2><button class="secondary" data-action="edit-notes">내용 편집</button></div>'+
+ (filled?'<div class="notes-body">'+
+ '<div class="notes-summary"><h3>개요</h3><p>'+safe(d.summary||p.description||'내용 없음')+'</p></div>'+
+ '<div class="notes-summary"><h3>기록된 개발 현황</h3><p>'+safe(d.current||'최신 구현 상태 확인 필요')+'</p></div>'+
+ '<div class="detail-grid">'+notesList('중요한 결정·요구',d.highlights)+notesList('미해결 문제',d.issues)+notesList('다음 작업',d.next)+'</div>'+
+ '<p class="notes-source">정리 기준: '+safe(d.asOf||d.updatedAt||'미등록')+' · '+safe(d.verification||'대화 기록 기반. 최신 소스·실장비 검증과 별개')+'</p></div>'
+ :'<div class="empty"><b>아직 개발 내용이 등록되지 않았어.</b><p>현재는 프로젝트 이름과 작업 항목만 등록되어 있어. 「내용 편집」 또는 상단 「개발 내용 가져오기」로 상세 기록을 추가해 줘.</p></div>')+
+ '</section>';
+}
+function mergeDevelopmentPack(pack){
+ if(pack?.format!=='devcc-detail-pack-v1'||!Array.isArray(pack.projects)||pack.projects.length>50)throw Error('상세 개발 기록 형식이 올바르지 않아.');
+ let created=0,work=0,edited=0;
+ for(const item of pack.projects){
+   if(!item||typeof item.name!=='string'||!item.name.trim()||item.name.length>100)continue;
+   let p=state.projects.find(x=>x.name===item.name.trim());
+   if(!p){p={id:ident(),name:clean(item.name,100),description:clean(item.description,300),githubRepo:'',createdAt:now()};state.projects.push(p);created++;}
+   if(!p.description&&item.description)p.description=clean(item.description,300);
+   const d=item.details||{},old=p.details||{},preserveManual=old.source==='local-user';
+   const newD={...old};
+   for(const field of ['summary','current']){
+     if(!preserveManual||!old[field])newD[field]=clean(d[field],4000);
+   }
+   for(const field of ['highlights','issues','next']){
+     const previous=Array.isArray(old[field])?old[field].filter(x=>typeof x==='string'):[];
+     const incoming=Array.isArray(d[field])?d[field].filter(x=>typeof x==='string').map(x=>clean(x,1000)):[];
+     newD[field]=Array.from(new Set([...previous,...incoming].filter(Boolean))).slice(0,40);
+   }
+   newD.source=preserveManual?'local-user':'memory-import';
+   newD.asOf=clean(d.asOf||old.asOf,80);
+   newD.verification=clean(d.verification||old.verification,300);
+   newD.updatedAt=now().slice(0,10);
+   p.details=newD;edited++;
+   const incomingTasks=Array.isArray(item.tasks)?item.tasks.slice(0,200):[];
+   for(const task of incomingTasks){
+     if(typeof task.title!=='string'||!task.title.trim())continue;
+     const title=clean(task.title,240);
+     if(state.tasks.some(t=>t.projectId===p.id&&t.title===title))continue;
+     state.tasks.push({id:ident(),projectId:p.id,title,status:'unassessed',weight:1,evidence:clean(task.evidence||'과거 대화 기준. 최신 코드 및 시험 상태 미확인',1000),createdAt:now()});
+     work++;
+   }
+ }
+ log(null,'import','이전 개발 기록 상세 내용 가져오기: '+edited+'개 프로젝트, '+work+'개 작업 추가');
+ persist();
+ return {created,work,edited};
+}
+
 function projectView(p){
  const list=tasksFor(p.id), chats=state.chats.filter(c=>c.projectId===p.id), cmd=state.commands.filter(c=>c.projectId===p.id).slice(-8).reverse();
  const pval=progress(p.id),repo=urlOfGithub(p.githubRepo||'');
  return '<div class="welcome"><div><div class="eyebrow">PROJECT DETAILS</div><h1>'+safe(p.name)+'</h1><p>'+safe(p.description)+'</p></div><div class="actions"><button class="secondary" data-action="edit-project">프로젝트 편집</button><button class="primary" data-action="copy-handoff">계승문 복사</button></div></div>'+
  '<div class="metrics">'+stat('진행률',pval===null?'미산정':pval+'%','가중 평균')+stat('작업',list.length,'기능 단위')+stat('검증 완료',list.filter(t=>['verified','deployed'].includes(t.status)).length,'실제 검증 기준')+stat('연결된 대화',chats.length,'ChatGPT · Claude')+'</div>'+
- '<div class="two-col"><div class="stack">'+
+ projectDetailsHTML(p)+'<div class="two-col"><div class="stack">'+
  '<section class="panel"><div class="panel-head"><h2>개발 작업</h2><span>AI가 완료했다고 말해도 자동 승인하지 않아</span></div><form id="taskForm" class="inline-form"><input name="title" maxlength="240" placeholder="예: CAP / UNCAP T-Z 동시 동작" required><button class="primary">작업 추가</button></form><div class="item-list">'+(list.map(taskHTML).join('')||'<div class="empty">작업을 추가하면 진도율이 계산돼.</div>')+'</div></section>'+
  '<section class="panel"><div class="panel-head"><h2>개발 명령 준비</h2><span>AI 전송은 직접 확인</span></div><form id="commandForm" class="form-padding">'+
  (chats.length?'<label>대상 대화</label><select name="chatId" required>'+chats.map(c=>'<option value="'+safe(c.id)+'">'+safe(c.provider.toUpperCase()+' · '+c.title)+'</option>').join('')+'</select>':'<div class="notice">먼저 아래에서 GPT 또는 Claude 대화 링크를 등록해 줘.</div>')+
@@ -99,14 +154,20 @@ function render(){
 function createProject(name,description){const p={id:ident(),name:clean(name,100),description:clean(description,300),githubRepo:'',createdAt:now()};state.projects.push(p);log(p.id,'project','프로젝트 생성: '+p.name);selected=p.id;persist();}
 function copy(text){return navigator.clipboard?.writeText(text).catch(()=>{throw Error('복사 실패');})||Promise.reject(Error('복사 권한 없음'));}
 function selectedChat(form){const id=new FormData(form).get('chatId');return state.chats.find(c=>c.id===id&&c.projectId===selected)||null;}
-function handoff(p){const tasks=tasksFor(p.id),chats=state.chats.filter(c=>c.projectId===p.id);return '# '+p.name+' 개발 계승\n\n설명: '+p.description+'\n진행률: '+(progress(p.id)===null?'미산정':progress(p.id)+'%')+'\n\n작업 상태:\n'+(tasks.map(t=>'- ['+STATUS[t.status]+'] '+t.title+(t.evidence?' / 근거: '+t.evidence:'')).join('\n')||'등록된 작업 없음')+'\n\n기존 채팅:\n'+(chats.map(c=>'- '+c.provider+' '+c.url).join('\n')||'없음')+'\n\n중요: 완료 선언만으로 기능 검증 완료로 판단하지 말 것. 실제 코드와 테스트를 확인할 것.';}
+function handoff(p){const tasks=tasksFor(p.id),chats=state.chats.filter(c=>c.projectId===p.id),d=p.details||{};return '# '+p.name+' 개발 계승\n\n설명: '+p.description+'\n\n프로젝트 개요: '+(d.summary||'미등록')+'\n기록된 현재 상태: '+(d.current||'미확인')+'\n\n미해결 문제:\n'+(d.issues||[]).map(x=>'- '+x).join('\n')+'\n\n다음 작업:\n'+(d.next||[]).map(x=>'- '+x).join('\n')+'\n진행률: '+(progress(p.id)===null?'미산정':progress(p.id)+'%')+'\n\n작업 상태:\n'+(tasks.map(t=>'- ['+STATUS[t.status]+'] '+t.title+(t.evidence?' / 근거: '+t.evidence:'')).join('\n')||'등록된 작업 없음')+'\n\n기존 채팅:\n'+(chats.map(c=>'- '+c.provider+' '+c.url).join('\n')||'없음')+'\n\n중요: 완료 선언만으로 기능 검증 완료로 판단하지 말 것. 실제 코드와 테스트를 확인할 것.';}
 document.addEventListener('click',async e=>{
  const project=e.target.closest('[data-project]');if(project){selected=project.dataset.project;render();return;}
  if(e.target.closest('#overviewBtn')){selected=null;render();return;}
  const action=e.target.closest('[data-action]')?.dataset.action;
  if(action==='new-project'){const name=prompt('새 프로젝트 이름');if(!clean(name,100))return;const desc=prompt('프로젝트 설명 (선택)','')||'';createProject(name,desc);return;}
  if(action==='seed'){const added=seedKnownProjects();if(!added)alertBar('이미 등록된 개발 항목이야.');return;}
- if(action==='edit-project'){const p=byProject();if(!p)return;const name=prompt('프로젝트 이름',p.name);if(!clean(name,100))return;const description=prompt('설명',p.description);p.name=clean(name,100);if(description!==null)p.description=clean(description,300);log(p.id,'project','프로젝트 정보 수정');persist();return;}
+ if(action==='edit-notes'){
+   const p=byProject();if(!p)return;const d=p.details||{};
+   const fields={summary:d.summary||'',current:d.current||'',highlights:(d.highlights||[]).join('\n'),issues:(d.issues||[]).join('\n'),next:(d.next||[]).join('\n')};
+   for(const [key,value] of Object.entries(fields))$('#detail-'+key).value=value;
+   $('#detailsDialog').showModal();return;
+  }
+  if(action==='edit-project'){const p=byProject();if(!p)return;const name=prompt('프로젝트 이름',p.name);if(!clean(name,100))return;const description=prompt('설명',p.description);p.name=clean(name,100);if(description!==null)p.description=clean(description,300);log(p.id,'project','프로젝트 정보 수정');persist();return;}
  if(action==='copy-handoff'){const p=byProject();if(!p)return;try{await copy(handoff(p));alertBar('개발 계승문을 복사했어.');}catch{alertBar('클립보드 복사 권한을 확인해 줘.');}return;}
  if(action==='extension-draft'){
   const form=$('#commandForm');if(!form?.reportValidity())return;
@@ -121,7 +182,7 @@ document.addEventListener('click',async e=>{
  const delTask=e.target.closest('[data-delete-task]');if(delTask){const t=state.tasks.find(t=>t.id===delTask.dataset.deleteTask);if(!t||!confirm('이 작업을 삭제할까?'))return;state.tasks=state.tasks.filter(x=>x.id!==t.id);log(t.projectId,'task','작업 삭제: '+t.title);persist();return;}
  const delChat=e.target.closest('[data-delete-chat]');if(delChat){const c=state.chats.find(c=>c.id===delChat.dataset.deleteChat);if(!c||!confirm('이 채팅 링크를 삭제할까?'))return;state.chats=state.chats.filter(x=>x.id!==c.id);log(c.projectId,'chat','대화 연결 삭제: '+c.title);persist();return;}
  if(e.target.closest('#exportBtn')){const json=JSON.stringify(state,null,2);const blob=new Blob([json],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='devcc-local-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);alertBar('백업 파일을 저장했어. 파일에는 개발 기록이 들어 있으니 주의해 줘.');return;}
- if(e.target.closest('#importBtn')){$('#importFile').click();return;}
+ if(e.target.closest('#importBtn,#importDetailBtn')){$('#importFile').click();return;}
  if(e.target.closest('#seedGlobal')){const added=seedKnownProjects();if(!added)alertBar('이미 등록된 개발 항목이야.');else alertBar('이전 개발 프로젝트와 확인할 작업을 등록했어.');return;}
 });
 document.addEventListener('change',e=>{
@@ -132,7 +193,14 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('submit',async e=>{
  const f=e.target;
- if(!['taskForm','chatForm','repoForm','commandForm'].includes(f.id))return;e.preventDefault();
+ if(f.id==='detailsForm'){
+    e.preventDefault();const p=byProject();if(!p)return;const vals=new FormData(f);
+    const split=v=>clean(v,10000).split(/\r?\n/).map(x=>clean(x,1000)).filter(Boolean).slice(0,40);
+    const old=p.details||{};
+    p.details={...old,summary:clean(vals.get('summary'),4000),current:clean(vals.get('current'),4000),highlights:split(vals.get('highlights')),issues:split(vals.get('issues')),next:split(vals.get('next')),source:'local-user',updatedAt:now().slice(0,10),verification:'사용자가 직접 수정함. 실제 테스트 상태는 별도 확인'};
+    log(p.id,'note','개발 상세 내용 수정');$('#detailsDialog').close();persist();return;
+  }
+  if(!['taskForm','chatForm','repoForm','commandForm'].includes(f.id))return;e.preventDefault();
  const vals=new FormData(f),p=byProject();if(!p)return;
  if(f.id==='taskForm') {const title=clean(vals.get('title'),240);if(!title)return;state.tasks.push({id:ident(),projectId:p.id,title,status:'planned',weight:1,evidence:'',createdAt:now()});log(p.id,'task','작업 추가: '+title);persist();return;}
  if(f.id==='chatForm') {const url=urlOfChat(vals.get('url')),provider=vals.get('provider'),title=clean(vals.get('title'),100);if(!url||!['chatgpt','claude'].includes(provider)||!title){alertBar('ChatGPT 또는 Claude의 정상적인 HTTPS 대화 링크를 입력해 줘.');return;}if((provider==='claude')!==(new URL(url).hostname==='claude.ai')){alertBar('서비스 선택과 채팅 링크 도메인이 달라.');return;}state.chats.push({id:ident(),projectId:p.id,title,provider,url,createdAt:now()});log(p.id,'chat','대화 연결: '+title);persist();return;}
@@ -149,6 +217,12 @@ $('#importFile').addEventListener('change',async e=>{
  if(file.size>5_000_000){alertBar('백업 파일 크기가 너무 커. 5MB 이하여야 해.');return;}
  try{
   const data=JSON.parse(await file.text());
+  if(data?.format==='devcc-detail-pack-v1'){
+    if(!confirm('기존 기록을 보존하면서 개발 상세 내용과 미등록 작업을 병합할까?'))return;
+    const result=mergeDevelopmentPack(data);
+    alertBar('개발 내용 '+result.edited+'개 프로젝트 반영 · 새 작업 '+result.work+'개');
+    return;
+  }
   if(!data||data.schema!==5||!['projects','tasks','chats','activity','commands'].every(k=>Array.isArray(data[k])))throw Error('DEVCC v0.5 백업 형식이 아니야.');
   if(data.projects.length>500||data.tasks.length>10000||data.chats.length>2000||data.activity.length>10000||data.commands.length>10000)throw Error('데이터 항목 수가 너무 많아.');
   if(!confirm('현재 브라우저의 모든 DEVCC 기록을 이 백업으로 교체할까?'))return;
