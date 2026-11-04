@@ -1,9 +1,31 @@
 'use strict';
 // DEV CONTROL CENTER v0.5 — browser-only, no server-side user data.
 const KEY = 'devcc.v05.local';
-const STATUS = {planned:'예정',in_progress:'진행 중',implemented:'코드 반영',verified:'검증 완료',deployed:'배포 완료'};
+const STATUS = {unassessed:'상태 확인 필요',planned:'예정',in_progress:'진행 중',implemented:'코드 반영',verified:'검증 완료',deployed:'배포 완료'};
 const PERCENT = {planned:0,in_progress:25,implemented:60,verified:90,deployed:100};
 const EXAMPLES = [['LiDAR AMR 자체 제어','SLAM · 위치 재추정 · 주행'],['Utility Sampling Control','WPF · 모터 제어 · 자동 시퀀스'],['Lumi AI Studio','AI 채팅 · 온라인 배포'],['ZETA 기억 보강','기억 추출 · 요약 · UI'],['스타듀 에셋','도트 · 리텍스처 · 모드']];
+const BOOTSTRAP_KEY='devcc.v05.first-run-projects-20261104';
+const INITIAL_WORKSTREAMS={
+  'LiDAR AMR 자체 제어':['LiDAR 지도 데이터 및 좌표 구조 점검','자체 위치 재추정 기능 개발','주행 명령 및 수동 조작 UI','실제 AMR 환경 통합 시험'],
+  'Utility Sampling Control':['장치 연결 상태 및 원점 복귀 점검','INDEX/Handler 이송 시퀀스','Capper CAP/UNCAP 동작 검증','Pump 분사 및 프라이밍','자동운전 안전 조건 및 화면 검증'],
+  'Lumi AI Studio':['캐릭터 및 에피소드 데이터 구조','Novel/Chat 뷰 전환','모델 목록 및 API 선택','대화 저장·복원과 리롤','웹 배포·UI 회귀 점검'],
+  'ZETA 기억 보강':['사건·기억 기록 구조','장면 관련 기억 자동 선택','요약 및 중요 대사 추출','기억 목록 UI 및 입력 편의성'],
+  '스타듀 에셋':['기존 도트 외형 유지 및 체형 보정','표정·자세 에셋 제작','가구 및 경관 리텍 정리','게임 적용·호환성 확인']
+};
+function seedKnownProjects(){
+ let count=0;
+ for(const [name,description] of EXAMPLES){
+   let p=state.projects.find(x=>x.name===name);
+   if(!p){p={id:ident(),name,description,githubRepo:'',createdAt:now()};state.projects.push(p);count++;}
+   for(const title of INITIAL_WORKSTREAMS[name]||[]){
+     if(state.tasks.some(t=>t.projectId===p.id&&t.title===title))continue;
+     state.tasks.push({id:ident(),projectId:p.id,title,status:'unassessed',weight:1,evidence:'이전 대화의 개발 범위에서 가져온 초기 항목 · 실제 코드/시험 상태 미확인',createdAt:now()});
+     count++;
+   }
+ }
+ if(count){log(null,'setup','개발 프로젝트 목록 초기 구성 (진척도 미확인)');persist();}
+ return count;
+}
 const $ = sel => document.querySelector(sel);
 const safe = value => String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const clean = (v,max=600) => String(v==null?'':v).trim().slice(0,max);
@@ -34,7 +56,7 @@ function persist(){
 function log(projectId,kind,title){state.activity.push({id:ident(),projectId,kind,title,at:now()});}
 function byProject(){return state.projects.find(p=>p.id===selected)||null;}
 function tasksFor(id){return state.tasks.filter(t=>t.projectId===id);}
-function progress(id){const list=tasksFor(id),total=list.reduce((a,t)=>a+(Number(t.weight)||1),0);return total?Math.round(list.reduce((a,t)=>a+(Number(t.weight)||1)*PERCENT[t.status],0)/total):null;}
+function progress(id){const list=tasksFor(id);if(!list.length||list.some(t=>!Object.prototype.hasOwnProperty.call(PERCENT,t.status)))return null;const total=list.reduce((a,t)=>a+(Number(t.weight)||1),0);return total?Math.round(list.reduce((a,t)=>a+(Number(t.weight)||1)*PERCENT[t.status],0)/total):null;}
 function stat(label,value,sub){return '<div class="metric"><span>'+safe(label)+'</span><strong>'+safe(value)+'</strong><small>'+safe(sub)+'</small></div>';}
 function urlOfChat(raw){try{const u=new URL(raw);return u.protocol==='https:' && ['chatgpt.com','chat.openai.com','claude.ai'].includes(u.hostname)?u.href:null;}catch{return null;}}
 function urlOfGithub(repo){return /^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(repo)?'https://github.com/'+repo:null;}
@@ -46,7 +68,7 @@ function overview(){
  return '<div class="welcome"><div><div class="eyebrow">MY DEVELOPMENT WORKSPACE</div><h1>모든 AI 개발을 한눈에</h1><p>로그인 없이 시작하는 개인 개발 대시보드. 기록은 현재 브라우저에만 저장돼.</p></div><button class="primary" data-action="new-project">＋ 프로젝트 추가</button></div>'+
   '<div class="metrics">'+stat('관리 프로젝트',projects.length,'현재 브라우저')+stat('평균 진도율',average,'등록된 기능 기준')+stat('검증·배포',state.tasks.filter(t=>['verified','deployed'].includes(t.status)).length,'AI 완료 보고와 별개')+stat('연결된 채팅',state.chats.length,'채팅 주소 등록')+'</div>'+
   '<div class="two-col"><section class="panel"><div class="panel-head"><h2>프로젝트 현황</h2><span>진도율은 작업 상태로 계산</span></div><div class="project-grid">'+
-  (projects.map(p=>{const v=progress(p.id);return '<button class="project-card" data-project="'+safe(p.id)+'"><div class="card-head"><span class="diamond">◇</span><strong>'+(v===null?'—':v+'%')+'</strong></div><h3>'+safe(p.name)+'</h3><p>'+safe(p.description)+'</p><div class="track"><i style="width:'+(v||0)+'%"></i></div><div class="card-foot"><span>'+tasksFor(p.id).length+'개 작업</span><span>열기 ↗</span></div></button>'}).join('')||'<div class="empty">아직 프로젝트가 없어.<div><button class="secondary" data-action="seed">기본 프로젝트 5개 등록</button></div></div>')+'</div></section>'+
+  (projects.map(p=>{const v=progress(p.id);return '<button class="project-card" data-project="'+safe(p.id)+'"><div class="card-head"><span class="diamond">◇</span><strong>'+(v===null?'—':v+'%')+'</strong></div><h3>'+safe(p.name)+'</h3><p>'+safe(p.description)+'</p><div class="track"><i style="width:'+(v||0)+'%"></i></div><div class="card-foot"><span>'+tasksFor(p.id).length+'개 작업</span><span>열기 ↗</span></div></button>'}).join('')||'<div class="empty">아직 프로젝트가 없어.<div><button class="secondary" data-action="seed">이전 개발 프로젝트 등록</button></div></div>')+'</div></section>'+
   '<section class="panel"><div class="panel-head"><h2>최근 업데이트</h2><span>브라우저에 저장된 기록</span></div>'+activityHTML(latest)+'</section></div>';
 }
 function activityHTML(items){return '<div class="activities">'+(items.length?items.map(a=>'<div class="event"><div class="dot"></div><div><b>'+safe(a.title)+'</b><span>'+fmt(a.at)+'</span></div></div>').join(''):'<div class="empty">변경 기록이 없어.</div>')+'</div>';}
@@ -77,13 +99,13 @@ function render(){
 function createProject(name,description){const p={id:ident(),name:clean(name,100),description:clean(description,300),githubRepo:'',createdAt:now()};state.projects.push(p);log(p.id,'project','프로젝트 생성: '+p.name);selected=p.id;persist();}
 function copy(text){return navigator.clipboard?.writeText(text).catch(()=>{throw Error('복사 실패');})||Promise.reject(Error('복사 권한 없음'));}
 function selectedChat(form){const id=new FormData(form).get('chatId');return state.chats.find(c=>c.id===id&&c.projectId===selected)||null;}
-function handoff(p){const tasks=tasksFor(p.id),chats=state.chats.filter(c=>c.projectId===p.id);return '# '+p.name+' 개발 계승\n\n설명: '+p.description+'\n진행률: '+(progress(p.id)??'미산정')+'%\n\n작업 상태:\n'+(tasks.map(t=>'- ['+STATUS[t.status]+'] '+t.title+(t.evidence?' / 근거: '+t.evidence:'')).join('\n')||'등록된 작업 없음')+'\n\n기존 채팅:\n'+(chats.map(c=>'- '+c.provider+' '+c.url).join('\n')||'없음')+'\n\n중요: 완료 선언만으로 기능 검증 완료로 판단하지 말 것. 실제 코드와 테스트를 확인할 것.';}
+function handoff(p){const tasks=tasksFor(p.id),chats=state.chats.filter(c=>c.projectId===p.id);return '# '+p.name+' 개발 계승\n\n설명: '+p.description+'\n진행률: '+(progress(p.id)===null?'미산정':progress(p.id)+'%')+'\n\n작업 상태:\n'+(tasks.map(t=>'- ['+STATUS[t.status]+'] '+t.title+(t.evidence?' / 근거: '+t.evidence:'')).join('\n')||'등록된 작업 없음')+'\n\n기존 채팅:\n'+(chats.map(c=>'- '+c.provider+' '+c.url).join('\n')||'없음')+'\n\n중요: 완료 선언만으로 기능 검증 완료로 판단하지 말 것. 실제 코드와 테스트를 확인할 것.';}
 document.addEventListener('click',async e=>{
  const project=e.target.closest('[data-project]');if(project){selected=project.dataset.project;render();return;}
  if(e.target.closest('#overviewBtn')){selected=null;render();return;}
  const action=e.target.closest('[data-action]')?.dataset.action;
  if(action==='new-project'){const name=prompt('새 프로젝트 이름');if(!clean(name,100))return;const desc=prompt('프로젝트 설명 (선택)','')||'';createProject(name,desc);return;}
- if(action==='seed'){EXAMPLES.forEach(([name,description])=>{if(state.projects.some(p=>p.name===name))return;const p={id:ident(),name,description,githubRepo:'',createdAt:now()};state.projects.push(p);log(p.id,'project','프로젝트 생성: '+name);});persist();return;}
+ if(action==='seed'){const added=seedKnownProjects();if(!added)alertBar('이미 등록된 개발 항목이야.');return;}
  if(action==='edit-project'){const p=byProject();if(!p)return;const name=prompt('프로젝트 이름',p.name);if(!clean(name,100))return;const description=prompt('설명',p.description);p.name=clean(name,100);if(description!==null)p.description=clean(description,300);log(p.id,'project','프로젝트 정보 수정');persist();return;}
  if(action==='copy-handoff'){const p=byProject();if(!p)return;try{await copy(handoff(p));alertBar('개발 계승문을 복사했어.');}catch{alertBar('클립보드 복사 권한을 확인해 줘.');}return;}
  if(action==='extension-draft'){
@@ -100,7 +122,7 @@ document.addEventListener('click',async e=>{
  const delChat=e.target.closest('[data-delete-chat]');if(delChat){const c=state.chats.find(c=>c.id===delChat.dataset.deleteChat);if(!c||!confirm('이 채팅 링크를 삭제할까?'))return;state.chats=state.chats.filter(x=>x.id!==c.id);log(c.projectId,'chat','대화 연결 삭제: '+c.title);persist();return;}
  if(e.target.closest('#exportBtn')){const json=JSON.stringify(state,null,2);const blob=new Blob([json],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='devcc-local-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);alertBar('백업 파일을 저장했어. 파일에는 개발 기록이 들어 있으니 주의해 줘.');return;}
  if(e.target.closest('#importBtn')){$('#importFile').click();return;}
- if(e.target.closest('#seedGlobal')){EXAMPLES.forEach(([name,description])=>{if(state.projects.some(p=>p.name===name))return;const p={id:ident(),name,description,githubRepo:'',createdAt:now()};state.projects.push(p);});persist();return;}
+ if(e.target.closest('#seedGlobal')){const added=seedKnownProjects();if(!added)alertBar('이미 등록된 개발 항목이야.');else alertBar('이전 개발 프로젝트와 확인할 작업을 등록했어.');return;}
 });
 document.addEventListener('change',e=>{
  const sel=e.target.closest('[data-status]');if(!sel)return;const t=state.tasks.find(t=>t.id===sel.dataset.status);if(!t)return;
@@ -140,4 +162,11 @@ window.addEventListener('message',async e=>{
  pendingDraft=null;
  alertBar(e.data.ok?'확장 프로그램이 채팅창에 명령을 준비했어. 확인 후 전송해 줘.':'확장 프로그램 전달 실패: '+clean(e.data.message,200));
 });
-state=readState();render();
+state=readState();
+try{
+ if(!localStorage.getItem(BOOTSTRAP_KEY)){
+   if(state.projects.length===0||state.projects.some(p=>EXAMPLES.some(([name])=>p.name===name)))seedKnownProjects();
+   localStorage.setItem(BOOTSTRAP_KEY,'1');
+ }
+}catch(err){console.warn('DEVCC initial project bootstrap failed',err);}
+render();
