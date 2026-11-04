@@ -158,6 +158,7 @@ function handoff(p){const tasks=tasksFor(p.id),chats=state.chats.filter(c=>c.pro
 document.addEventListener('click',async e=>{
  const project=e.target.closest('[data-project]');if(project){selected=project.dataset.project;render();return;}
  if(e.target.closest('#overviewBtn')){selected=null;render();return;}
+ if(e.target.closest('#closeDetailsBtn')){$('#detailsDialog').close();return;}
  const action=e.target.closest('[data-action]')?.dataset.action;
  if(action==='new-project'){const name=prompt('새 프로젝트 이름');if(!clean(name,100))return;const desc=prompt('프로젝트 설명 (선택)','')||'';createProject(name,desc);return;}
  if(action==='seed'){const added=seedKnownProjects();if(!added)alertBar('이미 등록된 개발 항목이야.');return;}
