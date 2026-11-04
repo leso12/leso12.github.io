@@ -6,7 +6,13 @@
 <div id="authScreen" class="auth-bg"><section class="auth-panel"><div class="brand"><div class="brand-icon">◈</div><div><b>DEV CONTROL CENTER</b><small>PERSONAL / CLOUD</small></div></div>
 <h1>개발 기록을 하나로</h1><p class="subtitle">ChatGPT와 Claude는 그대로 사용하고, 온라인에서 개발 현황을 관리해요.</p>
 <form id="authForm"><div class="form-field"><label for="email">이메일</label><input id="email" type="email" required autocomplete="username" placeholder="email@example.com"></div><div class="form-field"><label for="password">비밀번호</label><input id="password" type="password" required minlength="6" autocomplete="current-password" placeholder="비밀번호"></div><button class="btn primary auth-submit" type="submit">로그인</button></form>
-<button class="btn subtle auth-link" id="signupBtn" type="button">처음 사용해요 · 계정 만들기</button><p class="hint">개인 정보와 대화는 로그인된 계정별로 분리됩니다. 이메일 인증이 필요할 수 있어요.</p><div id="authError" role="status" class="auth-error"></div>
+<button class="btn subtle auth-link" id="signupBtn" type="button">처음 사용해요 · 계정 만들기</button>
+<button class="btn subtle auth-link" id="recoverBtn" type="button">비밀번호를 잊으셨나요? · 재설정 메일 받기</button>
+<form id="recoverForm" hidden>
+  <div class="form-field"><label for="newPassword">새 비밀번호 (8자 이상)</label><input id="newPassword" type="password" required minlength="8" autocomplete="new-password"></div>
+  <div class="form-field"><label for="repeatPassword">새 비밀번호 확인</label><input id="repeatPassword" type="password" required minlength="8" autocomplete="new-password"></div>
+  <button class="btn primary auth-submit" type="submit">새 비밀번호 저장</button>
+</form><p class="hint">개인 정보와 대화는 로그인된 계정별로 분리됩니다. 이메일 인증이 필요할 수 있어요.</p><div id="authError" role="status" class="auth-error"></div>
 </section></div>
 <div id="appScreen" class="shell" hidden><aside class="sidebar">
 <div class="brand"><div class="brand-icon">◈</div><div><b>DEV CONTROL</b><small>CENTER / ONLINE</small></div></div>
