@@ -308,25 +308,9 @@ const pendingByKey=new Map(); // cacheKey → jobId (동시 진행 제한용)
 const PROMPT_VERSION="opus-only-saju-2026-11-v10";
 const cacheKey=(c,tight)=>createHash("sha256").update(JSON.stringify([PROMPT_VERSION,EFFORT,c,!!tight])).digest("hex");
 let lastProviderBlock=null;
-export function clearReadingsForTests(){store=createStore("");jobs.clear();pendingByKey.clear();lastProviderBlock=null;hits.clear();globalHits=[];}
-const hits=new Map();
-const LIMIT=safeNumber(process.env.RATE_LIMIT_PER_HOUR||10,1,200,10);
-// 하루 해석 횟수 (서버 재시작·잠들기와 무관하게 저장소에서 센다)
-const DAY_LIMIT=safeNumber(process.env.OPUS_RATE_LIMIT_PER_DAY||process.env.GLOBAL_RATE_LIMIT_PER_DAY||2,1,1000,2);
-const GLOBAL_LIMIT=safeNumber(process.env.GLOBAL_RATE_LIMIT_PER_HOUR||8,1,500,8);
-let globalHits=[];
-const dayKey=()=>"daily:"+new Date(Date.now()+9*3600000).toISOString().slice(0,10); // 한국 날짜 기준
-export function rateLimited(ip){
-  const now=Date.now(),hour=3600000;
-  globalHits=globalHits.filter(t=>now-t<hour);
-  if(globalHits.length>=GLOBAL_LIMIT)return true;
-  const list=(hits.get(ip)||[]).filter(t=>now-t<hour);
-  if(list.length>=LIMIT){hits.set(ip,list);return true;}
-  list.push(now);hits.set(ip,list);
-  globalHits.push(now);
-  if(hits.size>5000)hits.clear();
-  return false;
-}
+export function clearReadingsForTests(){store=createStore("");jobs.clear();pendingByKey.clear();lastProviderBlock=null;}
+// 이용 횟수 제한 없음. 동시에 생성하는 해석 수만 서버 메모리 보호를 위해 제한한다.
+const MAX_CONCURRENT=safeNumber(process.env.MAX_CONCURRENT_READINGS||6,1,50,6);
 
 // 다시 열었을 때 입력 화면을 되살리기 위한 값 (생년월일 등은 해석 요청에도 이미 들어 있는 정보)
 const FORM_KEYS=["date","time","manual-longitude","worry","region-sido","region","day-sect","notime","leap","tst","cal-solar","cal-lunar","sex-f","sex-m"];
@@ -342,9 +326,8 @@ function cleanForm(f){
 const RUNNING_STALE_MS=TOTAL_TIMEOUT_MS+2*60*1000;
 // 진행 중인 작업은 20초마다 '살아 있음' 표시를 남긴다. 75초 넘게 없으면 서버 재시작 등으로 끊긴 것.
 const BEAT_MS=20*1000, BEAT_LOST_MS=75*1000;
-const LOST_MESSAGE="서버가 다시 시작되면서 진행 중이던 해석이 중단됐어요. 같은 정보로 다시 'AI 해석 받기'를 눌러 주세요. 이번 재요청은 오늘 이용 횟수에서 빼지 않아요.";
-// 결과를 받지 못한 요청: 같은 정보로 다시 요청하면 하루 횟수를 다시 세지 않는다
-const UNFINISHED_CODES=new Set(["JOB_LOST","PROVIDER_TIMEOUT","PROVIDER_DISCONNECT","PROVIDER_BUSY","PROVIDER_ERROR","PROVIDER_RATE_LIMIT","INVALID_OUTPUT","OUTPUT_LIMIT"]);
+const LOST_MESSAGE="서버가 다시 시작되면서 진행 중이던 해석이 중단됐어요. 같은 정보로 다시 'AI 해석 받기'를 눌러 주세요.";
+
 const publicError=e=>({status:e.status||500,message:e.status?e.message:"해석 중 오류가 발생했습니다. 다시 시도해 주세요.",
   code:e.code||"INTERNAL_ERROR",retryAfterSeconds:Number(e.retryAfterSeconds)||0});
 const failure=e=>{const p=publicError(e);return {status:p.status,json:{error:p.message,code:p.code,retryAfterSeconds:p.retryAfterSeconds}};};
@@ -375,22 +358,19 @@ export async function startReading(body,ip){
     const key=cacheKey(c,tight);
     // 같은 명식의 결과가 있거나 생성 중이면 그대로 돌려준다 (새로고침·재클릭으로 두 번 과금되지 않음)
     const knownId=pendingByKey.get(key)||await store.get("cache:"+key);
-    let retryOfUnfinished=false;
     if(knownId){
       const j=await loadJob(knownId);
       if(j&&(j.state==="done"||(j.state==="running"&&!isLost(j))))return jobView(j,j.state==="done");
-      retryOfUnfinished=!!j&&(isLost(j)||(j.state==="error"&&UNFINISHED_CODES.has(j.error?.code)));
     }
     if(lastProviderBlock && lastProviderBlock.until>Date.now()){
       const left=Math.ceil((lastProviderBlock.until-Date.now())/1000);
       throw err(lastProviderBlock.message,lastProviderBlock.status,lastProviderBlock.code,left);
     }
     lastProviderBlock=null;
-    if(pendingByKey.size>=2)throw err("다른 사주 해석이 진행 중이에요. 잠시 뒤 다시 이용해 주세요.",429,"SITE_BUSY",45);
-    if(rateLimited(ip||"unknown"))throw err("사이트의 AI 해석 사용 횟수 제한에 도달했어요. 잠시 후 다시 이용해 주세요.",429,"SITE_LIMIT",3600);
-    if(!retryOfUnfinished&&await store.incr(dayKey(),36*3600)>DAY_LIMIT)throw err("오늘 사이트의 AI 해석 횟수를 모두 썼어요. 내일 다시 이용해 주세요.",429,"SITE_LIMIT",3600);
+    if(pendingByKey.size>=MAX_CONCURRENT)throw err("지금 여러 사람이 동시에 해석을 받고 있어요. 1~2분 뒤 다시 눌러 주세요.",429,"SITE_BUSY",60);
     const job={id:randomUUID(),key,state:"running",started:Date.now(),beat:Date.now(),form:cleanForm(body.form)};
     jobs.set(job.id,job);pendingByKey.set(key,job.id);
+    console.info("[reading] start",JSON.stringify({job:job.id.slice(0,8),running:pendingByKey.size}));
     await saveJob(job);
     const beat=setInterval(()=>{job.beat=Date.now();saveJob(job).catch(()=>{});},BEAT_MS);
     beat.unref?.();

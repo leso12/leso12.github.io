@@ -288,15 +288,16 @@ test('a dropped connection mid-stream is reported, not retried',async()=>{
  }finally{clearReadingsForTests();globalThis.fetch=prev;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
 });
 
-test('daily Opus limit applies to every reading',async()=>{
+test('no usage limits: many readings in a row are all served',async()=>{
  clearReadingsForTests();
  const old=process.env.ANTHROPIC_API_KEY,prev=globalThis.fetch;
  process.env.ANTHROPIC_API_KEY=fakeKey;
  try{
   globalThis.fetch=async()=>sse(JSON.stringify(fullReading));
   const codes=[];
-  for(const w of ['연애','직업','재물'])codes.push((await handle({chart:{...chart,input:{...chart.input,worry:w}}},'limit-'+w)).json.code||'OK');
-  assert.deepEqual(codes,['OK','OK','SITE_LIMIT']);
+  for(const w of ['연애','직업','재물','건강','학업','가족','이사','인연','시험','여행','이직','결혼'])
+   codes.push((await handle({chart:{...chart,input:{...chart.input,worry:w}}},'same-ip')).json.code||'OK');
+  assert.deepEqual([...new Set(codes)],['OK']);
  }finally{clearReadingsForTests();globalThis.fetch=prev;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
 });
 
@@ -361,7 +362,7 @@ test('store keeps working from memory when Redis is unreachable',async()=>{
  assert.equal(await st.incr('c',60),1);
 });
 
-test('a reading cut off by a server restart is reported quickly and retried without using the daily quota',async()=>{
+test('a reading cut off by a server restart is reported quickly and can be retried',async()=>{
  clearReadingsForTests();
  const old=process.env.ANTHROPIC_API_KEY,prev=globalThis.fetch;
  process.env.ANTHROPIC_API_KEY=fakeKey;let calls=0;

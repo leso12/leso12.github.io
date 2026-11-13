@@ -13,9 +13,9 @@ async function main(){
   const errs=[];
   page.on("pageerror",err=>errs.push(err.message));
   page.on("console",msg=>{if(msg.type()==="error")errs.push(msg.text().slice(0,300));});
-  // 유료 요청 확인 창은 한 번만 뜨고, 수락해야 요청이 나간다
+  // 확인 창 없이 바로 요청된다
   let dialogs=0;
-  page.on("dialog",d=>{dialogs++;assert.match(d.message(),/Opus/);d.accept();});
+  page.on("dialog",d=>{dialogs++;d.accept();});
   assert.equal(await page.locator("#reading-mode").count(),0,"Sonnet/Opus model picker removed");
   await page.route("https://fonts.googleapis.com/**",route=>route.fulfill({status:200,contentType:"text/css",body:""}));
   await page.route("https://fonts.gstatic.com/**",route=>route.fulfill({status:200,body:""}));
@@ -62,7 +62,7 @@ async function main(){
   await page.waitForFunction(()=>document.querySelector("#deep-report .saju-section")?.textContent?.length>350);
   assert.equal(await page.locator("#deep-report .saju-section").count(),8,"eight detailed traditional saju chapters");
   assert.equal(posts,1,"one paid request");assert.ok(polls>=2,"result arrived through status checks");
-  assert.equal(dialogs,1,"cost confirmation shown once");
+  assert.equal(dialogs,0,"no paid-request confirmation popup");
   assert.match(await page.locator("#token-usage").textContent(),/Opus 5\.5/);
   // 기기에는 결과 번호만 남고 생년월일은 저장되지 않는다
   const stored=await page.evaluate(()=>localStorage.getItem("saju-last-job-v1"));
@@ -73,7 +73,7 @@ async function main(){
   await page.waitForFunction(()=>document.querySelectorAll("#deep-report .saju-section").length===8,null,{timeout:30000});
   assert.equal(await page.locator("#date").inputValue(),"2000-01-19","birth date restored from the server copy");
   assert.match(await page.locator("#status").textContent(),/지난번에 요청한 해석/);
-  assert.equal(posts,1,"reopening does not create a new paid request");assert.equal(dialogs,1);
+  assert.equal(posts,1,"reopening does not create a new paid request");assert.equal(dialogs,0);
   assert.equal(await page.locator("#reader-easy").getAttribute("aria-pressed"),"true","simple view default");
   assert.equal(await page.locator(".saju-easy").count(),12,"plain explanations on all 8+2+2 sections");
   assert.equal(await page.locator(".saju-text-more[open]").count(),0,"simple view hides jargon-rich explanations");

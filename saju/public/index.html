@@ -1059,7 +1059,7 @@ function fit(){
 window.addEventListener("resize",fit);
 
 /* ---------- AI 해석 요청 (내 서버 /api/reading → Claude API) ---------- */
-let ctl=null, lastReading=null, lastSignature="", requestId=0, costAccepted=false;
+let ctl=null, lastReading=null, lastSignature="", requestId=0;
 function payload(c){
   return {
     input:c.input, corrNote:c.corrNote, solarStr:c.solarStr, noTime:c.noTime,
@@ -1086,8 +1086,7 @@ function showApiError(e){
   BILLING_REQUIRED:"AI 크레딧·결제 확인이 필요해요",
   SPEND_LIMIT:"API 지출 한도에 도달했어요",
   PROVIDER_RATE_LIMIT:"잠시 요청이 몰리고 있어요",
-  SITE_LIMIT:"오늘 사이트 이용 횟수 제한에 도달했어요",
-  SITE_BUSY:"다른 해석이 진행 중이에요",
+  SITE_BUSY:"지금 해석 요청이 몰려 있어요",
   AUTH_CONFIG:"AI 서버 인증 설정을 확인해야 해요",
   MODEL_PERMISSION:"AI 모델 이용 권한 확인이 필요해요",
   PROVIDER_BUSY:"AI 서비스가 잠시 혼잡해요",
@@ -1106,7 +1105,6 @@ function showApiError(e){
  const retryText=retry>0 ? " · 약 "+Math.ceil(retry/60)+"분 후 다시 확인" : "";
  $("ai-problem-note").textContent=billing
   ?"이 결제는 방문자가 아닌 사이트 운영자의 Anthropic 계정에서만 진행할 수 있어요."+retryText
-  : code==="SITE_LIMIT"?"명식 계산·기존 결과 열람·파일 저장은 이용할 수 있어요."+retryText
   : "입력한 출생정보와 관심 분야는 유지돼요. 자동으로 유료 재요청하지 않아요."+retryText;
  $("ai-problem").dataset.code=code;
  $("ai-problem").hidden=false;
@@ -1302,11 +1300,6 @@ async function ask(tight){
     $("sheet").classList.remove("chart-only");renderReading(lastReading,false);
     $("status").textContent="이미 받은 결과예요. 추가 API 요금 없이 다시 보여줘요.";
     $("vp").scrollIntoView({behavior:"smooth",block:"start"});return;
-  }
-  if(!costAccepted){
-    const okay=window.confirm("AI 해석은 Opus 5.5 유료 요청이에요. 한 번 요청할 때마다 사이트 운영자의 API 요금이 발생해요. 해석을 시작할까요?");
-    if(!okay)return;
-    costAccepted=true;
   }
   await runReading((signal,onWait)=>fetchReading({chart,tight:!!tight,form:formSnapshot()},signal,onWait),
     data=>data.cached?"저장된 풀이를 불러왔어요. 다시 과금하지 않았어요.":"상세 사주 해설이 완성됐어요. 아래에서 읽거나 PNG로 저장하세요.");
