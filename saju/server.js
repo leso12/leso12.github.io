@@ -16,6 +16,7 @@ if (existsSync(join(root, ".env"))) {
   }
 }
 const { startReading,readingStatus,getClaudeKey,markRunningJobsLost } = await import("./lib/reading.js");
+const { createExport, getExport, disposition, MAX_UPLOAD } = await import("./lib/export.js");
 // 배포·재시작 때 Render가 보내는 종료 신호: 진행 중 해석을 '중단됨'으로 기록하고 끝낸다
 for (const sig of ["SIGTERM","SIGINT"]) process.once(sig, async () => {
   const n = await markRunningJobsLost().catch(() => 0);
@@ -49,6 +50,42 @@ http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://x");
   if (url.pathname === "/health") {
     res.writeHead(200, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }).end(JSON.stringify({ ok: true, service: "saju-api" }));
+    return;
+  }
+  // 결과 파일(긴 JPG·PDF): POST로 이미지 조각을 올리면 실제 다운로드 주소를 돌려준다
+  if (url.pathname === "/api/export" || url.pathname.startsWith("/api/export/")) {
+    const origin = req.headers.origin;
+    const allowed = !origin || ALLOWED_ORIGINS.has(origin) || (() => { try { return new URL(origin).host === req.headers.host; } catch { return false; } })();
+    if (origin && allowed) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Vary", "Origin");
+      res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    }
+    if (req.method === "OPTIONS") { res.writeHead(204).end(); return; }
+    const json = (status, obj) => res.writeHead(status, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }).end(JSON.stringify(obj));
+    if (req.method === "GET") {
+      const f = getExport(url.pathname.split("/")[3]);
+      if (!f) { json(404, { error: "파일이 만료됐어요(15분). 화면에서 저장 버튼을 다시 눌러 주세요." }); return; }
+      res.writeHead(200, { "content-type": f.mime, "content-length": f.buf.length, "cache-control": "private, max-age=900",
+        "content-disposition": disposition(f.name, url.searchParams.get("view") === "1") }).end(f.buf);
+      return;
+    }
+    if (req.method !== "POST" || url.pathname !== "/api/export") { res.writeHead(405).end(); return; }
+    if (!allowed) { json(403, { error: "허용되지 않은 요청 출처입니다." }); return; }
+    const chunks = []; let size = 0;
+    for await (const chunk of req) {
+      size += chunk.length;
+      if (size > MAX_UPLOAD) { json(413, { error: "이미지가 너무 커요." }); return; }
+      chunks.push(chunk);
+    }
+    try {
+      const out = await createExport(Buffer.concat(chunks), Object.fromEntries(url.searchParams));
+      json(200, { url: `/api/export/${out.id}`, name: out.name, bytes: out.bytes });
+    } catch (e) {
+      console.error("[export]", e.message);
+      json(e.status || 500, { error: e.status ? e.message : "파일을 만들지 못했어요. 다시 시도해 주세요." });
+    }
     return;
   }
   if (url.pathname === "/api/reading") {

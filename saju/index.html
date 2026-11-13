@@ -88,11 +88,6 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .inapp-warn[hidden]{display:none}
 .inapp-warn a{justify-self:start}
 .file-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.file-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:10px}
-.file-list:empty{display:none}
-.file-list figure{margin:0;display:grid;gap:4px;text-align:center;font-size:12px}
-.file-list img{width:100%;height:150px;object-fit:cover;object-position:top;border:1px solid #d8cbb4;border-radius:6px;background:#F6F0E2;-webkit-touch-callout:default}
-.file-list a{color:#81364b;font-weight:600}
 /* 이미지·PDF로 만들 때: 접기 표시(▶)가 '1.'처럼 그려지는 것을 막는다 */
 .sheet.exporting summary{list-style:none}
 .sheet.exporting summary::-webkit-details-marker{display:none}
@@ -584,21 +579,20 @@ body{padding:12px 12px 32px}.panel{padding:19px 16px;border-radius:15px}.panel h
   <div class="result-bar no-print" id="result-bar" hidden>
     <div><strong>나의 사주 결과</strong><small id="token-usage">사이트에서 읽고 이미지를 저장하세요. 인쇄는 선택 사항이에요.</small></div>
     <div class="result-buttons">
-      <button type="button" id="save-image">PNG 이미지 저장</button>
-      <button type="button" class="btn-sub" id="print" hidden>PDF 파일 저장</button>
-    </div>
-    <div class="inapp-warn" id="inapp-warn" hidden>
-      <strong>앱 안에서 열린 화면이라 파일 저장이 막힐 수 있어요.</strong>
-      <span id="inapp-text">오른쪽 위 메뉴(⋮ 또는 ···)에서 ‘다른 브라우저로 열기’를 누른 뒤 저장해 주세요. 아래 이미지를 길게 눌러 저장할 수도 있어요.</span>
-      <a id="inapp-open" class="btn-sub" href="#" hidden>크롬·사파리로 열기</a>
+      <button type="button" id="save-image">긴 이미지 1장 저장 (JPG)</button>
+      <button type="button" class="btn-sub" id="print" hidden>PDF 1개로 저장</button>
     </div>
     <div class="result-ready" id="file-ready" hidden>
+      <small id="file-hint">다운로드가 시작됐어요.</small>
       <div class="file-actions">
-        <button type="button" id="file-share">사진첩에 저장·공유</button>
-        <a id="file-download" class="btn-sub" href="#" download>파일 다운로드</a>
+        <a id="file-download" class="btn-sub" href="#">⬇ 다시 받기</a>
+        <a id="file-open" class="btn-sub" href="#" target="_blank" rel="noopener">새 창에서 열기</a>
+        <button type="button" class="btn-sub" id="file-share" hidden>공유하기</button>
       </div>
-      <small id="file-hint">파일 만들기 후 버튼을 한 번 더 눌러 저장해 주세요.</small>
-      <div class="file-list" id="file-list"></div>
+      <div class="inapp-warn" id="inapp-warn" hidden>
+        <span>카카오톡 안에서는 받은 파일이 ‘다운로드’ 폴더나 카카오톡 받은 파일함에 저장돼요. 안 보이면 ‘새 창에서 열기’ 후 이미지를 길게 눌러 저장하거나, 크롬으로 열어 다시 받아 주세요.</span>
+        <a id="inapp-open" class="btn-sub" href="#" hidden>크롬·사파리로 열기</a>
+      </div>
     </div>
   </div>
   <div class="reader-tools" id="reader-tools" hidden>
@@ -1371,15 +1365,17 @@ $("font-larger").addEventListener("click",()=>changeReaderSize("large"));
 $("reader-easy").addEventListener("click",()=>setReadingLevel("easy"));
 $("reader-detail").addEventListener("click",()=>setReadingLevel("detail"));
 
-let preparedFiles=[], preparedUrls=[];
-let exportLoader=null, canvasLoader=null;
+/* ---------- 결과 파일 저장: 긴 이미지 1장(JPG) 또는 PDF 1개 ---------- */
+// 화면을 장 경계에서 몇 덩어리로 그려(휴대폰 캔버스 한도 때문) 서버에 올리면,
+// 서버가 한 파일로 합쳐 실제 주소로 내려준다. 카카오톡 안 브라우저에서도 한 번에 받아진다.
+const EXPORT_BASE=new URL(API_ENDPOINT.replace(/\/api\/reading$/,"/api/export"),location.href).href;
+let exportParts=null, exportSig="", preparedUrl="", preparedName="", preparedKind="";
 function clearFileExport(){
-  for(const u of preparedUrls)URL.revokeObjectURL(u);
-  preparedUrls=[];preparedFiles=[];
-  $("file-ready").hidden=true;
-  $("file-list").textContent="";
-  $("file-download").removeAttribute("href");
+  exportParts=null;exportSig="";preparedUrl="";preparedName="";preparedKind="";
+  $("file-ready").hidden=true;$("inapp-warn").hidden=true;
+  $("file-download").setAttribute("href","#");
 }
+let exportLoader=null, canvasLoader=null;
 function loadScriptOnce(src,check){
   if(check())return Promise.resolve();
   return new Promise((resolve,reject)=>{
@@ -1413,47 +1409,15 @@ function showInAppNotice(){
   }
 }
 
-/* ---------- 저장 파일 준비 ---------- */
-function readyFiles(items,kind){
-  clearFileExport();
-  preparedFiles=items.map(({blob,name})=>new File([blob],name,{type:blob.type||"application/octet-stream"}));
-  preparedUrls=items.map(({blob})=>URL.createObjectURL(blob));
-  const many=items.length>1;
-  $("file-share").textContent=kind==="png"?(many?`사진 ${items.length}장 모두 사진첩에 저장·공유`:"사진첩에 저장·공유"):"PDF 공유·저장";
-  $("file-share").hidden=!(navigator.canShare&&navigator.share&&navigator.canShare({files:preparedFiles}));
-  const dl=$("file-download");
-  dl.href=preparedUrls[0];dl.download=items[0].name;
-  dl.textContent=many?`⬇ ${items.length}장 모두 다운로드`:"⬇ "+items[0].name+" 다운로드";
-  if(kind==="png"){
-    const list=$("file-list");
-    items.forEach(({name},i)=>{
-      const fig=document.createElement("figure");
-      const img=document.createElement("img");img.src=preparedUrls[i];img.alt=`사주 결과 ${i+1}번째 이미지`;img.loading="lazy";
-      const a=document.createElement("a");a.href=preparedUrls[i];a.download=name;a.textContent=`${i+1}장 저장`;
-      fig.append(img,a);list.append(fig);
-    });
+function showInAppNotice(){
+  if(!IN_APP)return;
+  $("inapp-warn").hidden=false;
+  if(/KAKAOTALK/i.test(UA)){
+    // 카카오톡 인앱 브라우저는 외부 브라우저로 여는 공식 주소 형식을 지원한다
+    $("inapp-open").href="kakaotalk://web/openExternal?url="+encodeURIComponent(location.href);
+    $("inapp-open").hidden=false;
   }
-  $("file-hint").textContent=kind==="png"
-    ? (many?`결과가 길어서 장별로 나눈 이미지 ${items.length}장으로 만들었어요. `:"")+"휴대폰은 ‘사진첩에 저장·공유’를 누르면 사진첩이나 카카오톡으로 바로 보낼 수 있어요. 안 되면 아래 이미지를 길게 눌러 저장해 주세요."
-    : "‘공유·저장’ 또는 ‘다운로드’를 눌러 저장해 주세요. Android에서는 다운로드 폴더에서 확인할 수 있어요.";
-  $("file-ready").hidden=false;
-  showInAppNotice();
-  $("status").className="status";
-  $("status").textContent=kind==="png"?`이미지 ${items.length}장 준비 완료! 아래 버튼으로 저장해 주세요.`:"PDF 준비 완료! 아래 버튼으로 저장해 주세요.";
-  $("file-ready").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
-$("file-download").addEventListener("click",ev=>{
-  if(preparedUrls.length<2)return;
-  // 여러 장이면 차례로 내려받는다 (브라우저가 '여러 파일 다운로드 허용'을 물을 수 있음)
-  ev.preventDefault();
-  const files=preparedUrls.map((u,i)=>[u,preparedFiles[i].name]);   // 누른 시점의 목록을 고정
-  files.forEach(([u,name],i)=>setTimeout(()=>{
-    if(!preparedUrls.includes(u))return;   // 그 사이 새 파일을 만들었으면 건너뜀
-    const a=document.createElement("a");a.href=u;a.download=name;document.body.append(a);a.click();a.remove();
-  },i*400));
-});
-
-/** 결과지를 장(章) 경계에서 끊을 위치를 찾는다. 문단 중간이 잘리지 않도록 줄 사이도 후보로 쓴다. */
 function pageBreaks(node,maxH){
   const top=node.getBoundingClientRect().top, total=node.scrollHeight;
   const strong=new Set(), weak=new Set();
@@ -1482,101 +1446,88 @@ function pageBreaks(node,maxH){
 }
 
 /** 결과지를 선명한 PNG 여러 장으로 만든다. 휴대폰 캔버스 한도를 넘지 않게 몇 덩어리로 나눠 그린다. */
-async function renderPngPages(node,name,onProgress){
+/** 결과지를 JPEG 조각 몇 개로 그린다. 장 경계에서 끊고, 휴대폰 캔버스 한도 안에서 가장 선명하게. */
+async function renderExportParts(node,onProgress){
   await loadCanvasLibrary();
-  const W=node.scrollWidth;
-  const scale=Math.min(2.5,Math.max(1.5,820/Math.max(1,W)));
-  const pageMax=Math.floor(5200/scale);              // 한 장 최대 높이(화면 기준 px)
-  const chunkMax=Math.floor(12e6/(W*scale*scale));   // 한 번에 그릴 최대 높이: 캔버스 1200만 화소 이하
-  const breaks=pageBreaks(node,pageMax);
-  const pages=breaks.slice(1).map((b,i)=>[breaks[i],b]);
-  const out=[];
-  for(let i=0;i<pages.length;){
-    let j=i;
-    while(j+1<pages.length&&pages[j+1][1]-pages[i][0]<=chunkMax)j++;
-    const y0=pages[i][0],y1=pages[j][1];
-    onProgress(i+1,pages.length);
-    const chunk=await window.html2canvas(node,{scale,logging:false,useCORS:true,backgroundColor:"#F6F0E2",
-      // x·y는 결과지 기준 위치(html2canvas가 요소 위치를 더해 준다)
-      x:0,y:y0,width:W,height:y1-y0});
-    for(let k=i;k<=j;k++){
-      const [a,b]=pages[k];
-      const c=document.createElement("canvas");
-      c.width=chunk.width;c.height=Math.max(1,Math.round((b-a)*scale));
-      const ctx=c.getContext("2d");ctx.fillStyle="#F6F0E2";ctx.fillRect(0,0,c.width,c.height);
-      ctx.drawImage(chunk,0,Math.round((a-y0)*scale),c.width,c.height,0,0,c.width,c.height);
-      const blob=await new Promise((ok,no)=>c.toBlob(bl=>bl?ok(bl):no(new Error("이미지 저장용 데이터 생성 실패")),"image/png"));
-      c.width=c.height=0;
-      const n=pages.length>1?`${name}_${String(k+1).padStart(2,"0")}.png`:`${name}.png`;
-      out.push({blob,name:n});
-    }
-    chunk.width=chunk.height=0;   // 휴대폰 메모리 반환
-    i=j+1;
+  const W=node.scrollWidth,total=node.scrollHeight;
+  // 이어 붙인 긴 이미지가 6만 px를 넘지 않게, 그 안에서는 최대 2배로 선명하게
+  const scale=Math.max(1,Math.min(2,58000/Math.max(1,total)));
+  const partMax=Math.floor(Math.min(13e6/(W*scale*scale), 26000/scale, 20*W));
+  const breaks=pageBreaks(node,partMax);
+  const parts=[];
+  for(let i=1;i<breaks.length;i++){
+    onProgress(i,breaks.length-1);
+    const a=breaks[i-1],b=breaks[i];
+    const canvas=await window.html2canvas(node,{scale,logging:false,useCORS:true,backgroundColor:"#F6F0E2",x:0,y:a,width:W,height:b-a});
+    const blob=await new Promise((ok,no)=>canvas.toBlob(bl=>bl?ok(bl):no(new Error("이미지 데이터 생성 실패")),"image/jpeg",0.9));
+    canvas.width=canvas.height=0;   // 휴대폰 메모리 반환
+    parts.push(blob);
   }
-  return out;
+  return parts;
 }
-
+function startDownload(url){
+  const a=document.createElement("a");a.href=url;a.rel="noopener";a.download=preparedName;
+  document.body.append(a);a.click();a.remove();
+}
 async function prepareResultFile(format){
   if(!C)return;
-  const isPdf=format==="pdf",btn=$(isPdf?"print":"save-image");
+  const kind=format==="pdf"?"pdf":"jpg",btn=$(kind==="pdf"?"print":"save-image");
   const previous=btn.textContent;
-  btn.disabled=true;btn.textContent="파일 준비 중…";
+  $("save-image").disabled=true;$("print").disabled=true;btn.textContent="파일 만드는 중…";
   $("status").className="status";
-  $("status").textContent="화면을 이미지로 변환하고 있어요. 본문이 길면 조금 더 걸릴 수 있어요.";
   let hiddenDepth=[];
+  const node=$("sheet");
   try{
     if(document.fonts?.ready)await document.fonts.ready;
-    const node=$("sheet");
-    // Export the FULL interpretation even when the reader uses easy mode.
-    // 저장 파일에는 자세한 해설과 명식 근거까지 모두 펼쳐 넣는다 (닫힌 칸은 잘려 그려짐)
-    hiddenDepth=[...node.querySelectorAll("details")].map(x=>[x,x.open]);
-    for(const [detail] of hiddenDepth)detail.open=true;
-    node.classList.add("exporting");
-    const base="나의사주_"+C.input.date;
-    if(!isPdf){
-      const items=await renderPngPages(node,base,(i,n)=>{
-        $("status").textContent=n>1?`이미지 만드는 중… (${i}/${n}장)`:"이미지 만드는 중…";
-      });
-      if(!items.length)throw new Error("빈 이미지");
-      readyFiles(items,"png");
-      return;
+    const sig=signature(C)+"|"+(lastReading?.intro||"").length;
+    if(!exportParts||exportSig!==sig){
+      // 저장 파일에는 자세한 해설과 명식 근거까지 모두 펼쳐 넣는다 (닫힌 칸은 잘려 그려짐)
+      hiddenDepth=[...node.querySelectorAll("details")].map(x=>[x,x.open]);
+      for(const [detail] of hiddenDepth)detail.open=true;
+      node.classList.add("exporting");
+      exportParts=await renderExportParts(node,(i,n)=>{$("status").textContent=`결과를 그리는 중… (${i}/${n})`;});
+      exportSig=sig;
     }
-    await loadExportLibrary();
-    // 휴대폰 캔버스 한도(약 1600만 화소, 한 변 3만 2천 px)를 넘지 않는 가장 선명한 배율
-    const H=Math.max(1,node.scrollHeight),Wd=Math.max(1,node.scrollWidth);
-    const scale=Math.max(0.6,Math.min(2,30000/H,Math.sqrt(15e6/(H*Wd)),1600/Wd));
-    const options={
-      margin:0,
-      filename:base+".pdf",
-      image:{type:"jpeg",quality:.96},
-      html2canvas:{scale,logging:false,useCORS:true,backgroundColor:"#F6F0E2",scrollX:0,scrollY:0},
-      jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},
-      pagebreak:{mode:["css","legacy"],avoid:[".chart",".it",".sb"]}
-    };
-    let blob=await window.html2pdf().set(options).from(node).toPdf().outputPdf("blob");
-    if(blob.type!=="application/pdf")blob=new Blob([blob],{type:"application/pdf"});
-    if(!blob||!blob.size)throw new Error("빈 파일");
-    readyFiles([{blob,name:base+".pdf"}],"pdf");
+    $("status").textContent=kind==="pdf"?"PDF 파일로 합치는 중…":"긴 이미지 1장으로 합치는 중…";
+    const name="나의사주_"+C.input.date;
+    const q=new URLSearchParams({kind,name,sizes:exportParts.map(b=>b.size).join(",")});
+    const res=await fetch(EXPORT_BASE+"?"+q,{method:"POST",headers:{"content-type":"application/octet-stream"},body:new Blob(exportParts)});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||!data.url)throw new Error(data.error||"파일을 만들지 못했어요.");
+    preparedUrl=new URL(data.url,EXPORT_BASE).href;preparedName=data.name;preparedKind=kind;
+    $("file-download").href=preparedUrl;$("file-download").download=preparedName;
+    $("file-download").textContent="⬇ 다시 받기";
+    $("file-open").href=preparedUrl+"?view=1";
+    $("file-open").textContent=kind==="pdf"?"새 창에서 PDF 열기":"새 창에서 이미지 열기";
+    $("file-share").hidden=!(navigator.canShare&&navigator.share);
+    $("file-hint").textContent=`${data.name} (${(data.bytes/1048576).toFixed(1)}MB) 다운로드를 시작했어요. 저장 창이 뜨면 ‘다운로드’를 눌러 주세요. 15분 동안 ‘다시 받기’로 다시 받을 수 있어요.`;
+    $("file-ready").hidden=false;
+    showInAppNotice();
+    $("status").textContent=kind==="pdf"?"PDF 파일 준비 완료!":"긴 이미지 1장 준비 완료!";
+    startDownload(preparedUrl);
+    $("file-ready").scrollIntoView({behavior:"smooth",block:"nearest"});
   }catch(e){
     $("status").className="status err";
-    $("status").textContent="파일 생성에 실패했어요. 브라우저에서 다시 시도하거나 화면을 새로고침해 주세요."+(IN_APP?" 앱 안 브라우저라면 크롬·사파리로 열어 다시 시도해 주세요.":"");
-    showInAppNotice();
+    $("status").textContent="파일 저장에 실패했어요. "+(e?.message&&!/fetch|network/i.test(e.message)?e.message:"인터넷 연결을 확인하고 다시 눌러 주세요.");
     console.error("[export]",e?.name||"Error",e?.message||e);
   }finally{
     for(const [detail,wasOpen] of hiddenDepth)detail.open=wasOpen;
-    $("sheet").classList.remove("exporting");
-    btn.disabled=false;btn.textContent=previous;
+    node.classList.remove("exporting");
+    $("save-image").disabled=false;$("print").disabled=false;btn.textContent=previous;
   }
 }
 async function shareResultFile(){
-  if(!preparedFiles.length)return;
-  try{await navigator.share({files:preparedFiles,title:"나의 사주 결과"});}
-  catch(e){if(e?.name!=="AbortError")$("status").textContent="공유에 실패했어요. 다운로드 버튼이나 이미지를 길게 눌러 저장해 주세요.";}
+  if(!preparedUrl)return;
+  try{
+    const blob=await (await fetch(preparedUrl)).blob();
+    const file=new File([blob],preparedName,{type:blob.type||(preparedKind==="pdf"?"application/pdf":"image/jpeg")});
+    if(navigator.canShare&&!navigator.canShare({files:[file]}))throw new Error("unsupported");
+    await navigator.share({files:[file],title:"나의 사주 결과"});
+  }catch(e){if(e?.name!=="AbortError")$("status").textContent="공유가 지원되지 않아요. ‘다시 받기’로 저장해 주세요.";}
 }
 
 $("leap").disabled=true;
 initRegions().then(restoreTemporaryInput).then(resumeSavedJob);
-showInAppNotice();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
 
 })();

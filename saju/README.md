@@ -101,3 +101,9 @@ npm start
 - 결과와 입력값은 `REDIS_URL`(Render 무료 Key Value `saju-results`)에 24시간 보관합니다. 서버가 잠들거나 다시 시작돼도 완성된 결과는 남고, 화면을 다시 열면 이어서 보여 줍니다. 브라우저에는 결과 번호만 저장합니다.
 - 이용 횟수 제한은 없습니다. 비용 보호가 필요하면 Anthropic 콘솔의 월 지출 한도를 설정하세요.
 - 생각 양은 `SAJU_EFFORT`(기본 `low`)로 조절합니다. `medium`은 더 깊지만 약 2배 오래 걸립니다.
+
+## 결과 저장 (긴 이미지 1장 · PDF 1개)
+
+- 화면이 결과지를 장 경계에서 몇 덩어리(JPEG)로 그려 `POST /api/export?kind=jpg|pdf&sizes=…`로 올리면, 서버가 긴 JPG 1장(sharp로 세로 이어 붙임) 또는 조각마다 한 쪽인 PDF 1개로 합칩니다.
+- `GET /api/export/<id>`가 실제 파일 주소입니다(`Content-Disposition: attachment`, `?view=1`이면 브라우저에서 열기). 카카오톡 등 앱 안 브라우저는 페이지가 만든 blob 파일을 받지 못해서 이렇게 서버 주소로 내려줍니다.
+- 파일은 서버 메모리에만 15분 보관합니다.

@@ -101,31 +101,25 @@ async function main(){
   assert.equal(await page.locator("#chapter-nav").inputValue(),"saju-section-1");
   assert.equal(await page.locator("#file-ready").isVisible(),false,"no auto-download");
   assert.equal(await page.evaluate(()=>document.querySelector(".sheet").scrollHeight<=document.querySelector(".sheet").clientHeight+5),true,"content must not be cropped");
+  // 버튼 한 번 = 파일 1개 다운로드 (서버 주소로 받으므로 카카오톡 안 브라우저에서도 동작)
+  let exportPosts=0;page.on("request",r=>{if(r.url().includes("/api/export")&&r.method()==="POST")exportPosts++;});
+  const jpgDl=page.waitForEvent("download",{timeout:120000});
   await page.locator("#save-image").click();
-  await page.waitForFunction(()=>document.querySelector("#file-download")?.download?.endsWith(".png"),{timeout:90000});
-  const pngDl=page.waitForEvent("download");
-  await page.locator("#file-download").click();
-  const png=await pngDl;
-  const pngPath=await png.path();
-  const pngData=await fs.readFile(pngPath);
-  assert.equal(pngData.subarray(0,8).toString("hex"),"89504e470d0a1a0a","actual PNG signature");
-  assert.ok(pngData.length>10000,"actual PNG is nonempty");
-  // 여러 장 이미지: 모두 선명한 폭(800px 이상)이고, 휴대폰 캔버스 한도 안이며, 미리보기가 보인다
-  const pages=await page.evaluate(async()=>Promise.all([...document.querySelectorAll("#file-list a")].map(async a=>{
-    const bm=await createImageBitmap(await (await fetch(a.href)).blob());return [bm.width,bm.height];})));
-  assert.ok(pages.length>=1,"at least one image");
-  for(const [w,h] of pages){assert.ok(w>=800,"sharp width "+w);assert.ok(h<=6200&&w*h<16e6,"within phone canvas limits");}
-  assert.equal(await page.locator("#file-list img").count(),pages.length,"previews for long-press saving");
-  assert.equal(await page.locator("#inapp-warn").isVisible(),false,"no in-app warning in a normal browser");
-  console.log("MOBILE PNG SUCCESS",pngData.length);
+  const jpg=await jpgDl;
+  const jpgData=await fs.readFile(await jpg.path());
+  assert.equal(jpgData.subarray(0,3).toString("hex"),"ffd8ff","actual JPEG signature");
+  const size=await page.evaluate(async u=>{const bm=await createImageBitmap(await (await fetch(u)).blob());return [bm.width,bm.height];},await page.getAttribute("#file-download","href"));
+  assert.ok(size[0]>=500&&size[1]>size[0]*3,"one long, sharp image: "+size);
+  assert.match(await page.getAttribute("#file-download","href"),/\/api\/export\/[0-9a-f-]{36}$/,"real server address, not blob:");
+  assert.equal(await page.locator("#inapp-warn").isVisible(),false,"no in-app notice in a normal browser");
+  console.log("MOBILE JPG SUCCESS",jpgData.length,size.join("x"));
+  const pdfDl=page.waitForEvent("download",{timeout:120000});
   await page.locator("#print").click();
-  await page.waitForFunction(()=>document.querySelector("#file-download")?.download?.endsWith(".pdf"),{timeout:90000});
-  const pdfDl=page.waitForEvent("download");
-  await page.locator("#file-download").click();
   const pdf=await pdfDl;
   const pdfData=await fs.readFile(await pdf.path());
   assert.equal(pdfData.subarray(0,4).toString("ascii"),"%PDF","actual PDF signature");
   assert.ok(pdfData.length>10000,"actual PDF is nonempty");
+  assert.equal(exportPosts,2,"page images drawn once per file, one upload each");
   console.log("MOBILE PDF SUCCESS",pdfData.length);
 
   // A separate error flow must not lose birth details or direct users to a fake credit balance.
@@ -162,11 +156,21 @@ async function main(){
   // Browser console prints HTTP 402 as an error even though our test
   // intentionally simulated exactly that billing response and handled it.
   // 카카오톡 앱 안에서 열면 외부 브라우저로 여는 버튼과 안내가 보인다
-  const kakao=await browser.newPage({viewport:{width:390,height:844},isMobile:true,
+  const kakao=await browser.newPage({viewport:{width:390,height:844},isMobile:true,acceptDownloads:true,
     userAgent:"Mozilla/5.0 (Linux; Android 14; SM-S918N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36 KAKAOTALK 10.8.0"});
+  await kakao.route("https://fonts.**/**",r=>r.fulfill({status:200,body:""}));
+  await kakao.route(/\/api\/reading/,r=>r.fulfill({status:200,contentType:"application/json",body:JSON.stringify({reading})}));
   await kakao.goto("http://127.0.0.1:3000",{waitUntil:"domcontentloaded"});
+  await kakao.waitForFunction(()=>document.querySelector("#region-sido").options.length>=17);
+  await kakao.locator("#date").fill("2000-01-19");await kakao.locator("#time").fill("16:06");
+  await kakao.locator("#region-sido").selectOption("경기도");await kakao.locator("#region").selectOption({label:"이천시"});
+  await kakao.locator("#preview").click();await kakao.locator("#go").click();
+  await kakao.waitForSelector("#deep-report .saju-section");
+  await kakao.locator("#save-image").click();
+  await kakao.waitForFunction(()=>!document.querySelector("#file-ready").hidden,null,{timeout:120000});
+  assert.equal(await kakao.locator("#inapp-warn").isVisible(),true,"KakaoTalk users get the where-to-find-it note");
   assert.match(await kakao.getAttribute("#inapp-open","href"),/^kakaotalk:\/\/web\/openExternal\?url=/);
-  assert.equal(await kakao.locator("#inapp-warn").evaluate(e=>e.hidden),false,"in-app notice enabled");
+  assert.match(await kakao.getAttribute("#file-open","href"),/\/api\/export\/[0-9a-f-]{36}\?view=1$/,"open-in-new-window link for long-press save");
   await kakao.close();
   const unexpected=errs.filter(msg=>!msg.includes("status of 402 (Payment Required)")&&!msg.includes("status of 404 (Not Found)"));
   assert.equal(unexpected.length,0,JSON.stringify(unexpected));
