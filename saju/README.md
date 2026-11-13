@@ -68,6 +68,8 @@ npm start
 | `ANTHROPIC_API_KEY` | **필수** | [Anthropic Console](https://console.anthropic.com/)에서 발급한 개인 API 키 |
 | `CLAUDE_DEEP_MODEL` | `claude-opus-5-5` | 해석에 쓰는 모델 ID. 해석은 Opus 한 가지로만 받으며, 예전 `CLAUDE_MODEL`(Sonnet) 값은 무시됩니다 |
 | `OPUS_RATE_LIMIT_PER_DAY` | `2` | 서버 전체의 하루 AI 해석 횟수 상한 (비용 보호용) |
+| `REDIS_URL` | (없음) | 결과 24시간 보관용 Render Key Value 내부 주소. 없으면 메모리에만 보관 |
+| `SAJU_EFFORT` | `low` | Opus 생각 양 (`low`·`medium`·`high`) |
 | `RATE_LIMIT_PER_HOUR` | `10` | 동일 서버 인스턴스에서 IP당 시간당 요청 상한 |
 | `PORT` | `3000` | 로컬 Node 서버 포트 |
 
@@ -97,4 +99,6 @@ npm start
 - `POST /api/reading` → 해석 작업을 시작하고 작업 번호(`jobId`, 202)를 돌려줍니다. 같은 명식은 진행 중인 작업에 합류해 두 번 과금되지 않습니다.
 - `GET /api/reading?job=<jobId>` → 진행 중이면 202, 끝나면 결과(200) 또는 오류를 돌려줍니다. 화면은 5초마다 확인합니다.
 - 서버는 Anthropic 응답을 스트리밍으로 받습니다. 2분간 아무 데이터가 없거나 15분을 넘기면 중단하고, 자동 유료 재요청은 하지 않습니다.
-- 결과는 서버 메모리에 30분만 보관합니다. 서버가 다시 시작되면 진행 중이던 작업도 사라집니다.
+- 결과와 입력값은 `REDIS_URL`(Render 무료 Key Value `saju-results`)에 24시간 보관합니다. 서버가 잠들거나 다시 시작돼도 완성된 결과는 남고, 화면을 다시 열면 이어서 보여 줍니다. 브라우저에는 결과 번호만 저장합니다.
+- 하루 해석 횟수(`OPUS_RATE_LIMIT_PER_DAY`)도 저장소에서 세므로 서버가 다시 시작돼도 초기화되지 않습니다.
+- 생각 양은 `SAJU_EFFORT`(기본 `low`)로 조절합니다. `medium`은 더 깊지만 약 2배 오래 걸립니다.

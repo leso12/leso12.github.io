@@ -45,15 +45,16 @@ async function main(){
     stats:{model:"mock",inputTokens:200,outputTokens:2800}
   };
   // 서버가 작업 번호를 주고, 진행 중(202) 응답 뒤에 결과(200)를 주는 실제 흐름을 흉내 낸다
-  const jobId="11111111-2222-3333-4444-555555555555";let polls=0,posts=0;
+  const jobId="11111111-2222-3333-4444-555555555555";let polls=0,posts=0,savedForm=null;
   await page.route(/\/api\/reading(\?.*)?$/,route=>{
     const req=route.request();
-    if(req.method()==="POST"){posts++;assert.equal(JSON.parse(req.postData()).mode,undefined,"no model mode is sent");
+    if(req.method()==="POST"){posts++;const sent=JSON.parse(req.postData());assert.equal(sent.mode,undefined,"no model mode is sent");
+      savedForm=sent.form;assert.equal(savedForm.date,"2000-01-19","form snapshot sent for resume");
       return route.fulfill({status:202,contentType:"application/json",body:JSON.stringify({jobId,state:"running",elapsedSeconds:0})});}
     assert.ok(req.url().includes("job="+jobId),"status check uses the job id");
     polls++;
     if(polls<2)return route.fulfill({status:202,contentType:"application/json",body:JSON.stringify({jobId,state:"running",elapsedSeconds:5})});
-    return route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({reading,jobId})});
+    return route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({reading,jobId,form:savedForm})});
   });
   await page.locator("#go").click();
   await page.waitForFunction(()=>/경과/.test(document.querySelector("#status").textContent),{timeout:20000});
@@ -63,6 +64,16 @@ async function main(){
   assert.equal(posts,1,"one paid request");assert.ok(polls>=2,"result arrived through status checks");
   assert.equal(dialogs,1,"cost confirmation shown once");
   assert.match(await page.locator("#token-usage").textContent(),/Opus 5\.5/);
+  // 기기에는 결과 번호만 남고 생년월일은 저장되지 않는다
+  const stored=await page.evaluate(()=>localStorage.getItem("saju-last-job-v1"));
+  assert.ok(stored.includes(jobId)&&!stored.includes("2000-01-19"),"only the job id is kept on the device");
+  // 창을 닫았다가 다시 연 것처럼 새로고침하면, 입력과 결과가 저절로 돌아온다 (추가 요청·확인 창 없음)
+  await page.locator("#date").fill("1999-09-09");
+  await page.reload({waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>document.querySelectorAll("#deep-report .saju-section").length===8,null,{timeout:30000});
+  assert.equal(await page.locator("#date").inputValue(),"2000-01-19","birth date restored from the server copy");
+  assert.match(await page.locator("#status").textContent(),/지난번에 요청한 해석/);
+  assert.equal(posts,1,"reopening does not create a new paid request");assert.equal(dialogs,1);
   assert.equal(await page.locator("#reader-easy").getAttribute("aria-pressed"),"true","simple view default");
   assert.equal(await page.locator(".saju-easy").count(),12,"plain explanations on all 8+2+2 sections");
   assert.equal(await page.locator(".saju-text-more[open]").count(),0,"simple view hides jargon-rich explanations");
@@ -157,7 +168,7 @@ async function main(){
   assert.match(await kakao.getAttribute("#inapp-open","href"),/^kakaotalk:\/\/web\/openExternal\?url=/);
   assert.equal(await kakao.locator("#inapp-warn").evaluate(e=>e.hidden),false,"in-app notice enabled");
   await kakao.close();
-  const unexpected=errs.filter(msg=>!msg.includes("status of 402 (Payment Required)"));
+  const unexpected=errs.filter(msg=>!msg.includes("status of 402 (Payment Required)")&&!msg.includes("status of 404 (Not Found)"));
   assert.equal(unexpected.length,0,JSON.stringify(unexpected));
  }finally{await browser.close();}
 }

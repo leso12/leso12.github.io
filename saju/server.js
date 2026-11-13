@@ -65,7 +65,7 @@ http.createServer(async (req, res) => {
       res.writeHead(out.status, headers).end(JSON.stringify(out.json));
     };
     // 진행 상황 확인: GET /api/reading?job=<작업 번호>
-    if (req.method === "GET") { send(readingStatus(url.searchParams.get("job"))); return; }
+    if (req.method === "GET") { send(await readingStatus(url.searchParams.get("job"))); return; }
     if (req.method !== "POST") { res.writeHead(405).end(); return; }
     const contentType = String(req.headers["content-type"] || "").toLowerCase();
     if (!contentType.includes("application/json")) {
@@ -84,7 +84,7 @@ http.createServer(async (req, res) => {
     const forwarded = String(req.headers["x-forwarded-for"] || "").split(",");
     const ip = forwarded.length > 1 ? forwarded[forwarded.length - 1].trim() : (forwarded[0].trim() || req.socket.remoteAddress);
     // 생성은 서버에서 계속 진행하고, 화면은 작업 번호로 결과를 확인한다.
-    send(startReading(body, ip || "unknown"));
+    send(await startReading(body, ip || "unknown"));
     return;
   }
   // Serve the same vendored export library for local development and GitHub Pages.

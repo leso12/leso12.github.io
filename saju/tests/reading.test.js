@@ -146,6 +146,7 @@ test('Opus is the only model and the request streams without exposing the key',a
     const body=JSON.parse(init.body);
     assert.equal(body.model,process.env.CLAUDE_DEEP_MODEL||'claude-opus-5-5');
     assert.equal(body.stream,true);assert.equal(body.max_tokens,64000);
+   assert.equal(body.output_config.effort,'low','less thinking for faster readings');
     assert.equal(body.output_config.format.type,'json_schema');
     assert.ok(body.messages[0].content.includes('원국'));
     return sse(JSON.stringify(fullReading),{thinking:120});
@@ -244,20 +245,22 @@ test('job flow: start returns a job id, status reports progress then the result,
  const gate=new Promise(ok=>release=ok);
  try{
   globalThis.fetch=async()=>{count++;await gate;return sse(JSON.stringify(fullReading));};
-  const a=startReading({chart},'job-a');
+  const a=await startReading({chart,form:{date:'2000-01-19',notime:false,'region-sido':'경기도',evil:{x:1}}},'job-a');
+  assert.deepEqual(a.json.form,{date:'2000-01-19',notime:false,'region-sido':'경기도'},'form kept for resume, unknown keys dropped');
   assert.equal(a.status,202);assert.match(a.json.jobId,/^[0-9a-f-]{36}$/);
-  const dup=startReading({chart},'job-b');
+  const dup=await startReading({chart},'job-b');
   assert.equal(dup.json.jobId,a.json.jobId,'same chart joins the running job (no double charge)');
-  assert.equal(readingStatus(a.json.jobId).status,202);
+  assert.equal((await readingStatus(a.json.jobId)).status,202);
   release();
-  for(let i=0;i<50&&readingStatus(a.json.jobId).status===202;i++)await new Promise(r=>setTimeout(r,10));
-  const done=readingStatus(a.json.jobId);
+  for(let i=0;i<50&&(await readingStatus(a.json.jobId)).status===202;i++)await new Promise(r=>setTimeout(r,10));
+  const done=await readingStatus(a.json.jobId);
+  assert.equal(done.json.form.date,'2000-01-19','resume gets the form back');
   assert.equal(done.status,200);assert.equal(done.json.reading.sections.length,8);
-  const again=startReading({chart},'job-c');
+  const again=await startReading({chart},'job-c');
   assert.equal(again.status,200);assert.equal(again.json.cached,true);
   assert.equal(count,1);
-  assert.equal(readingStatus('not-a-job').json.code,'JOB_NOT_FOUND');
-  assert.equal(readingStatus('00000000-0000-0000-0000-000000000000').status,404);
+  assert.equal((await readingStatus('not-a-job')).json.code,'JOB_NOT_FOUND');
+  assert.equal((await readingStatus('00000000-0000-0000-0000-000000000000')).status,404);
  }finally{clearReadingsForTests();globalThis.fetch=prev;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
 });
 
@@ -310,4 +313,50 @@ test('prompt asks for paragraphs and per-field plain explanations of jargon',()=
  const prompt=buildPrompt(sanitize(chart),false);
  assert.ok(prompt.includes('(\\n\\n)'),'asks for blank-line paragraphs');
  for(const k of ['재생관','살인상생','각 필드','closing(마무리)'])assert.ok(prompt.includes(k),k);
+});
+
+import net from 'node:net';
+import {createStore,_test as storeTest} from '../lib/store.js';
+test('Redis protocol parser handles split, Korean and null replies',()=>{
+ const {parse,encode}=storeTest;
+ assert.equal(encode(['SET','k','한글']),'*3\r\n$3\r\nSET\r\n$1\r\nk\r\n$6\r\n한글\r\n');
+ const full=Buffer.from('$6\r\n한글\r\n');
+ assert.equal(parse(full.subarray(0,7),0),null,'incomplete reply waits');
+ assert.equal(parse(full,0).value,'한글');
+ assert.equal(parse(Buffer.from('$-1\r\n'),0).value,null);
+ assert.equal(parse(Buffer.from(':7\r\n'),0).value,7);
+ assert.ok(parse(Buffer.from('-ERR x\r\n'),0).value instanceof Error);
+});
+test('stored results survive in a Redis-compatible store (fake server)',async()=>{
+ const db=new Map();let auth=null;
+ const socks=new Set();
+ const server=net.createServer(sock=>{
+  socks.add(sock);
+  let buf=Buffer.alloc(0);
+  sock.on('data',d=>{buf=Buffer.concat([buf,d]);
+   for(;;){const r=storeTest.parse(buf,0);if(!r)break;buf=buf.subarray(r.next);const [c,...a]=r.value;
+    const C=c.toUpperCase();
+    if(C==='AUTH'){auth=a;sock.write('+OK\r\n');}
+    else if(C==='SET'){db.set(a[0],a[1]);sock.write('+OK\r\n');}
+    else if(C==='GET'){const v=db.get(a[0]);sock.write(v==null?'$-1\r\n':'$'+Buffer.byteLength(v)+'\r\n'+v+'\r\n');}
+    else if(C==='INCR'){const n=Number(db.get(a[0])||0)+1;db.set(a[0],String(n));sock.write(':'+n+'\r\n');}
+    else if(C==='EXPIRE'||C==='DEL'){sock.write(':1\r\n');}
+   }});
+ });
+ await new Promise(r=>server.listen(0,'127.0.0.1',r));
+ try{
+  const st=createStore(`redis://user:p%40ss@127.0.0.1:${server.address().port}`);
+  const big={reading:'가'.repeat(30000),n:1};
+  await st.set('job:x',big,60);
+  assert.deepEqual(await st.get('job:x'),big);
+  assert.equal(await st.get('nope'),null);
+  assert.equal(await st.incr('daily',60),1);assert.equal(await st.incr('daily',60),2);
+  assert.deepEqual(auth,['user','p@ss']);
+ }finally{for(const k of socks)k.destroy();server.close();}
+});
+test('store keeps working from memory when Redis is unreachable',async()=>{
+ const st=createStore('redis://127.0.0.1:1');
+ await st.set('k',{a:1},60);
+ assert.deepEqual(await st.get('k'),{a:1});
+ assert.equal(await st.incr('c',60),1);
 });
