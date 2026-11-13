@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
-import {sanitize,handle,startReading,readingStatus,getReading,buildPrompt,detectInterestTopics,parseReading,READING_SCHEMA,classifyAnthropicError,clearReadingsForTests} from '../lib/reading.js';
+import {sanitize,handle,startReading,readingStatus,markRunningJobsLost,getReading,buildPrompt,detectInterestTopics,parseReading,READING_SCHEMA,classifyAnthropicError,clearReadingsForTests} from '../lib/reading.js';
 
 function exampleChart(){
   const raw=readFileSync(new URL('../public/vendor/lunar.js',import.meta.url),'utf8');
@@ -359,4 +359,27 @@ test('store keeps working from memory when Redis is unreachable',async()=>{
  await st.set('k',{a:1},60);
  assert.deepEqual(await st.get('k'),{a:1});
  assert.equal(await st.incr('c',60),1);
+});
+
+test('a reading cut off by a server restart is reported quickly and retried without using the daily quota',async()=>{
+ clearReadingsForTests();
+ const old=process.env.ANTHROPIC_API_KEY,prev=globalThis.fetch;
+ process.env.ANTHROPIC_API_KEY=fakeKey;let calls=0;
+ try{
+  // 서버가 내려가기 직전: 진행 중 작업이 '중단됨'으로 기록된다
+  let hang;globalThis.fetch=async()=>{calls++;await new Promise(r=>hang=r);return sse(JSON.stringify(fullReading));};
+  const a=await startReading({chart,form:{date:'2000-01-19'}},'restart-a');
+  assert.equal(a.status,202);
+  assert.equal(await markRunningJobsLost(),1);
+  const lost=await readingStatus(a.json.jobId);
+  assert.equal(lost.status,503);assert.equal(lost.json.code,'JOB_LOST');
+  assert.equal(lost.json.form.date,'2000-01-19','reopened page can still show the inputs and the message');
+  // 다시 요청하면 새로 만들고, 하루 횟수는 늘지 않는다 (상한 2회: 다른 요청 1번 + 재요청 → 그래도 한 번 더 가능)
+  globalThis.fetch=async()=>{calls++;return sse(JSON.stringify(fullReading));};
+  const retry=await handle({chart},'restart-b');
+  assert.equal(retry.status,200,'retry after loss works');
+  const other=await handle({chart:{...chart,input:{...chart.input,worry:'재물'}}},'restart-c');
+  assert.equal(other.status,200,'the lost reading did not use up the daily quota');
+  hang?.();
+ }finally{clearReadingsForTests();globalThis.fetch=prev;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
 });

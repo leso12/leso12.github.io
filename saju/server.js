@@ -15,7 +15,13 @@ if (existsSync(join(root, ".env"))) {
     if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
   }
 }
-const { startReading,readingStatus,getClaudeKey } = await import("./lib/reading.js");
+const { startReading,readingStatus,getClaudeKey,markRunningJobsLost } = await import("./lib/reading.js");
+// 배포·재시작 때 Render가 보내는 종료 신호: 진행 중 해석을 '중단됨'으로 기록하고 끝낸다
+for (const sig of ["SIGTERM","SIGINT"]) process.once(sig, async () => {
+  const n = await markRunningJobsLost().catch(() => 0);
+  if (n) console.warn(`[shutdown] 진행 중 해석 ${n}건을 중단으로 기록`);
+  process.exit(0);
+});
 
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon" };
 const PORT = Number(process.env.PORT || 3000);

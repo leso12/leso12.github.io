@@ -340,21 +340,25 @@ function cleanForm(f){
   return out;
 }
 const RUNNING_STALE_MS=TOTAL_TIMEOUT_MS+2*60*1000;
+// 진행 중인 작업은 20초마다 '살아 있음' 표시를 남긴다. 75초 넘게 없으면 서버 재시작 등으로 끊긴 것.
+const BEAT_MS=20*1000, BEAT_LOST_MS=75*1000;
+const LOST_MESSAGE="서버가 다시 시작되면서 진행 중이던 해석이 중단됐어요. 같은 정보로 다시 'AI 해석 받기'를 눌러 주세요. 이번 재요청은 오늘 이용 횟수에서 빼지 않아요.";
+// 결과를 받지 못한 요청: 같은 정보로 다시 요청하면 하루 횟수를 다시 세지 않는다
+const UNFINISHED_CODES=new Set(["JOB_LOST","PROVIDER_TIMEOUT","PROVIDER_DISCONNECT","PROVIDER_BUSY","PROVIDER_ERROR","PROVIDER_RATE_LIMIT","INVALID_OUTPUT","OUTPUT_LIMIT"]);
 const publicError=e=>({status:e.status||500,message:e.status?e.message:"해석 중 오류가 발생했습니다. 다시 시도해 주세요.",
   code:e.code||"INTERNAL_ERROR",retryAfterSeconds:Number(e.retryAfterSeconds)||0});
 const failure=e=>{const p=publicError(e);return {status:p.status,json:{error:p.message,code:p.code,retryAfterSeconds:p.retryAfterSeconds}};};
-const record=j=>({id:j.id,key:j.key,state:j.state,started:j.started,form:j.form||null,reading:j.reading||null,error:j.error||null});
+const record=j=>({id:j.id,key:j.key,state:j.state,started:j.started,beat:j.beat||j.started,form:j.form||null,reading:j.reading||null,error:j.error||null});
 async function saveJob(j){await store.set("job:"+j.id,record(j),KEEP_SECONDS);}
 async function loadJob(id){
   if(typeof id!=="string"||!/^[0-9a-f-]{36}$/.test(id))return null;
   return jobs.get(id)||await store.get("job:"+id);
 }
+const isLost=j=>j.state==="running"&&!jobs.has(j.id)&&(Date.now()-(j.beat||j.started)>BEAT_LOST_MS||Date.now()-j.started>RUNNING_STALE_MS);
 function jobView(j,cached=false){
+  if(isLost(j))return {status:503,json:{error:LOST_MESSAGE,code:"JOB_LOST",retryAfterSeconds:0,jobId:j.id,form:j.form||null}};
   if(j.state==="done")return {status:200,json:{reading:j.reading,cached,jobId:j.id,form:j.form||null}};
   if(j.state==="error")return {status:j.error.status,json:{error:j.error.message,code:j.error.code,retryAfterSeconds:j.error.retryAfterSeconds,jobId:j.id,form:j.form||null}};
-  // 다른 서버 인스턴스(재시작 전)가 맡았다가 끊긴 작업
-  if(!jobs.has(j.id)&&Date.now()-j.started>RUNNING_STALE_MS)
-    return failure(err("서버가 다시 시작되면서 진행 중이던 해석이 중단됐어요. 같은 정보로 다시 요청해 주세요.",503,"JOB_LOST"));
   return {status:202,json:{jobId:j.id,state:"running",elapsedSeconds:Math.round((Date.now()-j.started)/1000),form:j.form||null}};
 }
 
@@ -371,10 +375,11 @@ export async function startReading(body,ip){
     const key=cacheKey(c,tight);
     // 같은 명식의 결과가 있거나 생성 중이면 그대로 돌려준다 (새로고침·재클릭으로 두 번 과금되지 않음)
     const knownId=pendingByKey.get(key)||await store.get("cache:"+key);
+    let retryOfUnfinished=false;
     if(knownId){
       const j=await loadJob(knownId);
-      if(j&&(j.state==="done"||(j.state==="running"&&(jobs.has(j.id)||Date.now()-j.started<=RUNNING_STALE_MS))))
-        return jobView(j,j.state==="done");
+      if(j&&(j.state==="done"||(j.state==="running"&&!isLost(j))))return jobView(j,j.state==="done");
+      retryOfUnfinished=!!j&&(isLost(j)||(j.state==="error"&&UNFINISHED_CODES.has(j.error?.code)));
     }
     if(lastProviderBlock && lastProviderBlock.until>Date.now()){
       const left=Math.ceil((lastProviderBlock.until-Date.now())/1000);
@@ -383,10 +388,12 @@ export async function startReading(body,ip){
     lastProviderBlock=null;
     if(pendingByKey.size>=2)throw err("다른 사주 해석이 진행 중이에요. 잠시 뒤 다시 이용해 주세요.",429,"SITE_BUSY",45);
     if(rateLimited(ip||"unknown"))throw err("사이트의 AI 해석 사용 횟수 제한에 도달했어요. 잠시 후 다시 이용해 주세요.",429,"SITE_LIMIT",3600);
-    if(await store.incr(dayKey(),36*3600)>DAY_LIMIT)throw err("오늘 사이트의 AI 해석 횟수를 모두 썼어요. 내일 다시 이용해 주세요.",429,"SITE_LIMIT",3600);
-    const job={id:randomUUID(),key,state:"running",started:Date.now(),form:cleanForm(body.form)};
+    if(!retryOfUnfinished&&await store.incr(dayKey(),36*3600)>DAY_LIMIT)throw err("오늘 사이트의 AI 해석 횟수를 모두 썼어요. 내일 다시 이용해 주세요.",429,"SITE_LIMIT",3600);
+    const job={id:randomUUID(),key,state:"running",started:Date.now(),beat:Date.now(),form:cleanForm(body.form)};
     jobs.set(job.id,job);pendingByKey.set(key,job.id);
     await saveJob(job);
+    const beat=setInterval(()=>{job.beat=Date.now();saveJob(job).catch(()=>{});},BEAT_MS);
+    beat.unref?.();
     await store.set("cache:"+key,job.id,KEEP_SECONDS);
     job.promise=getReading(body.chart,tight).then(async reading=>{
       job.state="done";job.reading=reading;
@@ -396,13 +403,21 @@ export async function startReading(body,ip){
       }
       console.error("[reading]",e.message);
       job.state="error";job.error=publicError(e);
-    }).then(()=>saveJob(job)).catch(e=>console.error("[store]",e?.message))
+    }).then(()=>{clearInterval(beat);return saveJob(job);}).catch(e=>console.error("[store]",e?.message))
       .finally(()=>{if(pendingByKey.get(key)===job.id)pendingByKey.delete(key);setTimeout(()=>jobs.delete(job.id),60000).unref?.();});
     return jobView(job);
   }catch(e){
     console.error("[reading]",e.message);
     return failure(e);
   }
+}
+
+/** 서버가 꺼지기 직전(배포·재시작): 진행 중 작업을 '중단됨'으로 바로 기록해 화면이 하염없이 기다리지 않게 한다. */
+export async function markRunningJobsLost(){
+  const running=[...jobs.values()].filter(j=>j.state==="running");
+  for(const j of running){j.state="error";j.error={status:503,message:LOST_MESSAGE,code:"JOB_LOST",retryAfterSeconds:0};}
+  await Promise.allSettled(running.map(saveJob));
+  return running.length;
 }
 
 /** 작업 상태 조회: 진행 중이면 202, 끝났으면 결과 또는 오류. */
