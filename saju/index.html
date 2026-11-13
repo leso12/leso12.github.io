@@ -1241,7 +1241,7 @@ async function fetchReading(body,signal,onWait){
   }
   return pollJob(data.jobId,signal,onWait,Date.now()-(data.elapsedSeconds||0)*1000);
 }
-const WAIT_NOTE="보통 2~4분 걸려요. 화면을 끄거나 창을 닫아도 서버에서 계속 만들어지고, 24시간 안에 이 사이트를 다시 열면 결과가 바로 떠요.";
+const WAIT_NOTE="보통 5~7분 걸려요. 화면을 끄거나 창을 닫아도 서버에서 계속 만들어지고, 24시간 안에 이 사이트를 다시 열면 결과가 바로 떠요.";
 function showWaiting(id,sec){
   if(id!==requestId)return;
   const m=Math.floor(sec/60),r=sec%60;
