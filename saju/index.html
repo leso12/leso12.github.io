@@ -1414,7 +1414,8 @@ function pageBreaks(node,maxH){
   }
   const pick=(set,lo,hi)=>{let best=-1;for(const y of set)if(y>lo&&y<=hi&&y>best)best=y;return best;};
   const breaks=[0];
-  while(total-breaks[breaks.length-1]>maxH){
+  // 마지막에 꼬리(바닥글 등)만 남는 장이 생기지 않게, 남은 높이가 한도의 1.15배 이하면 한 장으로 끝낸다
+  while(total-breaks[breaks.length-1]>maxH*1.15){
     const s=breaks[breaks.length-1];
     let y=pick(strong,s+maxH*0.55,s+maxH);
     if(y<0)y=pick(weak,s+maxH*0.4,s+maxH);

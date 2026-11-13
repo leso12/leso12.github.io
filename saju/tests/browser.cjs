@@ -103,7 +103,7 @@ async function main(){
   const pages=await page.evaluate(async()=>Promise.all([...document.querySelectorAll("#file-list a")].map(async a=>{
     const bm=await createImageBitmap(await (await fetch(a.href)).blob());return [bm.width,bm.height];})));
   assert.ok(pages.length>=1,"at least one image");
-  for(const [w,h] of pages){assert.ok(w>=800,"sharp width "+w);assert.ok(h<=6000&&w*h<16e6,"within phone canvas limits");}
+  for(const [w,h] of pages){assert.ok(w>=800,"sharp width "+w);assert.ok(h<=6200&&w*h<16e6,"within phone canvas limits");}
   assert.equal(await page.locator("#file-list img").count(),pages.length,"previews for long-press saving");
   assert.equal(await page.locator("#inapp-warn").isVisible(),false,"no in-app warning in a normal browser");
   console.log("MOBILE PNG SUCCESS",pngData.length);
