@@ -99,6 +99,13 @@ async function main(){
   const pngData=await fs.readFile(pngPath);
   assert.equal(pngData.subarray(0,8).toString("hex"),"89504e470d0a1a0a","actual PNG signature");
   assert.ok(pngData.length>10000,"actual PNG is nonempty");
+  // 여러 장 이미지: 모두 선명한 폭(800px 이상)이고, 휴대폰 캔버스 한도 안이며, 미리보기가 보인다
+  const pages=await page.evaluate(async()=>Promise.all([...document.querySelectorAll("#file-list a")].map(async a=>{
+    const bm=await createImageBitmap(await (await fetch(a.href)).blob());return [bm.width,bm.height];})));
+  assert.ok(pages.length>=1,"at least one image");
+  for(const [w,h] of pages){assert.ok(w>=800,"sharp width "+w);assert.ok(h<=6000&&w*h<16e6,"within phone canvas limits");}
+  assert.equal(await page.locator("#file-list img").count(),pages.length,"previews for long-press saving");
+  assert.equal(await page.locator("#inapp-warn").isVisible(),false,"no in-app warning in a normal browser");
   console.log("MOBILE PNG SUCCESS",pngData.length);
   await page.locator("#print").click();
   await page.waitForFunction(()=>document.querySelector("#file-download")?.download?.endsWith(".pdf"),{timeout:90000});
@@ -143,6 +150,13 @@ async function main(){
   assert.equal(await page.locator("#remember-input").isChecked(),false);
   // Browser console prints HTTP 402 as an error even though our test
   // intentionally simulated exactly that billing response and handled it.
+  // 카카오톡 앱 안에서 열면 외부 브라우저로 여는 버튼과 안내가 보인다
+  const kakao=await browser.newPage({viewport:{width:390,height:844},isMobile:true,
+    userAgent:"Mozilla/5.0 (Linux; Android 14; SM-S918N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36 KAKAOTALK 10.8.0"});
+  await kakao.goto("http://127.0.0.1:3000",{waitUntil:"domcontentloaded"});
+  assert.match(await kakao.getAttribute("#inapp-open","href"),/^kakaotalk:\/\/web\/openExternal\?url=/);
+  assert.equal(await kakao.locator("#inapp-warn").evaluate(e=>e.hidden),false,"in-app notice enabled");
+  await kakao.close();
   const unexpected=errs.filter(msg=>!msg.includes("status of 402 (Payment Required)"));
   assert.equal(unexpected.length,0,JSON.stringify(unexpected));
  }finally{await browser.close();}
