@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
-import {sanitize,handle,getReading,buildPrompt,detectInterestTopics,parseReading,READING_SCHEMA,classifyAnthropicError,clearReadingsForTests} from '../lib/reading.js';
+import {sanitize,handle,startReading,readingStatus,getReading,buildPrompt,detectInterestTopics,parseReading,READING_SCHEMA,classifyAnthropicError,clearReadingsForTests} from '../lib/reading.js';
 
 function exampleChart(){
   const raw=readFileSync(new URL('../public/vendor/lunar.js',import.meta.url),'utf8');
@@ -106,12 +106,27 @@ test('separate focus chapters preserve long explanations and chart-based timing'
 });
 
 test('new prompt asks for straightforward everyday Korean plus original detail',()=>{
- const prompt=buildPrompt(sanitize(chart),false,'standard');
+ const prompt=buildPrompt(sanitize(chart),false);
  assert.match(prompt,/일반 성인/);
  assert.match(prompt,/쉽게 말하면|생활말/);
  assert.match(prompt,/basis/);
  assert.match(prompt,/depth|깊이|기존 깊이/);
 });
+
+// Anthropic 스트리밍(SSE) 응답 흉내: 텍스트를 여러 조각으로 나눠 보낸다.
+function sse(text,{stop='end_turn',input=300,output=850,thinking=0,error=null,chunk=700}={}){
+ const events=[{type:'message_start',message:{usage:{input_tokens:input,output_tokens:1}}},
+  {type:'content_block_start',index:0,content_block:{type:'text',text:''}}];
+ for(let i=0;i<text.length;i+=chunk)events.push({type:'content_block_delta',index:0,delta:{type:'text_delta',text:text.slice(i,i+chunk)}});
+ if(error)events.push({type:'error',error});
+ else events.push({type:'content_block_stop',index:0},{type:'message_delta',delta:{stop_reason:stop},
+  usage:{output_tokens:output,output_tokens_details:{thinking_tokens:thinking}}},{type:'message_stop'});
+ const raw=events.map(e=>`event: ${e.type}\r\ndata: ${JSON.stringify(e)}\r\n\r\n`).join('');
+ const bytes=new TextEncoder().encode(raw);
+ // 바이트 경계가 이벤트·한글 중간에서 잘려도 올바르게 읽는지 확인하려고 37바이트씩 보낸다
+ const body=new ReadableStream({start(c){for(let i=0;i<bytes.length;i+=37)c.enqueue(bytes.slice(i,i+37));c.close();}});
+ return {ok:true,status:200,headers:{get:()=>null},body};
+}
 
 test('API is not invoked when key is not set',async()=>{
  const old=process.env.ANTHROPIC_API_KEY;
@@ -119,7 +134,8 @@ test('API is not invoked when key is not set',async()=>{
  try{const r=await handle({chart},'test-key-absent');assert.equal(r.status,503);}
  finally{if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
 });
-test('standard model sends structured saju request without exposing key in body',async()=>{
+test('Opus is the only model and the request streams without exposing the key',async()=>{
+ clearReadingsForTests();
  const old=process.env.ANTHROPIC_API_KEY,prev=globalThis.fetch;
  process.env.ANTHROPIC_API_KEY=fakeKey;let count=0;
  try{
@@ -128,14 +144,18 @@ test('standard model sends structured saju request without exposing key in body'
     assert.equal(init.headers.authorization,'Bearer '+fakeKey);
     assert.equal(JSON.stringify(init.body).includes(fakeKey),false);
     const body=JSON.parse(init.body);
-    assert.equal(body.model,process.env.CLAUDE_MODEL||'claude-sonnet-5-5');
+    assert.equal(body.model,process.env.CLAUDE_DEEP_MODEL||'claude-opus-5-5');
+    assert.equal(body.stream,true);assert.equal(body.max_tokens,64000);
     assert.equal(body.output_config.format.type,'json_schema');
     assert.ok(body.messages[0].content.includes('원국'));
-    return {ok:true,json:async()=>({stop_reason:'end_turn',usage:{input_tokens:300,output_tokens:850},
-      content:[{type:'text',text:JSON.stringify(fullReading)}]})};
+    return sse(JSON.stringify(fullReading),{thinking:120});
    };
-   const r=await handle({chart},'standard-mock-test');
+   // 예전 화면이 mode:'standard'를 보내도 Opus로 처리된다
+   const r=await handle({chart,mode:'standard'},'standard-mock-test');
    assert.equal(r.status,200);assert.equal(r.json.reading.sections.length,8);
+   assert.equal(r.json.reading.stats.model,'claude-opus-5-5');
+   assert.equal(r.json.reading.stats.inputTokens,300);assert.equal(r.json.reading.stats.outputTokens,850);
+   assert.equal(r.json.reading.stats.thinkingTokens,120);
    assert.equal(count,1);
  }finally{globalThis.fetch=prev;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
 });
@@ -146,11 +166,10 @@ test('complete structured output at Opus budget boundary is not discarded',async
   globalThis.fetch=async(_url,init)=>{
    count++;const body=JSON.parse(init.body);
    assert.equal(body.model,process.env.CLAUDE_DEEP_MODEL||'claude-opus-5-5');
-   assert.equal(body.max_tokens,32000);
-   return {ok:true,json:async()=>({stop_reason:'max_tokens',usage:{input_tokens:400,output_tokens:18000},
-     content:[{type:'text',text:JSON.stringify(fullReading)}]})};
+   assert.equal(body.max_tokens,64000);
+   return sse(JSON.stringify(fullReading),{stop:'max_tokens',input:400,output:64000});
   };
-  const r=await getReading(chart,false,'deep');
+  const r=await getReading(chart,false);
   assert.equal(r.sections.length,8);assert.equal(count,1);
  }finally{globalThis.fetch=prev;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
 });
@@ -158,9 +177,8 @@ test('incomplete Opus does not silently retry a paid call',async()=>{
  const old=process.env.ANTHROPIC_API_KEY,prev=globalThis.fetch;
  process.env.ANTHROPIC_API_KEY=fakeKey;let count=0;
  try{
-  globalThis.fetch=async()=>{count++;return {ok:true,json:async()=>({
-   stop_reason:'max_tokens',usage:{output_tokens:18000},content:[{type:'text',text:'{"intro":"incomplete"}'}]})};};
-  await assert.rejects(()=>getReading(chart,false,'deep'),/추가 유료 요청/);
+  globalThis.fetch=async()=>{count++;return sse('{"intro":"incomplete"',{stop:'max_tokens',output:64000});};
+  await assert.rejects(()=>getReading(chart,false),/추가 유료 요청/);
   assert.equal(count,1);
  }finally{globalThis.fetch=prev;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
 });
@@ -213,8 +231,68 @@ test('extended chart facts (12운성, 공망, 형파해, 향후 세운) reach th
  const c=sanitize(rich);
  assert.equal(c.pillars[0].us,'제왕');assert.equal(c.kong,'戌亥');assert.equal(c.seunNext.length,2);
  assert.equal(c.sect,1);assert.equal(c.warnings.length,1);
- const prompt=buildPrompt(c,false,'standard');
- for(const k of ['무은지형','戌亥','丁未','12운성','boundaryWarnings','다음 대운','sections 9~10개'])assert.ok(prompt.includes(k),k);
+ const prompt=buildPrompt(c,false);
+ for(const k of ['무은지형','戌亥','丁未','12운성','boundaryWarnings','다음 대운','sections 10~11개'])assert.ok(prompt.includes(k),k);
  assert.equal(sanitize({...chart,kong:'XX'}).kong,'');
  assert.equal(sanitize({...chart,seunNext:[{year:2027,gz:'甲丑'}]}).seunNext.length,0);
+});
+
+test('job flow: start returns a job id, status reports progress then the result, duplicates join the same job',async()=>{
+ clearReadingsForTests();
+ const old=process.env.ANTHROPIC_API_KEY,prev=globalThis.fetch;
+ process.env.ANTHROPIC_API_KEY=fakeKey;let count=0,release;
+ const gate=new Promise(ok=>release=ok);
+ try{
+  globalThis.fetch=async()=>{count++;await gate;return sse(JSON.stringify(fullReading));};
+  const a=startReading({chart},'job-a');
+  assert.equal(a.status,202);assert.match(a.json.jobId,/^[0-9a-f-]{36}$/);
+  const dup=startReading({chart},'job-b');
+  assert.equal(dup.json.jobId,a.json.jobId,'same chart joins the running job (no double charge)');
+  assert.equal(readingStatus(a.json.jobId).status,202);
+  release();
+  for(let i=0;i<50&&readingStatus(a.json.jobId).status===202;i++)await new Promise(r=>setTimeout(r,10));
+  const done=readingStatus(a.json.jobId);
+  assert.equal(done.status,200);assert.equal(done.json.reading.sections.length,8);
+  const again=startReading({chart},'job-c');
+  assert.equal(again.status,200);assert.equal(again.json.cached,true);
+  assert.equal(count,1);
+  assert.equal(readingStatus('not-a-job').json.code,'JOB_NOT_FOUND');
+  assert.equal(readingStatus('00000000-0000-0000-0000-000000000000').status,404);
+ }finally{clearReadingsForTests();globalThis.fetch=prev;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
+});
+
+test('mid-stream overload becomes a friendly busy error without leaking provider text',async()=>{
+ clearReadingsForTests();
+ const old=process.env.ANTHROPIC_API_KEY,prev=globalThis.fetch;
+ process.env.ANTHROPIC_API_KEY=fakeKey;
+ try{
+  globalThis.fetch=async()=>sse('{"intro":"부분',{error:{type:'overloaded_error',message:'secret upstream detail'}});
+  const r=await handle({chart},'overload-test');
+  assert.equal(r.status,503);assert.equal(r.json.code,'PROVIDER_BUSY');
+  assert.ok(!JSON.stringify(r.json).includes('secret'));
+ }finally{clearReadingsForTests();globalThis.fetch=prev;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
+});
+
+test('a dropped connection mid-stream is reported, not retried',async()=>{
+ clearReadingsForTests();
+ const old=process.env.ANTHROPIC_API_KEY,prev=globalThis.fetch;
+ process.env.ANTHROPIC_API_KEY=fakeKey;let count=0;
+ try{
+  globalThis.fetch=async()=>{count++;return {ok:true,status:200,headers:{get:()=>null},body:new ReadableStream({
+   start(c){c.enqueue(new TextEncoder().encode('event: message_start\ndata: {"type":"message_start","message":{"usage":{"input_tokens":5}}}\n\n'));c.error(new TypeError('terminated'));}})};};
+  const r=await handle({chart},'drop-test');
+  assert.equal(r.json.code,'PROVIDER_DISCONNECT');assert.equal(count,1);
+ }finally{clearReadingsForTests();globalThis.fetch=prev;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
+});
+
+test('daily Opus limit applies to every reading',async()=>{
+ clearReadingsForTests();
+ const old=process.env.ANTHROPIC_API_KEY,prev=globalThis.fetch;
+ process.env.ANTHROPIC_API_KEY=fakeKey;
+ try{
+  globalThis.fetch=async()=>sse(JSON.stringify(fullReading));
+  const codes=[];
+  for(const w of ['연애','직업','재물'])codes.push((await handle({chart:{...chart,input:{...chart.input,worry:w}}},'limit-'+w)).json.code||'OK');
+  assert.deepEqual(codes,['OK','OK','SITE_LIMIT']);
+ }finally{clearReadingsForTests();globalThis.fetch=prev;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
 });

@@ -59,14 +59,15 @@ npm start
 4. **Settings → Environment Variables**에 `ANTHROPIC_API_KEY`를 입력하고 Production(필요하면 Preview도) 환경에 적용합니다. `.env` 내용 자체를 Vercel에 업로드할 필요는 없습니다.
 5. Deploy 후 `https://프로젝트명.vercel.app`에 접속해 실제 동작을 점검합니다. 환경 변수를 추가·수정했다면 **Redeploy**가 필요할 수 있습니다.
 
-`api/reading.js`는 서버 함수로 실행됩니다. **GitHub Pages 같은 정적 호스팅만으로는 Claude 호출이 작동하지 않습니다.** Anthropic API에 접근할 수 있는 Node 서버 또는 서버리스 함수가 필요합니다.
+`api/reading.js`는 서버 함수로 실행됩니다. (현재 운영은 Render의 `server.js`이며, 해석 생성에 4~8분이 걸려 60초 제한이 있는 Vercel 함수로는 끝까지 받기 어렵습니다.) **GitHub Pages 같은 정적 호스팅만으로는 Claude 호출이 작동하지 않습니다.** Anthropic API에 접근할 수 있는 Node 서버 또는 서버리스 함수가 필요합니다.
 
 ## 환경 변수
 
 | 변수 | 기본값 | 설명 |
 | --- | --- | --- |
 | `ANTHROPIC_API_KEY` | **필수** | [Anthropic Console](https://console.anthropic.com/)에서 발급한 개인 API 키 |
-| `CLAUDE_MODEL` | `claude-sonnet-5-5` | 서버에서 사용할 Claude 모델 ID. 계정 권한에 따라 변경 가능 |
+| `CLAUDE_DEEP_MODEL` | `claude-opus-5-5` | 해석에 쓰는 모델 ID. 해석은 Opus 한 가지로만 받으며, 예전 `CLAUDE_MODEL`(Sonnet) 값은 무시됩니다 |
+| `OPUS_RATE_LIMIT_PER_DAY` | `2` | 서버 전체의 하루 AI 해석 횟수 상한 (비용 보호용) |
 | `RATE_LIMIT_PER_HOUR` | `10` | 동일 서버 인스턴스에서 IP당 시간당 요청 상한 |
 | `PORT` | `3000` | 로컬 Node 서버 포트 |
 
@@ -90,3 +91,10 @@ npm start
 ## 검증 범위
 
 `npm test`는 명식 입력 검증, 잘못된 날짜/명식 거절, 구조화 출력 파싱, 키 누락, 모의 Anthropic HTTP 요청을 검증합니다. 실제 Anthropic API 호출과 Vercel 실배포는 소유자의 API 키/계정이 없으므로 여기서 수행하지 않았습니다.
+
+## AI 해석 처리 방식
+
+- `POST /api/reading` → 해석 작업을 시작하고 작업 번호(`jobId`, 202)를 돌려줍니다. 같은 명식은 진행 중인 작업에 합류해 두 번 과금되지 않습니다.
+- `GET /api/reading?job=<jobId>` → 진행 중이면 202, 끝나면 결과(200) 또는 오류를 돌려줍니다. 화면은 5초마다 확인합니다.
+- 서버는 Anthropic 응답을 스트리밍으로 받습니다. 2분간 아무 데이터가 없거나 15분을 넘기면 중단하고, 자동 유료 재요청은 하지 않습니다.
+- 결과는 서버 메모리에 30분만 보관합니다. 서버가 다시 시작되면 진행 중이던 작업도 사라집니다.

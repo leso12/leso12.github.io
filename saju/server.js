@@ -15,7 +15,7 @@ if (existsSync(join(root, ".env"))) {
     if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
   }
 }
-const { handle,getClaudeKey } = await import("./lib/reading.js");
+const { startReading,readingStatus,getClaudeKey } = await import("./lib/reading.js");
 
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon" };
 const PORT = Number(process.env.PORT || 3000);
@@ -54,11 +54,18 @@ http.createServer(async (req, res) => {
     if (origin) {
       res.setHeader("Access-Control-Allow-Origin", origin);
       res.setHeader("Vary", "Origin");
-      res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+      res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
       res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     }
     res.setHeader("Cache-Control", "no-store");
     if (req.method === "OPTIONS") { res.writeHead(204).end(); return; }
+    const send=(out)=>{
+      const headers={ "content-type": "application/json; charset=utf-8", "cache-control": "no-store" };
+      if(out.json?.retryAfterSeconds>0)headers["retry-after"]=String(Math.floor(out.json.retryAfterSeconds));
+      res.writeHead(out.status, headers).end(JSON.stringify(out.json));
+    };
+    // 진행 상황 확인: GET /api/reading?job=<작업 번호>
+    if (req.method === "GET") { send(readingStatus(url.searchParams.get("job"))); return; }
     if (req.method !== "POST") { res.writeHead(405).end(); return; }
     const contentType = String(req.headers["content-type"] || "").toLowerCase();
     if (!contentType.includes("application/json")) {
@@ -76,10 +83,8 @@ http.createServer(async (req, res) => {
     let body = null; try { body = JSON.parse(raw); } catch {}
     const forwarded = String(req.headers["x-forwarded-for"] || "").split(",");
     const ip = forwarded.length > 1 ? forwarded[forwarded.length - 1].trim() : (forwarded[0].trim() || req.socket.remoteAddress);
-    const out = await handle(body, ip || "unknown");
-    const headers={ "content-type": "application/json; charset=utf-8", "cache-control": "no-store" };
-    if(out.json?.retryAfterSeconds>0)headers["retry-after"]=String(Math.floor(out.json.retryAfterSeconds));
-    res.writeHead(out.status, headers).end(JSON.stringify(out.json));
+    // 생성은 서버에서 계속 진행하고, 화면은 작업 번호로 결과를 확인한다.
+    send(startReading(body, ip || "unknown"));
     return;
   }
   // Serve the same vendored export library for local development and GitHub Pages.
