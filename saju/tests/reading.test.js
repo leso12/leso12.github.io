@@ -296,3 +296,18 @@ test('daily Opus limit applies to every reading',async()=>{
   assert.deepEqual(codes,['OK','OK','SITE_LIMIT']);
  }finally{clearReadingsForTests();globalThis.fetch=prev;if(old)process.env.ANTHROPIC_API_KEY=old;else delete process.env.ANTHROPIC_API_KEY;}
 });
+
+test('paragraph breaks in long text survive sanitizing (no more wall of text)',()=>{
+ const body='첫 문단입니다.\r\n\r\n\r\n둘째 문단입니다.\u0007끝';
+ const r=parseReading(JSON.stringify({...fullReading,intro:'들어가며\n\n둘째',closing:'정리\n\n끝',
+  sections:fullReading.sections.map(s=>({...s,body}))}));
+ assert.equal(r.sections[0].body,'첫 문단입니다.\n\n둘째 문단입니다. 끝');
+ assert.equal(r.intro,'들어가며\n\n둘째');assert.equal(r.closing,'정리\n\n끝');
+ assert.equal(r.sections[0].title.includes('\n'),false);
+});
+
+test('prompt asks for paragraphs and per-field plain explanations of jargon',()=>{
+ const prompt=buildPrompt(sanitize(chart),false);
+ assert.ok(prompt.includes('(\\n\\n)'),'asks for blank-line paragraphs');
+ for(const k of ['재생관','살인상생','각 필드','closing(마무리)'])assert.ok(prompt.includes(k),k);
+});
