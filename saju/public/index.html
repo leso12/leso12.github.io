@@ -694,7 +694,8 @@ function syncDistrict(){
 }
 async function initRegions(){
  try{
-   const res=await fetch("./regions.json",{cache:"force-cache"});
+   // 지역 목록을 고치면 ?v= 값을 바꿔 예전 목록이 브라우저에 남지 않게 한다
+   const res=await fetch("./regions.json?v=20261001",{cache:"no-cache"});
    if(!res.ok)throw Error("지역 응답 오류");
    const raw=await res.json();
    if(!raw.regions||Object.keys(raw.regions).length<15)throw Error("지역 데이터 부족");
@@ -1128,7 +1129,14 @@ function applyForm(f){
   }
   if(typeof f["region-sido"]==="string")$("region-sido").value=f["region-sido"];
   syncDistrict();
-  if(typeof f.region==="string")$("region").value=f.region;
+  if(typeof f.region==="string"){
+    $("region").value=f.region;
+    // 지역 목록이 바뀌어 예전에 고른 값이 없으면, 그 경도 그대로 선택지를 만들어 둔다
+    if($("region").value!==f.region&&/^\d{3}(\.\d+)?$/.test(f.region)){
+      $("region").add(new Option(`이전에 고른 지역 (경도 ${f.region})`,f.region),$("region").options.length-1);
+      $("region").value=f.region;
+    }
+  }
   syncManual();
   $("time").disabled=$("notime").checked;
   $("leap").disabled=!$("cal-lunar").checked;
